@@ -38,7 +38,8 @@
         #header h1 .separator { color: #d4c08a; margin: 0 8px; font-weight: 300; }
         #header-actions { display: flex; gap: 10px; align-items: center; }
         #header-actions span { font-size: 11px; color: #555; }
-        #header-actions .admin-link {
+
+        .admin-toggle {
             color: #d4c08a;
             text-decoration: none;
             font-size: 12px;
@@ -46,8 +47,10 @@
             border: 1px solid #d4c08a40;
             border-radius: 16px;
             transition: 0.3s;
+            cursor: pointer;
+            background: none;
         }
-        #header-actions .admin-link:hover {
+        .admin-toggle:hover {
             background: #d4c08a20;
             border-color: #d4c08a;
         }
@@ -224,6 +227,170 @@
             #header h1 .title-en { display: none; }
             #header h1 .separator { display: none; }
         }
+
+        /* ===== АДМИН-ПАНЕЛЬ (всплывающая) ===== */
+        .admin-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(12px);
+            z-index: 10000;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .admin-overlay.active { display: flex; }
+
+        .admin-box {
+            background: #161624;
+            padding: 40px;
+            border-radius: 20px;
+            border: 1px solid #2e2e48;
+            width: 420px;
+            max-width: 92%;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.9);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .admin-box h2 {
+            color: #f0e8c8;
+            font-size: 22px;
+            font-weight: 300;
+            text-align: center;
+            margin-bottom: 4px;
+        }
+        .admin-box .subtitle {
+            color: #666;
+            font-size: 13px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .admin-box .form-group { margin-bottom: 14px; }
+        .admin-box .form-group label {
+            display: block;
+            font-size: 11px;
+            color: #888;
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .admin-box .form-group input,
+        .admin-box .form-group textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border-radius: 8px;
+            border: 1px solid #2a2a40;
+            background: #0a0a12;
+            color: #eee;
+            font-size: 14px;
+            outline: none;
+        }
+        .admin-box .form-group input:focus,
+        .admin-box .form-group textarea:focus { border-color: #d4c08a; }
+        .admin-box .form-group textarea { resize: vertical; min-height: 60px; font-family: inherit; }
+
+        .admin-box .btn {
+            padding: 10px 24px;
+            border-radius: 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+        .admin-box .btn-primary { background: #d4c08a; color: #0a0a12; }
+        .admin-box .btn-primary:hover { background: #e8d4a0; }
+        .admin-box .btn-danger { background: #ff5555; color: #fff; }
+        .admin-box .btn-danger:hover { background: #ff7777; }
+        .admin-box .btn-secondary { background: rgba(255,255,255,0.06); color: #ccc; border: 1px solid #3a3a50; }
+        .admin-box .btn-secondary:hover { background: rgba(255,255,255,0.12); }
+        .admin-box .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
+        .admin-box .admin-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 28px;
+            color: #666;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        .admin-box .admin-close:hover { color: #fff; transform: rotate(90deg); }
+        .admin-box .error-msg { color: #ff5555; font-size: 13px; text-align: center; margin-top: 10px; display: none; }
+
+        .admin-box .photo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 8px;
+            margin: 10px 0;
+        }
+        .admin-box .photo-grid .photo-item {
+            position: relative;
+            border-radius: 6px;
+            overflow: hidden;
+            background: #0a0a12;
+            border: 1px solid #2a2a40;
+            aspect-ratio: 1;
+        }
+        .admin-box .photo-grid .photo-item img { width: 100%; height: 100%; object-fit: cover; }
+        .admin-box .photo-grid .photo-item .photo-caption {
+            padding: 3px 6px;
+            font-size: 10px;
+            color: #aaa;
+            background: rgba(15,15,26,0.9);
+            border-top: 1px solid #1e1e30;
+            min-height: 20px;
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+        }
+        .admin-box .photo-grid .photo-item .photo-del {
+            position: absolute; top: 2px; right: 2px;
+            background: rgba(0,0,0,0.7); border: none;
+            color: #ff5555; border-radius: 50%;
+            width: 20px; height: 20px; font-size: 11px;
+            cursor: pointer; display: none; z-index: 2;
+        }
+        .admin-box .photo-grid .photo-item:hover .photo-del { display: flex; align-items: center; justify-content: center; }
+
+        .admin-box .file-upload-area {
+            border: 2px dashed #3a3a50;
+            border-radius: 8px;
+            padding: 16px;
+            text-align: center;
+            color: #666;
+            cursor: pointer;
+            transition: 0.2s;
+            margin: 10px 0;
+            font-size: 13px;
+        }
+        .admin-box .file-upload-area:hover { border-color: #d4c08a; color: #aaa; }
+        .admin-box .file-upload-area input[type="file"] { display: none; }
+
+        .admin-box .admin-list {
+            list-style: none;
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 8px 0;
+        }
+        .admin-box .admin-list li {
+            background: rgba(22,22,34,0.8);
+            padding: 6px 10px;
+            border-radius: 4px;
+            border-left: 2px solid #d4c08a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+        .admin-box .admin-list li .loc-actions button {
+            background: none; border: none; color: #666; cursor: pointer; font-size: 13px; padding: 0 4px;
+        }
+        .admin-box .admin-list li .loc-actions .del:hover { color: #ff5555; }
+        .admin-box .admin-list li .loc-actions .edit:hover { color: #d4c08a; }
     </style>
 </head>
 <body>
@@ -235,7 +402,7 @@
         </h1>
         <div id="header-actions">
             <span id="sync-status">⏳ Загрузка...</span>
-            <a href="a7k9x2m4.html" class="admin-link">Админ-панель</a>
+            <button class="admin-toggle" id="admin-toggle-btn">Админ-панель</button>
         </div>
     </div>
 
@@ -262,6 +429,73 @@
         </div>
     </div>
 
+    <!-- ===== АДМИН-ПАНЕЛЬ (всплывающая) ===== -->
+    <div class="admin-overlay" id="admin-overlay">
+        <div class="admin-box" style="position:relative;">
+            <button class="admin-close" id="admin-close-btn">✕</button>
+
+            <div id="admin-login">
+                <h2>Вход в админ-панель</h2>
+                <p class="subtitle">Введите email и пароль администратора</p>
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" id="admin-email" placeholder="tsumimak21@gmail.com">
+                </div>
+                <div class="form-group">
+                    <label>Пароль</label>
+                    <input type="password" id="admin-password" placeholder="Введите пароль">
+                </div>
+                <button class="btn btn-primary" id="admin-login-btn" style="width:100%;">Войти</button>
+                <div class="error-msg" id="admin-login-error">Неверный email или пароль</div>
+            </div>
+
+            <div id="admin-panel-content" style="display:none;">
+                <h2>Админ-панель</h2>
+                <p class="subtitle">Управление локациями</p>
+
+                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
+                    <button class="btn btn-primary" id="admin-add-location">Добавить локацию</button>
+                    <button class="btn btn-secondary" id="admin-save-all">Сохранить всё</button>
+                    <button class="btn btn-danger" id="admin-logout">Выйти</button>
+                    <span id="admin-sync-status" style="font-size:11px;color:#555;margin-left:auto;align-self:center;">⏳ Загрузка...</span>
+                </div>
+
+                <div class="form-group">
+                    <label>Название</label>
+                    <input id="admin-location-name" placeholder="Название локации">
+                </div>
+                <div class="form-group">
+                    <label>Описание</label>
+                    <textarea id="admin-location-desc" placeholder="Описание локации"></textarea>
+                </div>
+
+                <div id="admin-photos-section">
+                    <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Фотографии</label>
+                    <div class="photo-grid" id="admin-photos-grid"></div>
+                    <div class="file-upload-area" id="admin-file-upload">
+                        Нажмите, чтобы добавить фотографии
+                        <input type="file" id="admin-file-input" accept="image/*" multiple>
+                    </div>
+                    <div class="form-group" style="margin-top:6px;">
+                        <label>Подпись для новых фото</label>
+                        <input id="admin-caption-input" placeholder="Общая подпись">
+                    </div>
+                </div>
+
+                <div class="btn-group">
+                    <button class="btn btn-primary" id="admin-save-location">Сохранить</button>
+                    <button class="btn btn-secondary" id="admin-cancel-edit">Отмена</button>
+                    <button class="btn btn-danger" id="admin-delete-location" style="margin-left:auto;">Удалить локацию</button>
+                </div>
+
+                <hr style="border-color:#1e1e30; margin:16px 0;">
+
+                <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Все локации</label>
+                <ul class="admin-list" id="admin-location-list"></ul>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // ============================================================
@@ -280,9 +514,12 @@
         let imageOverlay = null;
         let markerMap = new Map();
         let currentModalId = null;
+        let editingId = null;
+        let isAdmin = false;
+        let selectedFiles = [];
 
         // ============================================================
-        //  ЗАГРУЗКА ДАННЫХ
+        //  ЗАГРУЗКА ДАННЫХ (ПУБЛИЧНАЯ)
         // ============================================================
         async function loadLocations() {
             try {
@@ -342,7 +579,7 @@
         }
 
         // ============================================================
-        //  ОТРИСОВКА
+        //  ОТРИСОВКА (ПУБЛИЧНАЯ)
         // ============================================================
         function renderLocations() {
             const list = document.getElementById('location-list');
@@ -389,9 +626,6 @@
             });
         }
 
-        // ============================================================
-        //  НАВИГАЦИЯ
-        // ============================================================
         function flyToLocation(id) {
             const loc = locations.find(l => l.id === id);
             if (!loc || !mapInstance) return;
@@ -522,6 +756,360 @@
                 else if (e.key === 'ArrowLeft') overlay.querySelector('.prev')?.click();
                 else if (e.key === 'ArrowRight') overlay.querySelector('.next')?.click();
             }, { once: true });
+        }
+
+        // ============================================================
+        //  АДМИН-ПАНЕЛЬ (всплывающая)
+        // ============================================================
+        const adminOverlay = document.getElementById('admin-overlay');
+        const adminToggleBtn = document.getElementById('admin-toggle-btn');
+        const adminCloseBtn = document.getElementById('admin-close-btn');
+
+        adminToggleBtn.addEventListener('click', () => {
+            adminOverlay.classList.toggle('active');
+            if (adminOverlay.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+                checkAdminAuth();
+            } else {
+                document.body.style.overflow = '';
+            }
+        });
+
+        adminCloseBtn.addEventListener('click', () => {
+            adminOverlay.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+
+        adminOverlay.addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                adminOverlay.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // ============================================================
+        //  АДМИН-АВТОРИЗАЦИЯ
+        // ============================================================
+        async function checkAdminAuth() {
+            const { data: { session } } = await supabaseClient.auth.getSession();
+            if (session) {
+                isAdmin = true;
+                showAdminPanel();
+            } else {
+                showAdminLogin();
+            }
+        }
+
+        function showAdminLogin() {
+            document.getElementById('admin-login').style.display = 'block';
+            document.getElementById('admin-panel-content').style.display = 'none';
+            document.getElementById('admin-login-error').style.display = 'none';
+        }
+
+        function showAdminPanel() {
+            document.getElementById('admin-login').style.display = 'none';
+            document.getElementById('admin-panel-content').style.display = 'block';
+            loadAdminLocations();
+        }
+
+        document.getElementById('admin-login-btn').addEventListener('click', async function() {
+            const email = document.getElementById('admin-email').value.trim();
+            const password = document.getElementById('admin-password').value;
+            const errorEl = document.getElementById('admin-login-error');
+
+            if (!email || !password) {
+                errorEl.textContent = 'Заполните email и пароль';
+                errorEl.style.display = 'block';
+                return;
+            }
+
+            try {
+                const { data, error } = await supabaseClient.auth.signInWithPassword({
+                    email: email,
+                    password: password
+                });
+
+                if (error) {
+                    errorEl.textContent = 'Неверный email или пароль';
+                    errorEl.style.display = 'block';
+                    return;
+                }
+
+                errorEl.style.display = 'none';
+                isAdmin = true;
+                showAdminPanel();
+            } catch (e) {
+                errorEl.textContent = 'Ошибка входа';
+                errorEl.style.display = 'block';
+            }
+        });
+
+        document.getElementById('admin-password').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') document.getElementById('admin-login-btn').click();
+        });
+        document.getElementById('admin-email').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') document.getElementById('admin-login-btn').click();
+        });
+
+        document.getElementById('admin-logout').addEventListener('click', async function() {
+            await supabaseClient.auth.signOut();
+            isAdmin = false;
+            showAdminLogin();
+            document.getElementById('admin-login').style.display = 'block';
+            document.getElementById('admin-panel-content').style.display = 'none';
+        });
+
+        // ============================================================
+        //  АДМИН-УПРАВЛЕНИЕ ЛОКАЦИЯМИ
+        // ============================================================
+        let adminEditingId = null;
+
+        async function loadAdminLocations() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('locations')
+                    .select('*')
+                    .order('id', { ascending: true });
+
+                if (error) throw error;
+                locations = data || [];
+                renderAdminList();
+                renderMarkers();
+                renderLocations();
+                document.getElementById('admin-sync-status').textContent = '✅ Синхронизировано';
+                document.getElementById('admin-sync-status').style.color = '#4caf50';
+            } catch (e) {
+                console.error('Ошибка загрузки:', e);
+                document.getElementById('admin-sync-status').textContent = '⚠️ Ошибка загрузки';
+                document.getElementById('admin-sync-status').style.color = '#ff5555';
+            }
+        }
+
+        function renderAdminList() {
+            const list = document.getElementById('admin-location-list');
+            if (!locations || locations.length === 0) {
+                list.innerHTML = '<li style="color:#444;font-style:italic;padding:10px;border:none;">Нет локаций</li>';
+                return;
+            }
+            let html = '';
+            locations.forEach(loc => {
+                const count = loc.photos ? loc.photos.length : 0;
+                html += `
+                    <li>
+                        <span>${loc.name} <span style="color:#666;font-size:11px;">(${count})</span></span>
+                        <div class="loc-actions">
+                            <button class="edit" onclick="adminEditLocation(${loc.id})">✎</button>
+                            <button class="del" onclick="adminDeleteLocation(${loc.id})">✕</button>
+                        </div>
+                    </li>
+                `;
+            });
+            list.innerHTML = html;
+        }
+
+        document.getElementById('admin-add-location').addEventListener('click', function() {
+            if (!mapInstance) return;
+            mapInstance.setView([0, 0], 1.5);
+            alert('Кликните по карте, чтобы добавить новую локацию.');
+            // Добавляем обработчик клика по карте
+            mapInstance.once('click', async function(e) {
+                const lat = e.latlng.lat.toFixed(3);
+                const lng = e.latlng.lng.toFixed(3);
+                const name = prompt('Название новой локации:');
+                if (!name) return;
+                const desc = prompt('Описание:');
+                if (!desc) return;
+                await adminCreateLocation(parseFloat(lat), parseFloat(lng), name, desc);
+            });
+        });
+
+        async function adminCreateLocation(lat, lng, name, desc) {
+            const newLoc = {
+                id: Date.now(),
+                lat: parseFloat(lat),
+                lng: parseFloat(lng),
+                name: name.trim(),
+                description: desc.trim() || 'Описание отсутствует',
+                photos: []
+            };
+            locations.push(newLoc);
+            await saveAllAdmin();
+            renderAdminList();
+            renderMarkers();
+            renderLocations();
+            alert('Локация "' + name + '" добавлена!');
+        }
+
+        function adminEditLocation(id) {
+            const loc = locations.find(l => l.id === id);
+            if (!loc) return;
+            adminEditingId = id;
+
+            document.getElementById('admin-location-name').value = loc.name;
+            document.getElementById('admin-location-desc').value = loc.description || '';
+
+            const grid = document.getElementById('admin-photos-grid');
+            grid.innerHTML = '';
+            if (loc.photos && loc.photos.length > 0) {
+                loc.photos.forEach((photo, idx) => {
+                    const div = document.createElement('div');
+                    div.className = 'photo-item';
+                    const url = typeof photo === 'object' && photo.url ? photo.url : photo;
+                    const cap = typeof photo === 'object' && photo.caption ? photo.caption : '';
+                    div.innerHTML = `
+                        <img src="${url}" loading="lazy">
+                        <div class="photo-caption">${cap || 'Без подписи'}</div>
+                        <button class="photo-del" onclick="adminDeletePhoto(${id}, ${idx})">✕</button>
+                    `;
+                    grid.appendChild(div);
+                });
+            }
+        }
+
+        document.getElementById('admin-save-location').addEventListener('click', async function() {
+            if (adminEditingId === null) {
+                alert('Сначала выберите локацию для редактирования.');
+                return;
+            }
+            const loc = locations.find(l => l.id === adminEditingId);
+            if (!loc) return;
+
+            loc.name = document.getElementById('admin-location-name').value.trim() || 'Без названия';
+            loc.description = document.getElementById('admin-location-desc').value.trim() || 'Описание отсутствует';
+
+            await saveAllAdmin();
+            renderAdminList();
+            renderMarkers();
+            renderLocations();
+            alert('Локация обновлена!');
+        });
+
+        document.getElementById('admin-cancel-edit').addEventListener('click', function() {
+            adminEditingId = null;
+            document.getElementById('admin-location-name').value = '';
+            document.getElementById('admin-location-desc').value = '';
+            document.getElementById('admin-photos-grid').innerHTML = '';
+            document.getElementById('admin-caption-input').value = '';
+        });
+
+        document.getElementById('admin-delete-location').addEventListener('click', async function() {
+            if (adminEditingId === null) return;
+            if (!confirm('Удалить эту локацию?')) return;
+            await adminDeleteLocation(adminEditingId);
+        });
+
+        async function adminDeleteLocation(id) {
+            if (!confirm('Удалить эту локацию?')) return;
+            locations = locations.filter(l => l.id !== id);
+            await saveAllAdmin();
+            renderAdminList();
+            renderMarkers();
+            renderLocations();
+            if (adminEditingId === id) {
+                adminEditingId = null;
+                document.getElementById('admin-location-name').value = '';
+                document.getElementById('admin-location-desc').value = '';
+                document.getElementById('admin-photos-grid').innerHTML = '';
+            }
+        }
+
+        async function adminDeletePhoto(locId, photoIdx) {
+            if (!confirm('Удалить это фото?')) return;
+            const loc = locations.find(l => l.id === locId);
+            if (!loc || !loc.photos) return;
+            loc.photos.splice(photoIdx, 1);
+            await saveAllAdmin();
+            renderAdminList();
+            renderMarkers();
+            renderLocations();
+            adminEditLocation(locId);
+        }
+
+        // ============================================================
+        //  АДМИН-ЗАГРУЗКА ФОТО
+        // ============================================================
+        document.getElementById('admin-file-input').addEventListener('change', async function(e) {
+            if (adminEditingId === null) {
+                alert('Сначала выберите локацию для редактирования.');
+                return;
+            }
+            const files = e.target.files;
+            if (!files.length) return;
+
+            const loc = locations.find(l => l.id === adminEditingId);
+            if (!loc) return;
+
+            const caption = document.getElementById('admin-caption-input').value.trim();
+
+            for (const file of files) {
+                try {
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+                    const filePath = `locations/${adminEditingId}/${fileName}`;
+
+                    const { error: uploadError } = await supabaseClient.storage
+                        .from('photos')
+                        .upload(filePath, file);
+
+                    if (uploadError) throw uploadError;
+
+                    const { data: urlData } = supabaseClient.storage
+                        .from('photos')
+                        .getPublicUrl(filePath);
+
+                    const photoData = {
+                        url: urlData.publicUrl,
+                        caption: caption || ''
+                    };
+
+                    if (!loc.photos) loc.photos = [];
+                    loc.photos.push(photoData);
+                } catch (err) {
+                    console.error('Ошибка загрузки фото:', err);
+                    alert('Ошибка загрузки фото: ' + err.message);
+                }
+            }
+
+            await saveAllAdmin();
+            renderAdminList();
+            renderMarkers();
+            renderLocations();
+            adminEditLocation(adminEditingId);
+            document.getElementById('admin-file-input').value = '';
+            document.getElementById('admin-caption-input').value = '';
+        });
+
+        document.getElementById('admin-file-upload').addEventListener('click', function() {
+            if (adminEditingId === null) {
+                alert('Сначала выберите локацию для редактирования.');
+                return;
+            }
+            document.getElementById('admin-file-input').click();
+        });
+
+        document.getElementById('admin-save-all').addEventListener('click', async function() {
+            await saveAllAdmin();
+            alert('Все данные сохранены!');
+        });
+
+        async function saveAllAdmin() {
+            try {
+                for (const loc of locations) {
+                    const { error } = await supabaseClient
+                        .from('locations')
+                        .upsert(loc, { onConflict: 'id' });
+                    if (error) throw error;
+                }
+                document.getElementById('admin-sync-status').textContent = '✅ Сохранено';
+                document.getElementById('admin-sync-status').style.color = '#4caf50';
+                return true;
+            } catch (e) {
+                console.error('Ошибка сохранения:', e);
+                document.getElementById('admin-sync-status').textContent = '⚠️ Ошибка сохранения';
+                document.getElementById('admin-sync-status').style.color = '#ff5555';
+                alert('Ошибка сохранения: ' + e.message);
+                return false;
+            }
         }
 
         // ============================================================
