@@ -514,7 +514,7 @@
         let imageOverlay = null;
         let markerMap = new Map();
         let currentModalId = null;
-        let editingId = null;
+        let adminEditingId = null;
         let isAdmin = false;
         let selectedFiles = [];
 
@@ -862,8 +862,6 @@
         // ============================================================
         //  АДМИН-УПРАВЛЕНИЕ ЛОКАЦИЯМИ
         // ============================================================
-        let adminEditingId = null;
-
         async function loadAdminLocations() {
             try {
                 const { data, error } = await supabaseClient
@@ -998,31 +996,58 @@
             await adminDeleteLocation(adminEditingId);
         });
 
+        // ============================================================
+        //  🔥 ИСПРАВЛЕННОЕ УДАЛЕНИЕ ЛОКАЦИИ
+        // ============================================================
         async function adminDeleteLocation(id) {
             if (!confirm('Удалить эту локацию?')) return;
+            
+            // Удаляем из массива
             locations = locations.filter(l => l.id !== id);
+            
+            // Сохраняем в базу
             await saveAllAdmin();
-            renderAdminList();
-            renderMarkers();
-            renderLocations();
+            
+            // ПЕРЕРИСОВЫВАЕМ ВСЁ!
+            renderAdminList();      // обновляем список в админке
+            renderLocations();      // обновляем список слева
+            renderMarkers();        // обновляем маркеры на карте
+            
+            // Очищаем поля редактирования, если удалили ту, что редактировали
             if (adminEditingId === id) {
                 adminEditingId = null;
                 document.getElementById('admin-location-name').value = '';
                 document.getElementById('admin-location-desc').value = '';
                 document.getElementById('admin-photos-grid').innerHTML = '';
             }
+            
+            alert('Локация удалена!');
         }
 
+        // ============================================================
+        //  🔥 ИСПРАВЛЕННОЕ УДАЛЕНИЕ ФОТО
+        // ============================================================
         async function adminDeletePhoto(locId, photoIdx) {
             if (!confirm('Удалить это фото?')) return;
+            
             const loc = locations.find(l => l.id === locId);
             if (!loc || !loc.photos) return;
+            
+            // Удаляем фото
             loc.photos.splice(photoIdx, 1);
+            
+            // Сохраняем
             await saveAllAdmin();
+            
+            // Перерисовываем всё
             renderAdminList();
-            renderMarkers();
             renderLocations();
+            renderMarkers();
+            
+            // Обновляем редактирование
             adminEditLocation(locId);
+            
+            alert('Фото удалено!');
         }
 
         // ============================================================
