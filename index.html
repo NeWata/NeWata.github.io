@@ -38,6 +38,19 @@
         #header h1 .separator { color: #d4c08a; margin: 0 8px; font-weight: 300; }
         #header-actions { display: flex; gap: 10px; align-items: center; }
         #header-actions span { font-size: 11px; color: #555; }
+        #header-actions .admin-link {
+            color: #d4c08a;
+            text-decoration: none;
+            font-size: 12px;
+            padding: 4px 12px;
+            border: 1px solid #d4c08a40;
+            border-radius: 16px;
+            transition: 0.3s;
+        }
+        #header-actions .admin-link:hover {
+            background: #d4c08a20;
+            border-color: #d4c08a;
+        }
 
         #main { display: flex; flex: 1; overflow: hidden; }
 
@@ -222,6 +235,7 @@
         </h1>
         <div id="header-actions">
             <span id="sync-status">⏳ Загрузка...</span>
+            <a href="a7k9x2m4.html" class="admin-link">Админ-панель</a>
         </div>
     </div>
 
@@ -257,7 +271,6 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmZWtoZ2pweG5ub3V0aWlra2prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNzIwNTYsImV4cCI6MjEwMjY0ODA1Nn0.Wc5_W5sD6VAVZVCg5hBlj2zvQCE72gTdX5KUXo0mqvs';
         const MAP_IMAGE_URL = 'image.png';
         
-        // ✅ ИСПРАВЛЕНО: используем глобальный объект supabase, а не создаём новый
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // ============================================================
