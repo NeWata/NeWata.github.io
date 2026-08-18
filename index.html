@@ -439,7 +439,7 @@
                 <p class="subtitle">Введите email и пароль администратора</p>
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" id="admin-email" placeholder="tsumimak21@gmail.com">
+                    <input type="email" id="admin-email" placeholder="Email">
                 </div>
                 <div class="form-group">
                     <label>Пароль</label>
@@ -997,13 +997,12 @@
         });
 
         // ============================================================
-        //  🔥 ИСПРАВЛЕННОЕ УДАЛЕНИЕ ЛОКАЦИИ (удаляем из Supabase!)
+        //  УДАЛЕНИЕ ЛОКАЦИИ (из Supabase)
         // ============================================================
         async function adminDeleteLocation(id) {
             if (!confirm('Удалить эту локацию?')) return;
             
             try {
-                // 1. Удаляем из Supabase
                 const { error } = await supabaseClient
                     .from('locations')
                     .delete()
@@ -1011,15 +1010,12 @@
                 
                 if (error) throw error;
                 
-                // 2. Удаляем из локального массива
                 locations = locations.filter(l => l.id !== id);
                 
-                // 3. Обновляем всё
-                renderAdminList();      // обновляем список в админке
-                renderLocations();      // обновляем список слева
-                renderMarkers();        // обновляем маркеры на карте
+                renderAdminList();
+                renderLocations();
+                renderMarkers();
                 
-                // 4. Очищаем поля редактирования
                 if (adminEditingId === id) {
                     adminEditingId = null;
                     document.getElementById('admin-location-name').value = '';
@@ -1040,7 +1036,7 @@
         }
 
         // ============================================================
-        //  🔥 ИСПРАВЛЕННОЕ УДАЛЕНИЕ ФОТО
+        //  УДАЛЕНИЕ ФОТО
         // ============================================================
         async function adminDeletePhoto(locId, photoIdx) {
             if (!confirm('Удалить это фото?')) return;
@@ -1049,22 +1045,18 @@
             if (!loc || !loc.photos) return;
             
             try {
-                // Удаляем фото из массива
                 loc.photos.splice(photoIdx, 1);
                 
-                // Сохраняем обновлённую локацию в Supabase
                 const { error } = await supabaseClient
                     .from('locations')
                     .upsert(loc, { onConflict: 'id' });
                 
                 if (error) throw error;
                 
-                // Перерисовываем всё
                 renderAdminList();
                 renderLocations();
                 renderMarkers();
                 
-                // Обновляем редактирование
                 adminEditLocation(locId);
                 
                 document.getElementById('admin-sync-status').textContent = '✅ Фото удалено';
@@ -1078,7 +1070,7 @@
         }
 
         // ============================================================
-        //  АДМИН-ЗАГРУЗКА ФОТО
+        //  🔥 ИСПРАВЛЕННАЯ ЗАГРУЗКА ФОТО (сохраняет в правильном формате)
         // ============================================================
         document.getElementById('admin-file-input').addEventListener('change', async function(e) {
             if (adminEditingId === null) {
@@ -1092,6 +1084,11 @@
             if (!loc) return;
 
             const caption = document.getElementById('admin-caption-input').value.trim();
+
+            // Если поле photos не массив — создаём массив
+            if (!Array.isArray(loc.photos)) {
+                loc.photos = [];
+            }
 
             for (const file of files) {
                 try {
@@ -1109,12 +1106,12 @@
                         .from('photos')
                         .getPublicUrl(filePath);
 
+                    // ✅ ПРАВИЛЬНЫЙ ФОРМАТ — объект с полями url и caption
                     const photoData = {
                         url: urlData.publicUrl,
                         caption: caption || ''
                     };
 
-                    if (!loc.photos) loc.photos = [];
                     loc.photos.push(photoData);
                 } catch (err) {
                     console.error('Ошибка загрузки фото:', err);
@@ -1122,13 +1119,19 @@
                 }
             }
 
+            // ✅ Сохраняем в Supabase
             await saveAllAdmin();
+            
+            // Перерисовываем всё
             renderAdminList();
-            renderMarkers();
             renderLocations();
+            renderMarkers();
             adminEditLocation(adminEditingId);
+            
             document.getElementById('admin-file-input').value = '';
             document.getElementById('admin-caption-input').value = '';
+            
+            alert('Фото загружены!');
         });
 
         document.getElementById('admin-file-upload').addEventListener('click', function() {
