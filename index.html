@@ -37,23 +37,7 @@
         }
         #header h1 .separator { color: #d4c08a; margin: 0 8px; font-weight: 300; }
         #header-actions { display: flex; gap: 10px; align-items: center; }
-        #header-actions button {
-            background: rgba(255,255,255,0.06);
-            border: 1px solid #3a3a50;
-            color: #ccc;
-            padding: 6px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: 0.3s;
-            font-size: 12px;
-        }
-        #header-actions button:hover {
-            background: rgba(255,255,255,0.12);
-            border-color: #d4c08a;
-            color: #fff;
-        }
-        #header-actions .admin-btn { color: #d4c08a; border-color: #d4c08a40; }
-        #header-actions .admin-btn:hover { background: #d4c08a20; }
+        #header-actions span { font-size: 11px; color: #555; }
 
         #main { display: flex; flex: 1; overflow: hidden; }
 
@@ -237,10 +221,7 @@
             <span class="title-en">The Antagonist's Miserable Plot</span>
         </h1>
         <div id="header-actions">
-            <span id="sync-status" style="font-size:11px;color:#555;">⏳ Загрузка...</span>
-            <a href="admin.html" class="admin-btn" style="text-decoration:none;">
-                <button class="admin-btn">Админ-панель</button>
-            </a>
+            <span id="sync-status">⏳ Загрузка...</span>
         </div>
     </div>
 
@@ -275,7 +256,9 @@
         const SUPABASE_URL = 'https://ufekhgjpxnnoutiikkjk.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmZWtoZ2pweG5ub3V0aWlra2prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNzIwNTYsImV4cCI6MjEwMjY0ODA1Nn0.Wc5_W5sD6VAVZVCg5hBlj2zvQCE72gTdX5KUXo0mqvs';
         const MAP_IMAGE_URL = 'image.png';
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // ✅ ИСПРАВЛЕНО: используем глобальный объект supabase, а не создаём новый
+        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // ============================================================
         //  СОСТОЯНИЕ
@@ -291,7 +274,7 @@
         // ============================================================
         async function loadLocations() {
             try {
-                const { data, error } = await supabase
+                const { data, error } = await supabaseClient
                     .from('locations')
                     .select('*')
                     .order('id', { ascending: true });
@@ -352,7 +335,7 @@
         function renderLocations() {
             const list = document.getElementById('location-list');
             if (!locations || locations.length === 0) {
-                list.innerHTML = '<li class="empty-msg">Нет локаций. Админ может добавить их в панели управления.</li>';
+                list.innerHTML = '<li class="empty-msg">Нет локаций</li>';
                 return;
             }
             let html = '';
