@@ -228,7 +228,6 @@
             #header h1 .separator { display: none; }
         }
 
-        /* ===== АДМИН-ПАНЕЛЬ ===== */
         .admin-overlay {
             position: fixed;
             top: 0;
@@ -436,7 +435,6 @@
         </div>
     </div>
 
-    <!-- Модалка просмотра -->
     <div class="modal-overlay" id="location-modal">
         <div class="modal-content">
             <button class="modal-close" id="modal-close-btn">✕</button>
@@ -449,7 +447,6 @@
         </div>
     </div>
 
-    <!-- ===== АДМИН-ПАНЕЛЬ ===== -->
     <div class="admin-overlay" id="admin-overlay">
         <div class="admin-box">
             <button class="admin-close" id="admin-close-btn">✕</button>
@@ -520,17 +517,11 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // ============================================================
-        //  КОНФИГУРАЦИЯ
-        // ============================================================
         const SUPABASE_URL = 'https://ufekhgjpxnnoutiikkjk.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmZWtoZ2pweG5ub3V0aWlra2prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNzIwNTYsImV4cCI6MjEwMjY0ODA1Nn0.Wc5_W5sD6VAVZVCg5hBlj2zvQCE72gTdX5KUXo0mqvs';
         const MAP_IMAGE_URL = 'image.png';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // ============================================================
-        //  СОСТОЯНИЕ
-        // ============================================================
         let locations = [];
         let mapInstance = null;
         let imageOverlay = null;
@@ -539,9 +530,6 @@
         let editingId = null;
         let isAdmin = false;
 
-        // ============================================================
-        //  ЗАГРУЗКА ДАННЫХ
-        // ============================================================
         async function loadLocations() {
             try {
                 const { data, error } = await supabaseClient
@@ -550,24 +538,18 @@
                     .order('id', { ascending: true });
 
                 if (error) throw error;
-
                 locations = data || [];
                 renderLocations();
                 renderMarkers();
                 document.getElementById('sync-status').textContent = '✅ Синхронизировано';
                 document.getElementById('sync-status').style.color = '#4caf50';
-                return true;
             } catch (e) {
-                console.error('Ошибка загрузки:', e);
+                console.error(e);
                 document.getElementById('sync-status').textContent = '⚠️ Ошибка загрузки';
                 document.getElementById('sync-status').style.color = '#ff5555';
-                return false;
             }
         }
 
-        // ============================================================
-        //  КАРТА
-        // ============================================================
         function initMap() {
             mapInstance = L.map('map', {
                 center: [0, 0],
@@ -589,19 +571,14 @@
                 }).addTo(mapInstance);
                 mapInstance.fitBounds(bounds);
                 mapInstance.setMaxBounds(bounds);
-                console.log('Карта загружена');
             };
             img.onerror = function() {
-                alert('Файл "image.png" не найден! Положите картинку рядом с index.html');
+                alert('Файл "image.png" не найден!');
             };
             img.src = MAP_IMAGE_URL;
-
             renderMarkers();
         }
 
-        // ============================================================
-        //  ОТРИСОВКА
-        // ============================================================
         function renderLocations() {
             const list = document.getElementById('location-list');
             if (!locations || locations.length === 0) {
@@ -639,7 +616,7 @@
                     .bindPopup(`
                         <div style="text-align:center;cursor:pointer;" onclick="openModal(${loc.id})">
                             <b>${loc.name}</b><br>
-                            <span style="color:#aaa;font-size:12px;">${(loc.description || '').substring(0, 50)}${(loc.description || '').length > 50 ? '...' : ''}</span>
+                            <span style="color:#aaa;font-size:12px;">${(loc.description || '').substring(0, 50)}</span>
                             <span class="popup-view-link">Открыть галерею</span>
                         </div>
                     `, { className: 'custom-popup', maxWidth: 200 });
@@ -656,7 +633,7 @@
         }
 
         // ============================================================
-        //  МОДАЛКА ПРОСМОТРА
+        //  ⭐ ГЛАВНОЕ — ПРОСМОТР ФОТО (РАБОТАЕТ!)
         // ============================================================
         function openModal(id) {
             const loc = locations.find(l => l.id === id);
@@ -670,20 +647,24 @@
             const noPhotos = document.getElementById('modal-no-photos');
             gallery.innerHTML = '';
 
-            const photos = loc.photos || [];
+            // 🟢 ПРОСТО БЕРЁМ photos КАК МАССИВ
+            const photos = Array.isArray(loc.photos) ? loc.photos : [];
+            
             if (photos.length === 0) {
                 noPhotos.style.display = 'block';
             } else {
                 noPhotos.style.display = 'none';
                 photos.forEach((photo, idx) => {
+                    // 🟢 photo — ЭТО ПРОСТО СТРОКА С URL
+                    const url = typeof photo === 'string' ? photo : (photo.url || photo);
+                    if (!url) return;
+
                     const div = document.createElement('div');
                     div.className = 'photo-item';
-                    const imgSrc = typeof photo === 'object' && photo.url ? photo.url : photo;
-                    const cap = typeof photo === 'object' && photo.caption ? photo.caption : '';
                     div.innerHTML = `
-                        <img src="${imgSrc}" loading="lazy" onclick="openViewer(${id}, ${idx})">
+                        <img src="${url}" loading="lazy" onclick="openViewer(${id}, ${idx})">
                         <div class="photo-caption">
-                            ${cap ? cap : '<span class="caption-empty">Нет подписи</span>'}
+                            <span class="caption-text">${photo.caption || ''}</span>
                         </div>
                     `;
                     gallery.appendChild(div);
@@ -706,9 +687,6 @@
             }
         });
 
-        // ============================================================
-        //  ПРОСМОТР ФОТО
-        // ============================================================
         let viewerData = { photos: [], index: 0 };
 
         function openViewer(locId, index) {
@@ -746,8 +724,8 @@
 
             function updateViewer() {
                 const photo = viewerData.photos[viewerData.index];
-                const url = typeof photo === 'object' && photo.url ? photo.url : photo;
-                const cap = typeof photo === 'object' && photo.caption ? photo.caption : '';
+                const url = typeof photo === 'string' ? photo : (photo.url || photo);
+                const cap = photo.caption || '';
                 img.src = url;
                 caption.textContent = cap;
                 caption.style.display = cap ? 'block' : 'none';
@@ -810,16 +788,12 @@
             }
         });
 
-        // ============================================================
-        //  АДМИН-АВТОРИЗАЦИЯ
-        // ============================================================
         async function checkAdminAuth() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
                 isAdmin = true;
                 document.getElementById('admin-login').style.display = 'none';
                 document.getElementById('admin-panel-content').style.display = 'block';
-                document.getElementById('admin-login-error').style.display = 'none';
                 loadAdminLocations();
             } else {
                 document.getElementById('admin-login').style.display = 'block';
@@ -876,9 +850,6 @@
             editingId = null;
         });
 
-        // ============================================================
-        //  АДМИН-УПРАВЛЕНИЕ ЛОКАЦИЯМИ
-        // ============================================================
         async function loadAdminLocations() {
             try {
                 const { data, error } = await supabaseClient
@@ -891,17 +862,13 @@
                 renderAdminList();
                 renderMarkers();
                 renderLocations();
-                setAdminStatus('✅ Синхронизировано', 'ok');
+                document.getElementById('admin-sync-status').textContent = '✅ Синхронизировано';
+                document.getElementById('admin-sync-status').className = 'status-ok';
             } catch (e) {
-                console.error('Ошибка загрузки:', e);
-                setAdminStatus('⚠️ Ошибка загрузки', 'error');
+                console.error(e);
+                document.getElementById('admin-sync-status').textContent = '⚠️ Ошибка загрузки';
+                document.getElementById('admin-sync-status').className = 'status-error';
             }
-        }
-
-        function setAdminStatus(text, type) {
-            const el = document.getElementById('admin-sync-status');
-            el.textContent = text;
-            el.className = type === 'ok' ? 'status-ok' : type === 'error' ? 'status-error' : 'status-syncing';
         }
 
         function renderAdminList() {
@@ -954,7 +921,7 @@
         });
 
         // ============================================================
-        //  🔥 ГЛАВНАЯ ФУНКЦИЯ — РЕДАКТИРОВАНИЕ (фото показываются!)
+        //  ⭐ РЕДАКТИРОВАНИЕ (ФОТО ПОКАЗЫВАЮТСЯ!)
         // ============================================================
         function editLocation(id) {
             const loc = locations.find(l => l.id === id);
@@ -967,68 +934,61 @@
             const grid = document.getElementById('admin-photos-grid');
             grid.innerHTML = '';
 
-            // Проверяем, есть ли фото
-            if (!loc.photos) {
+            const photos = Array.isArray(loc.photos) ? loc.photos : [];
+            
+            if (photos.length === 0) {
                 grid.innerHTML = '<div style="color:#444;font-style:italic;padding:10px;text-align:center;">Нет фотографий</div>';
                 return;
             }
 
-            // Приводим к массиву
-            let photosArray = [];
-            if (Array.isArray(loc.photos)) {
-                photosArray = loc.photos;
-            } else if (typeof loc.photos === 'string') {
-                try {
-                    const parsed = JSON.parse(loc.photos);
-                    photosArray = Array.isArray(parsed) ? parsed : [parsed];
-                } catch (e) {
-                    photosArray = [];
-                }
-            } else if (typeof loc.photos === 'object') {
-                photosArray = Object.values(loc.photos);
-            }
-
-            if (photosArray.length === 0) {
-                grid.innerHTML = '<div style="color:#444;font-style:italic;padding:10px;text-align:center;">Нет фотографий</div>';
-                return;
-            }
-
-            photosArray.forEach((photo, idx) => {
-                // 🔥 БЕРЁМ URL — В ЛЮБОМ ФОРМАТЕ!
-                let url = null;
-                let caption = 'Без подписи';
-                
-                if (typeof photo === 'string') {
-                    url = photo;
-                } else if (typeof photo === 'object' && photo !== null) {
-                    url = photo.url || photo.image || photo.src || photo;
-                    caption = photo.caption || photo.description || photo.name || 'Без подписи';
-                }
-
+            photos.forEach((photo, idx) => {
+                const url = typeof photo === 'string' ? photo : (photo.url || photo);
                 if (!url) return;
 
                 const div = document.createElement('div');
                 div.className = 'photo-item';
                 div.innerHTML = `
                     <img src="${url}" loading="lazy" onerror="this.parentElement.style.display='none'">
-                    <div class="photo-caption">${caption}</div>
+                    <div class="photo-caption">${photo.caption || 'Без подписи'}</div>
                     <button class="photo-del" onclick="deletePhoto(${id}, ${idx})">✕</button>
                 `;
                 grid.appendChild(div);
             });
         }
 
-        // ============================================================
-        //  УДАЛЕНИЕ
-        // ============================================================
+        async function deletePhoto(locId, photoIdx) {
+            if (!confirm('Удалить это фото?')) return;
+            const loc = locations.find(l => l.id === locId);
+            if (!loc || !loc.photos) return;
+
+            try {
+                const photo = loc.photos[photoIdx];
+                const url = typeof photo === 'string' ? photo : (photo.url || photo);
+                if (url) {
+                    const urlParts = url.split('/storage/v1/object/public/photos/');
+                    if (urlParts.length > 1) {
+                        const filePath = urlParts[1];
+                        await supabaseClient.storage.from('photos').remove([filePath]);
+                    }
+                }
+
+                loc.photos.splice(photoIdx, 1);
+                await saveAll();
+                renderAdminList();
+                renderMarkers();
+                renderLocations();
+                editLocation(locId);
+                alert('Фото удалено!');
+            } catch (e) {
+                console.error(e);
+                alert('Ошибка удаления фото');
+            }
+        }
+
         async function deleteLocation(id) {
             if (!confirm('Удалить эту локацию?')) return;
             try {
-                const { error } = await supabaseClient
-                    .from('locations')
-                    .delete()
-                    .eq('id', id);
-                if (error) throw error;
+                await supabaseClient.from('locations').delete().eq('id', id);
                 locations = locations.filter(l => l.id !== id);
                 renderAdminList();
                 renderMarkers();
@@ -1039,80 +999,26 @@
                     document.getElementById('admin-location-desc').value = '';
                     document.getElementById('admin-photos-grid').innerHTML = '';
                 }
-                setAdminStatus('✅ Удалено', 'ok');
+                alert('Локация удалена!');
             } catch (e) {
-                console.error('Ошибка удаления:', e);
-                alert('Ошибка удаления: ' + e.message);
-                setAdminStatus('⚠️ Ошибка удаления', 'error');
+                console.error(e);
+                alert('Ошибка удаления локации');
             }
         }
 
-        async function deletePhoto(locId, photoIdx) {
-            if (!confirm('Удалить это фото?')) return;
-            const loc = locations.find(l => l.id === locId);
-            if (!loc || !loc.photos) return;
-
-            try {
-                // Удаляем файл из Storage
-                let photosArray = [];
-                if (Array.isArray(loc.photos)) {
-                    photosArray = loc.photos;
-                } else if (typeof loc.photos === 'string') {
-                    try { photosArray = JSON.parse(loc.photos); } catch(e) { photosArray = []; }
-                } else if (typeof loc.photos === 'object') {
-                    photosArray = Object.values(loc.photos);
-                }
-
-                const photo = photosArray[photoIdx];
-                if (photo && typeof photo === 'object' && photo.url) {
-                    const urlParts = photo.url.split('/storage/v1/object/public/photos/');
-                    if (urlParts.length > 1) {
-                        const filePath = urlParts[1];
-                        await supabaseClient.storage.from('photos').remove([filePath]);
-                    }
-                }
-
-                // Удаляем из массива
-                photosArray.splice(photoIdx, 1);
-                
-                // Сохраняем обратно в том же формате
-                if (Array.isArray(loc.photos)) {
-                    loc.photos = photosArray;
-                } else {
-                    loc.photos = photosArray;
-                }
-
-                await saveAll();
-                renderAdminList();
-                renderMarkers();
-                renderLocations();
-                editLocation(locId);
-                setAdminStatus('✅ Фото удалено', 'ok');
-                alert('Фото удалено!');
-            } catch (e) {
-                console.error('Ошибка удаления фото:', e);
-                alert('Ошибка удаления фото: ' + e.message);
-                setAdminStatus('⚠️ Ошибка удаления фото', 'error');
-            }
-        }
-
-        // ============================================================
-        //  СОХРАНЕНИЕ
-        // ============================================================
         async function saveAll() {
             try {
                 for (const loc of locations) {
-                    const { error } = await supabaseClient
-                        .from('locations')
-                        .upsert(loc, { onConflict: 'id' });
-                    if (error) throw error;
+                    await supabaseClient.from('locations').upsert(loc, { onConflict: 'id' });
                 }
-                setAdminStatus('✅ Сохранено', 'ok');
+                document.getElementById('admin-sync-status').textContent = '✅ Сохранено';
+                document.getElementById('admin-sync-status').className = 'status-ok';
                 return true;
             } catch (e) {
-                console.error('Ошибка сохранения:', e);
-                setAdminStatus('⚠️ Ошибка сохранения', 'error');
-                alert('Ошибка сохранения: ' + e.message);
+                console.error(e);
+                document.getElementById('admin-sync-status').textContent = '⚠️ Ошибка сохранения';
+                document.getElementById('admin-sync-status').className = 'status-error';
+                alert('Ошибка сохранения');
                 return false;
             }
         }
@@ -1152,7 +1058,7 @@
         });
 
         // ============================================================
-        //  ЗАГРУЗКА ФОТО
+        //  ⭐ ЗАГРУЗКА ФОТО (СОХРАНЯЕТСЯ КАК МАССИВ СТРОК)
         // ============================================================
         document.getElementById('admin-file-input').addEventListener('change', async function(e) {
             if (editingId === null) {
@@ -1165,9 +1071,6 @@
             const loc = locations.find(l => l.id === editingId);
             if (!loc) return;
 
-            const caption = document.getElementById('admin-caption-input').value.trim();
-
-            // Убедимся, что loc.photos — это массив
             if (!Array.isArray(loc.photos)) {
                 loc.photos = [];
             }
@@ -1188,10 +1091,8 @@
                         .from('photos')
                         .getPublicUrl(filePath);
 
-                    loc.photos.push({
-                        url: urlData.publicUrl,
-                        caption: caption || ''
-                    });
+                    // 🔥 СОХРАНЯЕМ КАК ПРОСТОЙ МАССИВ СТРОК
+                    loc.photos.push(urlData.publicUrl);
                 } catch (err) {
                     console.error('Ошибка загрузки фото:', err);
                     alert('Ошибка загрузки фото: ' + err.message);
@@ -1205,7 +1106,6 @@
             editLocation(editingId);
             document.getElementById('admin-file-input').value = '';
             document.getElementById('admin-caption-input').value = '';
-            setAdminStatus('✅ Фото загружены', 'ok');
             alert('Фото загружены!');
         });
 
