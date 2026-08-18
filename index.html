@@ -4,10 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Провальный сюжет этого злодея / The Antagonist's Miserable Plot</title>
-    <!-- Подключаем Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <!-- Подключаем Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
@@ -408,7 +406,7 @@
         let markerMap = new Map();
 
         // ============================================================
-        // 4. ИНИЦИАЛИЗАЦИЯ SUPABASE
+        // 4. ИНИЦИАЛИЗАЦИЯ SUPABASE (ТОЛЬКО ОДИН РАЗ!)
         // ============================================================
         const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
