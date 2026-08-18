@@ -997,31 +997,46 @@
         });
 
         // ============================================================
-        //  🔥 ИСПРАВЛЕННОЕ УДАЛЕНИЕ ЛОКАЦИИ
+        //  🔥 ИСПРАВЛЕННОЕ УДАЛЕНИЕ ЛОКАЦИИ (удаляем из Supabase!)
         // ============================================================
         async function adminDeleteLocation(id) {
             if (!confirm('Удалить эту локацию?')) return;
             
-            // Удаляем из массива
-            locations = locations.filter(l => l.id !== id);
-            
-            // Сохраняем в базу
-            await saveAllAdmin();
-            
-            // ПЕРЕРИСОВЫВАЕМ ВСЁ!
-            renderAdminList();      // обновляем список в админке
-            renderLocations();      // обновляем список слева
-            renderMarkers();        // обновляем маркеры на карте
-            
-            // Очищаем поля редактирования, если удалили ту, что редактировали
-            if (adminEditingId === id) {
-                adminEditingId = null;
-                document.getElementById('admin-location-name').value = '';
-                document.getElementById('admin-location-desc').value = '';
-                document.getElementById('admin-photos-grid').innerHTML = '';
+            try {
+                // 1. Удаляем из Supabase
+                const { error } = await supabaseClient
+                    .from('locations')
+                    .delete()
+                    .eq('id', id);
+                
+                if (error) throw error;
+                
+                // 2. Удаляем из локального массива
+                locations = locations.filter(l => l.id !== id);
+                
+                // 3. Обновляем всё
+                renderAdminList();      // обновляем список в админке
+                renderLocations();      // обновляем список слева
+                renderMarkers();        // обновляем маркеры на карте
+                
+                // 4. Очищаем поля редактирования
+                if (adminEditingId === id) {
+                    adminEditingId = null;
+                    document.getElementById('admin-location-name').value = '';
+                    document.getElementById('admin-location-desc').value = '';
+                    document.getElementById('admin-photos-grid').innerHTML = '';
+                }
+                
+                document.getElementById('admin-sync-status').textContent = '✅ Удалено';
+                document.getElementById('admin-sync-status').style.color = '#4caf50';
+                alert('Локация удалена!');
+                
+            } catch (e) {
+                console.error('Ошибка удаления:', e);
+                alert('Ошибка удаления: ' + e.message);
+                document.getElementById('admin-sync-status').textContent = '⚠️ Ошибка удаления';
+                document.getElementById('admin-sync-status').style.color = '#ff5555';
             }
-            
-            alert('Локация удалена!');
         }
 
         // ============================================================
@@ -1033,21 +1048,33 @@
             const loc = locations.find(l => l.id === locId);
             if (!loc || !loc.photos) return;
             
-            // Удаляем фото
-            loc.photos.splice(photoIdx, 1);
-            
-            // Сохраняем
-            await saveAllAdmin();
-            
-            // Перерисовываем всё
-            renderAdminList();
-            renderLocations();
-            renderMarkers();
-            
-            // Обновляем редактирование
-            adminEditLocation(locId);
-            
-            alert('Фото удалено!');
+            try {
+                // Удаляем фото из массива
+                loc.photos.splice(photoIdx, 1);
+                
+                // Сохраняем обновлённую локацию в Supabase
+                const { error } = await supabaseClient
+                    .from('locations')
+                    .upsert(loc, { onConflict: 'id' });
+                
+                if (error) throw error;
+                
+                // Перерисовываем всё
+                renderAdminList();
+                renderLocations();
+                renderMarkers();
+                
+                // Обновляем редактирование
+                adminEditLocation(locId);
+                
+                document.getElementById('admin-sync-status').textContent = '✅ Фото удалено';
+                document.getElementById('admin-sync-status').style.color = '#4caf50';
+                alert('Фото удалено!');
+                
+            } catch (e) {
+                console.error('Ошибка удаления фото:', e);
+                alert('Ошибка удаления фото: ' + e.message);
+            }
         }
 
         // ============================================================
