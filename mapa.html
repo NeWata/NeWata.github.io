@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Провальный сюжет этого злодея / The Antagonist's Miserable Plot</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        body { background: #0a0a12; color: #e0dcc8; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+
+        #header {
+            background: linear-gradient(135deg, #0d0d1a, #1a1a2e);
+            padding: 10px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #2a2a3e;
+            flex-shrink: 0;
+            z-index: 100;
+        }
+        #header h1 { font-size: 20px; font-weight: 300; letter-spacing: 1px; color: #f0e8c8; line-height: 1.3; }
+        #header h1 .title-ru { color: #f0e8c8; }
+        #header h1 .title-en { font-size: 14px; color: #888; font-weight: 300; letter-spacing: 2px; }
+        #header h1 .separator { color: #d4c08a; margin: 0 8px; font-weight: 300; }
+        #header-actions { display: flex; gap: 10px; align-items: center; }
+        #header-actions button {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid #3a3a50;
+            color: #ccc;
+            padding: 7px 16px;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: 0.3s;
+            font-size: 13px;
+        }
+        #header-actions button:hover { background: rgba(255,255,255,0.12); border-color: #d4c08a; color: #fff; }
+        #header-actions button.active { background: #d4c08a; color: #0a0a12; border-color: #d4c08a; }
+        #admin-status { font-size: 12px; color: #666; padding: 4px 12px; border-radius: 12px; background: rgba(255,255,255,0.05); }
+
+        #main { display: flex; flex: 1; overflow: hidden; }
+
+        #sidebar {
+            width: 280px; min-width: 280px; background: #10101c;
+            border-right: 2px solid #1e1e30;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+        #sidebar::-webkit-scrollbar { width: 4px; }
+        #sidebar::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
+        #sidebar h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 2px; color: #666; margin-bottom: 12px; border-bottom: 1px solid #1e1e30; padding-bottom: 10px; }
+        #location-list { list-style: none; flex: 1; }
+        #location-list li {
+            background: #161622; margin-bottom: 6px; padding: 10px 14px;
+            border-radius: 8px; border-left: 4px solid #d4c08a;
+            cursor: pointer; transition: 0.2s;
+            display: flex; justify-content: space-between; align-items: center; gap: 8px;
+        }
+        #location-list li:hover { background: #1e1e32; transform: translateX(4px); }
+        #location-list li .loc-name { font-weight: 500; font-size: 14px; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        #location-list li .loc-photos-count { font-size: 11px; color: #888; background: #0a0a12; padding: 2px 10px; border-radius: 12px; }
+        #location-list li .loc-del { background: none; border: none; color: #553; cursor: pointer; font-size: 14px; padding: 0 4px; transition: 0.2s; }
+        #location-list li .loc-del:hover { color: #ff5555; transform: scale(1.2); }
+        .empty-msg { color: #444; text-align: center; font-style: italic; padding: 30px 0; font-size: 14px; }
+        #sidebar .footer-note { font-size: 11px; color: #333; text-align: center; border-top: 1px solid #181828; padding-top: 12px; margin-top: 10px; }
+
+        #map-container { flex: 1; position: relative; background: #0a0a12; }
+        #map { width: 100%; height: 100%; background: #0a0a12; }
+
+        /* МОДАЛКА ЛОКАЦИИ */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);
+            z-index: 9999;
+            display: none;
+            justify-content: center; align-items: center;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-overlay.active { display: flex; }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+        .modal-content {
+            background: #161624; border-radius: 20px;
+            max-width: 700px; width: 92%; max-height: 85vh;
+            overflow-y: auto;
+            padding: 28px;
+            border: 1px solid #2e2e48;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.9);
+            position: relative;
+        }
+        .modal-content::-webkit-scrollbar { width: 4px; }
+        .modal-content::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
+
+        .modal-close {
+            position: absolute; top: 14px; right: 20px;
+            font-size: 28px; color: #666;
+            cursor: pointer; transition: 0.2s;
+            background: none; border: none;
+        }
+        .modal-close:hover { color: #fff; transform: rotate(90deg); }
+
+        .modal-header { margin-bottom: 16px; padding-right: 40px; }
+        .modal-header h2 { font-size: 24px; color: #f0e8c8; }
+        .modal-header .modal-desc { color: #aaa; font-size: 14px; margin-top: 4px; line-height: 1.4; }
+
+        /* ГАЛЕРЕЯ */
+        .photo-gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+            margin: 12px 0;
+        }
+        .photo-gallery .photo-item {
+            position: relative;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #0a0a12;
+            border: 1px solid #2a2a40;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .photo-gallery .photo-item:hover { border-color: #d4c08a; transform: scale(1.02); }
+        .photo-gallery .photo-item img { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; }
+        .photo-gallery .photo-item .del-photo {
+            position: absolute; top: 4px; right: 4px;
+            background: rgba(0,0,0,0.7); border: none;
+            color: #ff5555; border-radius: 50%;
+            width: 24px; height: 24px; font-size: 12px;
+            cursor: pointer; display: none;
+            align-items: center; justify-content: center;
+            z-index: 2;
+        }
+        .photo-gallery .photo-item:hover .del-photo { display: flex; }
+        .photo-gallery .photo-item .photo-caption {
+            padding: 8px 10px;
+            font-size: 13px;
+            color: #aaa;
+            background: #0f0f1a;
+            border-top: 1px solid #1e1e30;
+            min-height: 36px;
+            word-wrap: break-word;
+            line-height: 1.4;
+        }
+        .photo-gallery .photo-item .photo-caption .caption-text { color: #ccc; }
+        .photo-gallery .photo-item .photo-caption .caption-empty { color: #444; font-style: italic; font-size: 12px; }
+        .photo-gallery .photo-item .edit-caption-btn {
+            background: none; border: none;
+            color: #666; cursor: pointer;
+            font-size: 12px; padding: 2px 6px;
+            margin-left: 6px;
+            transition: 0.2s;
+        }
+        .photo-gallery .photo-item .edit-caption-btn:hover { color: #d4c08a; }
+
+        .no-photos { color: #444; font-style: italic; text-align: center; padding: 20px; }
+
+        .add-photo-area {
+            margin-top: 16px; padding-top: 16px;
+            border-top: 1px solid #22223a;
+            display: none;
+            gap: 10px; flex-wrap: wrap;
+            align-items: center;
+        }
+        .add-photo-area.visible { display: flex; }
+        .add-photo-area input[type="file"] { display: none; }
+        .add-photo-area .file-label {
+            background: #1e1e32; border: 1px dashed #3a3a50;
+            padding: 8px 18px; border-radius: 30px;
+            cursor: pointer; font-size: 13px; color: #aaa;
+            transition: 0.2s;
+            display: inline-flex; align-items: center; gap: 6px;
+        }
+        .add-photo-area .file-label:hover { background: #282842; border-color: #d4c08a; color: #fff; }
+        .add-photo-area .upload-btn {
+            background: #d4c08a; border: none;
+            color: #0a0a12; padding: 8px 22px;
+            border-radius: 30px; cursor: pointer;
+            font-weight: 600; font-size: 13px;
+            transition: 0.2s;
+        }
+        .add-photo-area .upload-btn:hover { background: #e8d4a0; }
+        .add-photo-area .upload-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .add-photo-area .caption-input-area {
+            flex: 1; min-width: 120px;
+            display: flex; gap: 6px; align-items: center;
+        }
+        .add-photo-area .caption-input-area input {
+            flex: 1; padding: 7px 14px; border-radius: 20px;
+            border: 1px solid #2a2a40; background: #0a0a12;
+            color: #eee; font-size: 13px; outline: none;
+            min-width: 80px;
+        }
+        .add-photo-area .caption-input-area input:focus { border-color: #d4c08a; }
+        .add-photo-area .caption-input-area input::placeholder { color: #444; }
+
+        /* ПОЛНОЭКРАННЫЙ ПРОСМОТРЩИК ФОТО */
+        #photo-viewer {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 99999;
+            display: none;
+            justify-content: center; align-items: center;
+            cursor: pointer;
+            flex-direction: column;
+        }
+        #photo-viewer.active { display: flex; }
+        #photo-viewer img {
+            max-width: 92%; max-height: 80%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 0 60px rgba(0,0,0,0.9);
+            animation: zoomIn 0.3s ease;
+        }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
+        #photo-viewer .viewer-caption {
+            color: #aaa; font-size: 16px;
+            margin-top: 16px; max-width: 80%;
+            text-align: center; line-height: 1.5;
+        }
+        #photo-viewer .viewer-close {
+            position: absolute; top: 20px; right: 30px;
+            font-size: 40px; color: #fff;
+            cursor: pointer; transition: 0.2s;
+            background: none; border: none;
+            z-index: 2;
+        }
+        #photo-viewer .viewer-close:hover { transform: rotate(90deg); color: #d4c08a; }
+        #photo-viewer .viewer-counter {
+            position: absolute; bottom: 80px; left: 50%;
+            transform: translateX(-50%);
+            color: #888; font-size: 14px;
+            background: rgba(0,0,0,0.5);
+            padding: 6px 18px; border-radius: 20px;
+        }
+        #photo-viewer .viewer-nav {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            width: 50px; height: 50px;
+            border-radius: 50%;
+            font-size: 22px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex; align-items: center; justify-content: center;
+        }
+        #photo-viewer .viewer-nav:hover { background: rgba(255,255,255,0.15); border-color: #d4c08a; }
+        #photo-viewer .viewer-nav.prev { left: 20px; }
+        #photo-viewer .viewer-nav.next { right: 20px; }
+        @media (max-width: 600px) {
+            #photo-viewer .viewer-nav { width: 40px; height: 40px; font-size: 18px; }
+            #photo-viewer .viewer-nav.prev { left: 10px; }
+            #photo-viewer .viewer-nav.next { right: 10px; }
+        }
+
+        /* АДМИН-ЛОГИН */
+        #admin-login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
+            z-index: 10000;
+            display: none;
+            justify-content: center; align-items: center;
+        }
+        #admin-login-overlay.active { display: flex; }
+        .login-box {
+            background: #161624; padding: 40px; border-radius: 24px;
+            border: 1px solid #2e2e48;
+            width: 340px; max-width: 90%;
+            text-align: center;
+        }
+        .login-box h2 { color: #f0e8c8; margin-bottom: 8px; }
+        .login-box p { color: #666; font-size: 13px; margin-bottom: 24px; }
+        .login-box input {
+            width: 100%; padding: 12px 16px; border-radius: 12px;
+            border: 1px solid #2a2a40; background: #0a0a12;
+            color: #eee; font-size: 16px; margin-bottom: 16px;
+            outline: none;
+        }
+        .login-box input:focus { border-color: #d4c08a; }
+        .login-box button {
+            width: 100%; padding: 12px; border-radius: 12px;
+            border: none; background: #d4c08a;
+            color: #0a0a12; font-weight: 600; font-size: 16px;
+            cursor: pointer; transition: 0.2s;
+        }
+        .login-box button:hover { background: #e8d4a0; }
+        .login-box .error-msg { color: #ff5555; font-size: 13px; margin-top: 10px; display: none; }
+
+        /* ПОПАП НА КАРТЕ */
+        .custom-popup .leaflet-popup-content-wrapper {
+            background: #161624; color: #eee; border-radius: 12px;
+            border-left: 4px solid #d4c08a;
+        }
+        .custom-popup .leaflet-popup-tip { background: #161624; }
+        .custom-popup .leaflet-popup-content { font-size: 14px; padding: 6px 12px; min-width: 150px; cursor: pointer; }
+        .custom-popup .leaflet-popup-content b { color: #f0e8c8; }
+        .popup-view-link { color: #d4c08a; font-size: 12px; display: block; text-align: center; margin-top: 4px; text-decoration: underline; cursor: pointer; }
+
+        @media (max-width: 768px) {
+            #sidebar { width: 200px; min-width: 200px; }
+            #header h1 { font-size: 16px; }
+            #header h1 .title-en { font-size: 11px; }
+            .modal-content { padding: 20px; }
+            .photo-gallery { grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); }
+        }
+        @media (max-width: 500px) {
+            #sidebar { display: none; }
+            #header h1 .title-en { display: none; }
+            #header h1 .separator { display: none; }
+            .photo-gallery { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="header">
+        <h1>
+            <span class="title-ru">Провальный сюжет этого злодея</span>
+            <span class="separator">/</span>
+            <span class="title-en">The Antagonist's Miserable Plot</span>
+        </h1>
+        <div id="header-actions">
+            <span id="admin-status">Просмотр</span>
+            <button id="admin-toggle-btn">Админ-панель</button>
+        </div>
+    </div>
+
+    <div id="main">
+        <div id="sidebar">
+            <h2>Локации</h2>
+            <ul id="location-list"></ul>
+            <div class="footer-note">Кликните по точке на карте для просмотра</div>
+        </div>
+        <div id="map-container">
+            <div id="map"></div>
+        </div>
+    </div>
+
+    <!-- МОДАЛКА -->
+    <div class="modal-overlay" id="location-modal">
+        <div class="modal-content">
+            <button class="modal-close" id="modal-close-btn">✕</button>
+            <div class="modal-header">
+                <h2 id="modal-title">Название</h2>
+                <div class="modal-desc" id="modal-desc">Описание</div>
+            </div>
+            <div class="photo-gallery" id="modal-gallery"></div>
+            <div id="modal-no-photos" class="no-photos">Нет фотографий</div>
+            <div class="add-photo-area" id="admin-photo-area">
+                <label class="file-label" for="photo-upload-input">
+                    <i class="fas fa-plus-circle"></i> Выбрать фото
+                </label>
+                <input type="file" id="photo-upload-input" accept="image/*" multiple>
+                <div class="caption-input-area">
+                    <input type="text" id="photo-caption-input" placeholder="Подпись (необязательно)">
+                </div>
+                <button class="upload-btn" id="upload-photos-btn" disabled>Загрузить</button>
+                <span style="font-size:12px;color:#555;" id="photo-count-label">0 файлов</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ПОЛНОЭКРАННЫЙ ПРОСМОТРЩИК -->
+    <div id="photo-viewer">
+        <button class="viewer-close" id="viewer-close-btn">✕</button>
+        <button class="viewer-nav prev" id="viewer-prev">‹</button>
+        <button class="viewer-nav next" id="viewer-next">›</button>
+        <img id="viewer-image" src="" alt="Просмотр фото">
+        <div class="viewer-caption" id="viewer-caption"></div>
+        <div class="viewer-counter" id="viewer-counter">1 / 1</div>
+    </div>
+
+    <!-- АДМИН-ЛОГИН -->
+    <div id="admin-login-overlay">
+        <div class="login-box">
+            <h2>Вход в админ-панель</h2>
+            <p>Введите пароль для управления локациями</p>
+            <input type="password" id="admin-password-input" placeholder="Пароль администратора">
+            <button id="admin-login-btn">Войти</button>
+            <div class="error-msg" id="login-error">Неверный пароль</div>
+        </div>
+    </div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // ============================================================
+        // 1. КОНФИГ
+        // ============================================================
+        const ADMIN_PASSWORD = 'pivoyVari2006';
+        const STORAGE_KEY = 'universe_atlas_data';
+        const MAP_IMAGE_URL = 'image.png';
+
+        // ============================================================
+        // 2. ДАННЫЕ
+        // ============================================================
+        let locations = [];
+        let isAdmin = false;
+        let currentModalId = null;
+        let mapInstance = null;
+        let imageOverlay = null;
+        let markerMap = new Map();
+
+        // ============================================================
+        // 3. ЗАГРУЗКА/СОХРАНЕНИЕ
+        // ============================================================
+        function loadData() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const raw = JSON.parse(saved);
+                    locations = raw.map(loc => {
+                        if (loc.photos && loc.photos.length > 0 && typeof loc.photos[0] === 'string') {
+                            loc.photos = loc.photos.map(img => ({ data: img, caption: '' }));
+                        }
+                        return loc;
+                    });
+                    console.log('Загружено', locations.length, 'локаций');
+                } else {
+                    locations = [];
+                }
+            } catch(e) { locations = []; }
+            renderAll();
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(locations));
+                return true;
+            } catch(e) {
+                alert('Ошибка сохранения!');
+                return false;
+            }
+        }
+
+        // ============================================================
+        // 4. КАРТА
+        // ============================================================
+        function initMap() {
+            mapInstance = L.map('map', {
+                center: [0, 0],
+                zoom: 1.5,
+                zoomControl: true,
+                attributionControl: false,
+                crs: L.CRS.Simple,
+                minZoom: 0.5,
+                maxZoom: 10
+            });
+
+            const bounds = [[-220, -400], [220, 400]];
+            const img = new Image();
+            img.onload = function() {
+                if (imageOverlay) mapInstance.removeLayer(imageOverlay);
+                imageOverlay = L.imageOverlay(MAP_IMAGE_URL, bounds, { opacity: 1, interactive: false }).addTo(mapInstance);
+                mapInstance.fitBounds(bounds);
+                mapInstance.setMaxBounds(bounds);
+            };
+            img.onerror = function() {
+                alert('Файл "image.png" не найден! Положите картинку рядом с index.html');
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                    attribution: 'OpenStreetMap'
+                }).addTo(mapInstance);
+            };
+            img.src = MAP_IMAGE_URL;
+
+            mapInstance.on('click', function(e) {
+                if (!isAdmin) { alert('Войдите в админ-панель!'); return; }
+                const lat = e.latlng.lat.toFixed(3);
+                const lng = e.latlng.lng.toFixed(3);
+                const name = prompt('Название локации:');
+                if (!name) return;
+                const desc = prompt('Описание:');
+                addLocation(parseFloat(lat), parseFloat(lng), name, desc || '');
+            });
+
+            renderMarkers();
+        }
+
+        // ============================================================
+        // 5. УПРАВЛЕНИЕ ЛОКАЦИЯМИ
+        // ============================================================
+        function addLocation(lat, lng, name, desc) {
+            locations.push({
+                id: Date.now(),
+                lat: parseFloat(lat),
+                lng: parseFloat(lng),
+                name: name.trim(),
+                desc: desc.trim() || 'Описание отсутствует',
+                photos: []
+            });
+            saveData();
+            renderAll();
+            alert('Локация добавлена!');
+        }
+
+        function deleteLocation(id) {
+            if (!confirm('Удалить локацию?')) return;
+            locations = locations.filter(l => l.id !== id);
+            saveData();
+            renderAll();
+            if (currentModalId === id) closeModal();
+        }
+
+        function addPhotosToLocation(id, photosArray) {
+            const loc = locations.find(l => l.id === id);
+            if (!loc) return;
+            loc.photos = (loc.photos || []).concat(photosArray);
+            saveData();
+            renderAll();
+            if (currentModalId === id) openModal(id);
+            alert('Загружено ' + photosArray.length + ' фото!');
+        }
+
+        function deletePhotoFromLocation(locId, photoIndex) {
+            const loc = locations.find(l => l.id === locId);
+            if (!loc) return;
+            loc.photos.splice(photoIndex, 1);
+            saveData();
+            renderAll();
+            if (currentModalId === locId) openModal(locId);
+        }
+
+        function updatePhotoCaption(locId, photoIndex, newCaption) {
+            const loc = locations.find(l => l.id === locId);
+            if (!loc || !loc.photos[photoIndex]) return;
+            loc.photos[photoIndex].caption = newCaption;
+            saveData();
+            renderAll();
+            if (currentModalId === locId) openModal(locId);
+        }
+
+        // ============================================================
+        // 6. ОТРИСОВКА
+        // ============================================================
+        function renderAll() {
+            renderList();
+            renderMarkers();
+            updateAdminUI();
+        }
+
+        function renderList() {
+            const list = document.getElementById('location-list');
+            if (locations.length === 0) {
+                list.innerHTML = '<li class="empty-msg">Нет локаций. Войдите в админ-панель.</li>';
+                return;
+            }
+            let html = '';
+            locations.forEach(loc => {
+                const count = loc.photos ? loc.photos.length : 0;
+                html += `
+                    <li data-id="${loc.id}">
+                        <span class="loc-name">${loc.name}</span>
+                        <span class="loc-photos-count">${count}</span>
+                        ${isAdmin ? `<button class="loc-del" data-id="${loc.id}">✕</button>` : ''}
+                    </li>
+                `;
+            });
+            list.innerHTML = html;
+
+            list.querySelectorAll('li[data-id]').forEach(li => {
+                li.addEventListener('click', (e) => {
+                    if (e.target.closest('.loc-del')) return;
+                    const id = Number(li.dataset.id);
+                    const loc = locations.find(l => l.id === id);
+                    if (loc && mapInstance) {
+                        mapInstance.flyTo([loc.lat, loc.lng], 4, { duration: 1 });
+                        const marker = markerMap.get(id);
+                        if (marker) setTimeout(() => marker.openPopup(), 400);
+                    }
+                });
+                const del = li.querySelector('.loc-del');
+                if (del) {
+                    del.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        deleteLocation(Number(del.dataset.id));
+                    });
+                }
+            });
+        }
+
+        function renderMarkers() {
+            if (!mapInstance) return;
+            markerMap.forEach(m => mapInstance.removeLayer(m));
+            markerMap.clear();
+
+            const icon = L.divIcon({ html: '📍', iconSize: [32, 32], className: 'custom-marker', iconAnchor: [16, 32] });
+
+            locations.forEach(loc => {
+                const marker = L.marker([loc.lat, loc.lng], { icon })
+                    .addTo(mapInstance)
+                    .bindPopup(`
+                        <div style="text-align:center;cursor:pointer;" onclick="openModal(${loc.id})">
+                            <b>${loc.name}</b><br>
+                            <span style="color:#aaa;font-size:12px;">${(loc.desc || '').substring(0, 50)}${(loc.desc || '').length > 50 ? '...' : ''}</span>
+                            <span class="popup-view-link">Открыть галерею</span>
+                        </div>
+                    `, { className: 'custom-popup', maxWidth: 220 });
+                markerMap.set(loc.id, marker);
+            });
+        }
+
+        // ============================================================
+        // 7. МОДАЛКА
+        // ============================================================
+        function openModal(id) {
+            const loc = locations.find(l => l.id === id);
+            if (!loc) return;
+            currentModalId = id;
+
+            document.getElementById('modal-title').textContent = loc.name;
+            document.getElementById('modal-desc').textContent = loc.desc || 'Описание отсутствует';
+
+            const gallery = document.getElementById('modal-gallery');
+            const noPhotos = document.getElementById('modal-no-photos');
+            gallery.innerHTML = '';
+
+            const photos = loc.photos || [];
+
+            if (photos.length === 0) {
+                noPhotos.style.display = 'block';
+            } else {
+                noPhotos.style.display = 'none';
+                photos.forEach((photo, idx) => {
+                    const div = document.createElement('div');
+                    div.className = 'photo-item';
+                    const imgSrc = typeof photo === 'object' && photo.data ? photo.data : photo;
+                    const cap = typeof photo === 'object' && photo.caption ? photo.caption : '';
+
+                    div.innerHTML = `
+                        <img src="${imgSrc}" loading="lazy">
+                        ${isAdmin ? `<button class="del-photo" data-idx="${idx}">✕</button>` : ''}
+                        <div class="photo-caption">
+                            ${cap ? `<span class="caption-text">${cap}</span>` : `<span class="caption-empty">Нет подписи</span>`}
+                            ${isAdmin ? `<button class="edit-caption-btn" data-idx="${idx}"><i class="fas fa-pen"></i></button>` : ''}
+                        </div>
+                    `;
+                    gallery.appendChild(div);
+
+                    // Клик по фото → открываем просмотрщик
+                    div.querySelector('img').addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        openViewer(id, idx);
+                    });
+
+                    // Удаление фото (админ)
+                    if (isAdmin) {
+                        const delBtn = div.querySelector('.del-photo');
+                        delBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            if (confirm('Удалить это фото?')) deletePhotoFromLocation(id, idx);
+                        });
+                    }
+
+                    // Редактирование подписи (админ)
+                    if (isAdmin) {
+                        const editBtn = div.querySelector('.edit-caption-btn');
+                        editBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            const newCap = prompt('Введите подпись к фото:', cap);
+                            if (newCap !== null) updatePhotoCaption(id, idx, newCap);
+                        });
+                    }
+                });
+            }
+
+            const adminArea = document.getElementById('admin-photo-area');
+            adminArea.classList.toggle('visible', isAdmin);
+
+            document.getElementById('photo-upload-input').value = '';
+            document.getElementById('photo-caption-input').value = '';
+            document.getElementById('upload-photos-btn').disabled = true;
+            document.getElementById('photo-count-label').textContent = '0 файлов';
+
+            document.getElementById('location-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeModal() {
+            document.getElementById('location-modal').classList.remove('active');
+            document.body.style.overflow = '';
+            currentModalId = null;
+        }
+
+        window.openModal = openModal;
+        document.getElementById('modal-close-btn').addEventListener('click', closeModal);
+        document.getElementById('location-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeModal();
+        });
+
+        // ============================================================
+        // 8. ПОЛНОЭКРАННЫЙ ПРОСМОТРЩИК
+        // ============================================================
+        let viewerData = { locId: null, index: 0, photos: [] };
+
+        function openViewer(locId, index) {
+            const loc = locations.find(l => l.id === locId);
+            if (!loc || !loc.photos || loc.photos.length === 0) return;
+
+            viewerData.locId = locId;
+            viewerData.index = index;
+            viewerData.photos = loc.photos;
+
+            updateViewer();
+            document.getElementById('photo-viewer').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function updateViewer() {
+            const photo = viewerData.photos[viewerData.index];
+            const imgSrc = typeof photo === 'object' && photo.data ? photo.data : photo;
+            const cap = typeof photo === 'object' && photo.caption ? photo.caption : '';
+
+            document.getElementById('viewer-image').src = imgSrc;
+            document.getElementById('viewer-counter').textContent =
+                (viewerData.index + 1) + ' / ' + viewerData.photos.length;
+
+            const capEl = document.getElementById('viewer-caption');
+            if (cap) {
+                capEl.textContent = cap;
+                capEl.style.display = 'block';
+            } else {
+                capEl.style.display = 'none';
+            }
+        }
+
+        function closeViewer() {
+            document.getElementById('photo-viewer').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('viewer-close-btn').addEventListener('click', closeViewer);
+        document.getElementById('photo-viewer').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) closeViewer();
+        });
+
+        document.getElementById('viewer-prev').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (viewerData.photos.length === 0) return;
+            viewerData.index = (viewerData.index - 1 + viewerData.photos.length) % viewerData.photos.length;
+            updateViewer();
+        });
+
+        document.getElementById('viewer-next').addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (viewerData.photos.length === 0) return;
+            viewerData.index = (viewerData.index + 1) % viewerData.photos.length;
+            updateViewer();
+        });
+
+        document.addEventListener('keydown', (e) => {
+            const viewer = document.getElementById('photo-viewer');
+            if (!viewer.classList.contains('active')) return;
+            if (e.key === 'Escape') closeViewer();
+            else if (e.key === 'ArrowLeft') document.getElementById('viewer-prev').click();
+            else if (e.key === 'ArrowRight') document.getElementById('viewer-next').click();
+        });
+
+        // ============================================================
+        // 9. ЗАГРУЗКА ФОТО
+        // ============================================================
+        const photoInput = document.getElementById('photo-upload-input');
+        const photoCountLabel = document.getElementById('photo-count-label');
+        const uploadBtn = document.getElementById('upload-photos-btn');
+        const captionInput = document.getElementById('photo-caption-input');
+
+        let selectedFiles = [];
+
+        photoInput.addEventListener('change', function(e) {
+            selectedFiles = Array.from(e.target.files);
+            photoCountLabel.textContent = selectedFiles.length + ' файлов';
+            uploadBtn.disabled = selectedFiles.length === 0;
+        });
+
+        uploadBtn.addEventListener('click', function() {
+            if (selectedFiles.length === 0 || currentModalId === null) return;
+
+            const commonCaption = captionInput.value.trim();
+
+            const readers = selectedFiles.map((file) => {
+                return new Promise((resolve) => {
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        resolve({ data: ev.target.result, caption: commonCaption || '' });
+                    };
+                    reader.readAsDataURL(file);
+                });
+            });
+
+            Promise.all(readers).then(photosData => {
+                addPhotosToLocation(currentModalId, photosData);
+                captionInput.value = '';
+                photoInput.value = '';
+                selectedFiles = [];
+                photoCountLabel.textContent = '0 файлов';
+                uploadBtn.disabled = true;
+            });
+        });
+
+        // ============================================================
+        // 10. АДМИН-ПАНЕЛЬ
+        // ============================================================
+        const loginOverlay = document.getElementById('admin-login-overlay');
+        const adminToggleBtn = document.getElementById('admin-toggle-btn');
+        const adminStatus = document.getElementById('admin-status');
+
+        adminToggleBtn.addEventListener('click', function() {
+            if (isAdmin) {
+                isAdmin = false;
+                updateAdminUI();
+                renderAll();
+                alert('Вы вышли из админ-панели.');
+            } else {
+                loginOverlay.classList.add('active');
+                document.getElementById('admin-password-input').value = '';
+                document.getElementById('login-error').style.display = 'none';
+                setTimeout(() => document.getElementById('admin-password-input').focus(), 100);
+            }
+        });
+
+        document.getElementById('admin-login-btn').addEventListener('click', handleLogin);
+        document.getElementById('admin-password-input').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') handleLogin();
+        });
+
+        function handleLogin() {
+            const password = document.getElementById('admin-password-input').value;
+            if (password === ADMIN_PASSWORD) {
+                isAdmin = true;
+                loginOverlay.classList.remove('active');
+                updateAdminUI();
+                renderAll();
+                alert('Добро пожаловать в админ-панель!');
+            } else {
+                document.getElementById('login-error').style.display = 'block';
+                document.getElementById('admin-password-input').value = '';
+                document.getElementById('admin-password-input').focus();
+            }
+        }
+
+        function updateAdminUI() {
+            if (isAdmin) {
+                adminToggleBtn.textContent = 'Выйти';
+                adminToggleBtn.classList.add('active');
+                adminStatus.textContent = 'Админ';
+                adminStatus.style.color = '#d4c08a';
+            } else {
+                adminToggleBtn.textContent = 'Админ-панель';
+                adminToggleBtn.classList.remove('active');
+                adminStatus.textContent = 'Просмотр';
+                adminStatus.style.color = '#666';
+            }
+        }
+
+        // ============================================================
+        // 11. ЗАПУСК
+        // ============================================================
+        loadData();
+        initMap();
+
+        console.log('✅ Атлас загружен! Пароль: pivoyVari2006');
+    </script>
+</body>
+</html>
