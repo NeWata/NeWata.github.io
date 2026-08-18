@@ -38,6 +38,9 @@
         #header-actions button:hover { background: rgba(255,255,255,0.12); border-color: #d4c08a; color: #fff; }
         #header-actions button.active { background: #d4c08a; color: #0a0a12; border-color: #d4c08a; }
         #admin-status { font-size: 12px; color: #666; padding: 4px 12px; border-radius: 12px; background: rgba(255,255,255,0.05); }
+        #sync-status { font-size: 11px; color: #555; padding: 4px 12px; border-radius: 12px; background: rgba(255,255,255,0.05); }
+        #sync-status.synced { color: #4caf50; }
+        #sync-status.syncing { color: #ffa726; }
 
         #main { display: flex; flex: 1; overflow: hidden; }
 
@@ -70,7 +73,6 @@
         #map-container { flex: 1; position: relative; background: #0a0a12; }
         #map { width: 100%; height: 100%; background: #0a0a12; }
 
-        /* МОДАЛКА ЛОКАЦИИ */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85); backdrop-filter: blur(6px);
@@ -106,7 +108,6 @@
         .modal-header h2 { font-size: 24px; color: #f0e8c8; }
         .modal-header .modal-desc { color: #aaa; font-size: 14px; margin-top: 4px; line-height: 1.4; }
 
-        /* ГАЛЕРЕЯ */
         .photo-gallery {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -196,7 +197,6 @@
         .add-photo-area .caption-input-area input:focus { border-color: #d4c08a; }
         .add-photo-area .caption-input-area input::placeholder { color: #444; }
 
-        /* ПОЛНОЭКРАННЫЙ ПРОСМОТРЩИК ФОТО */
         #photo-viewer {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.95);
@@ -256,7 +256,6 @@
             #photo-viewer .viewer-nav.next { right: 10px; }
         }
 
-        /* АДМИН-ЛОГИН */
         #admin-login-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.8); backdrop-filter: blur(8px);
@@ -289,7 +288,6 @@
         .login-box button:hover { background: #e8d4a0; }
         .login-box .error-msg { color: #ff5555; font-size: 13px; margin-top: 10px; display: none; }
 
-        /* ПОПАП НА КАРТЕ */
         .custom-popup .leaflet-popup-content-wrapper {
             background: #161624; color: #eee; border-radius: 12px;
             border-left: 4px solid #d4c08a;
@@ -323,6 +321,7 @@
             <span class="title-en">The Antagonist's Miserable Plot</span>
         </h1>
         <div id="header-actions">
+            <span id="sync-status">⏳ Загрузка...</span>
             <span id="admin-status">Просмотр</span>
             <button id="admin-toggle-btn">Админ-панель</button>
         </div>
@@ -339,7 +338,6 @@
         </div>
     </div>
 
-    <!-- МОДАЛКА -->
     <div class="modal-overlay" id="location-modal">
         <div class="modal-content">
             <button class="modal-close" id="modal-close-btn">✕</button>
@@ -363,7 +361,6 @@
         </div>
     </div>
 
-    <!-- ПОЛНОЭКРАННЫЙ ПРОСМОТРЩИК -->
     <div id="photo-viewer">
         <button class="viewer-close" id="viewer-close-btn">✕</button>
         <button class="viewer-nav prev" id="viewer-prev">‹</button>
@@ -373,7 +370,6 @@
         <div class="viewer-counter" id="viewer-counter">1 / 1</div>
     </div>
 
-    <!-- АДМИН-ЛОГИН -->
     <div id="admin-login-overlay">
         <div class="login-box">
             <h2>Вход в админ-панель</h2>
@@ -385,16 +381,22 @@
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // ============================================================
         // 1. КОНФИГ
         // ============================================================
         const ADMIN_PASSWORD = 'pivoyVari2006';
-        const STORAGE_KEY = 'universe_atlas_data';
         const MAP_IMAGE_URL = 'image.png';
 
         // ============================================================
-        // 2. ДАННЫЕ
+        // 2. SUPABASE — 🔥 ВСТАВЬ СВОЙ ANON KEY:
+        // ============================================================
+        const SUPABASE_URL = 'https://ufekhgjpxnnoitikkjk.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmZWtoZ2pweG5ub3V0aWlra2prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNzIwNTYsImV4cCI6MjEwMjY0ODA1Nn0.Wc5_W5sD6VAVZVCg5hBlj2zvQCE72gTdX5KUXo0mqvs;  // ← СКОПИРУЙ ИЗ НАСТРОЕК API
+
+        // ============================================================
+        // 3. СОСТОЯНИЕ
         // ============================================================
         let locations = [];
         let isAdmin = false;
@@ -403,40 +405,70 @@
         let imageOverlay = null;
         let markerMap = new Map();
 
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
         // ============================================================
-        // 3. ЗАГРУЗКА/СОХРАНЕНИЕ
+        // 4. РАБОТА С SUPABASE
         // ============================================================
-        function loadData() {
+        async function loadFromCloud() {
             try {
-                const saved = localStorage.getItem(STORAGE_KEY);
-                if (saved) {
-                    const raw = JSON.parse(saved);
-                    locations = raw.map(loc => {
-                        if (loc.photos && loc.photos.length > 0 && typeof loc.photos[0] === 'string') {
-                            loc.photos = loc.photos.map(img => ({ data: img, caption: '' }));
-                        }
-                        return loc;
-                    });
-                    console.log('Загружено', locations.length, 'локаций');
-                } else {
-                    locations = [];
-                }
-            } catch(e) { locations = []; }
-            renderAll();
+                document.getElementById('sync-status').textContent = '⏳ Загрузка...';
+                document.getElementById('sync-status').className = 'syncing';
+
+                const { data, error } = await supabase
+                    .from('locations')
+                    .select('*')
+                    .order('id', { ascending: true });
+
+                if (error) throw error;
+
+                locations = data.map(loc => {
+                    if (loc.photos && typeof loc.photos === 'object' && !Array.isArray(loc.photos)) {
+                        loc.photos = Object.values(loc.photos);
+                    }
+                    return loc;
+                });
+
+                document.getElementById('sync-status').textContent = '✅ Синхронизировано';
+                document.getElementById('sync-status').className = 'synced';
+
+                renderAll();
+                console.log('✅ Загружено из Supabase:', locations.length, 'локаций');
+                return true;
+            } catch (e) {
+                console.error('❌ Ошибка загрузки:', e);
+                document.getElementById('sync-status').textContent = '⚠️ Ошибка загрузки';
+                document.getElementById('sync-status').className = '';
+                return false;
+            }
         }
 
-        function saveData() {
+        async function saveToCloud() {
             try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(locations));
+                document.getElementById('sync-status').textContent = '⏳ Сохранение...';
+                document.getElementById('sync-status').className = 'syncing';
+
+                const { error } = await supabase
+                    .from('locations')
+                    .upsert(locations, { onConflict: 'id' });
+
+                if (error) throw error;
+
+                document.getElementById('sync-status').textContent = '✅ Сохранено';
+                document.getElementById('sync-status').className = 'synced';
+                console.log('✅ Сохранено в Supabase:', locations.length, 'локаций');
                 return true;
-            } catch(e) {
-                alert('Ошибка сохранения!');
+            } catch (e) {
+                console.error('❌ Ошибка сохранения:', e);
+                document.getElementById('sync-status').textContent = '⚠️ Ошибка сохранения';
+                document.getElementById('sync-status').className = '';
+                alert('❌ Не удалось сохранить данные!');
                 return false;
             }
         }
 
         // ============================================================
-        // 4. КАРТА
+        // 5. КАРТА
         // ============================================================
         function initMap() {
             mapInstance = L.map('map', {
@@ -479,60 +511,63 @@
         }
 
         // ============================================================
-        // 5. УПРАВЛЕНИЕ ЛОКАЦИЯМИ
+        // 6. УПРАВЛЕНИЕ ЛОКАЦИЯМИ
         // ============================================================
-        function addLocation(lat, lng, name, desc) {
-            locations.push({
+        async function addLocation(lat, lng, name, desc) {
+            const newLoc = {
                 id: Date.now(),
                 lat: parseFloat(lat),
                 lng: parseFloat(lng),
                 name: name.trim(),
-                desc: desc.trim() || 'Описание отсутствует',
+                description: desc.trim() || 'Описание отсутствует',
                 photos: []
-            });
-            saveData();
+            };
+            locations.push(newLoc);
             renderAll();
-            alert('Локация добавлена!');
+            await saveToCloud();
+            alert('Локация "' + newLoc.name + '" добавлена!');
         }
 
-        function deleteLocation(id) {
-            if (!confirm('Удалить локацию?')) return;
+        async function deleteLocation(id) {
+            const loc = locations.find(l => l.id === id);
+            if (!loc) return;
+            if (!confirm('Удалить локацию "' + loc.name + '"?')) return;
             locations = locations.filter(l => l.id !== id);
-            saveData();
             renderAll();
             if (currentModalId === id) closeModal();
+            await saveToCloud();
         }
 
-        function addPhotosToLocation(id, photosArray) {
+        async function addPhotosToLocation(id, photosArray) {
             const loc = locations.find(l => l.id === id);
             if (!loc) return;
             loc.photos = (loc.photos || []).concat(photosArray);
-            saveData();
             renderAll();
             if (currentModalId === id) openModal(id);
+            await saveToCloud();
             alert('Загружено ' + photosArray.length + ' фото!');
         }
 
-        function deletePhotoFromLocation(locId, photoIndex) {
+        async function deletePhotoFromLocation(locId, photoIndex) {
             const loc = locations.find(l => l.id === locId);
             if (!loc) return;
             loc.photos.splice(photoIndex, 1);
-            saveData();
             renderAll();
             if (currentModalId === locId) openModal(locId);
+            await saveToCloud();
         }
 
-        function updatePhotoCaption(locId, photoIndex, newCaption) {
+        async function updatePhotoCaption(locId, photoIndex, newCaption) {
             const loc = locations.find(l => l.id === locId);
             if (!loc || !loc.photos[photoIndex]) return;
             loc.photos[photoIndex].caption = newCaption;
-            saveData();
             renderAll();
             if (currentModalId === locId) openModal(locId);
+            await saveToCloud();
         }
 
         // ============================================================
-        // 6. ОТРИСОВКА
+        // 7. ОТРИСОВКА
         // ============================================================
         function renderAll() {
             renderList();
@@ -593,7 +628,7 @@
                     .bindPopup(`
                         <div style="text-align:center;cursor:pointer;" onclick="openModal(${loc.id})">
                             <b>${loc.name}</b><br>
-                            <span style="color:#aaa;font-size:12px;">${(loc.desc || '').substring(0, 50)}${(loc.desc || '').length > 50 ? '...' : ''}</span>
+                            <span style="color:#aaa;font-size:12px;">${(loc.description || '').substring(0, 50)}${(loc.description || '').length > 50 ? '...' : ''}</span>
                             <span class="popup-view-link">Открыть галерею</span>
                         </div>
                     `, { className: 'custom-popup', maxWidth: 220 });
@@ -602,7 +637,7 @@
         }
 
         // ============================================================
-        // 7. МОДАЛКА
+        // 8. МОДАЛКА
         // ============================================================
         function openModal(id) {
             const loc = locations.find(l => l.id === id);
@@ -610,7 +645,7 @@
             currentModalId = id;
 
             document.getElementById('modal-title').textContent = loc.name;
-            document.getElementById('modal-desc').textContent = loc.desc || 'Описание отсутствует';
+            document.getElementById('modal-desc').textContent = loc.description || 'Описание отсутствует';
 
             const gallery = document.getElementById('modal-gallery');
             const noPhotos = document.getElementById('modal-no-photos');
@@ -638,13 +673,11 @@
                     `;
                     gallery.appendChild(div);
 
-                    // Клик по фото → открываем просмотрщик
                     div.querySelector('img').addEventListener('click', (e) => {
                         e.stopPropagation();
                         openViewer(id, idx);
                     });
 
-                    // Удаление фото (админ)
                     if (isAdmin) {
                         const delBtn = div.querySelector('.del-photo');
                         delBtn.addEventListener('click', (e) => {
@@ -653,7 +686,6 @@
                         });
                     }
 
-                    // Редактирование подписи (админ)
                     if (isAdmin) {
                         const editBtn = div.querySelector('.edit-caption-btn');
                         editBtn.addEventListener('click', (e) => {
@@ -690,7 +722,7 @@
         });
 
         // ============================================================
-        // 8. ПОЛНОЭКРАННЫЙ ПРОСМОТРЩИК
+        // 9. ПОЛНОЭКРАННЫЙ ПРОСМОТРЩИК
         // ============================================================
         let viewerData = { locId: null, index: 0, photos: [] };
 
@@ -758,7 +790,7 @@
         });
 
         // ============================================================
-        // 9. ЗАГРУЗКА ФОТО
+        // 10. ЗАГРУЗКА ФОТО
         // ============================================================
         const photoInput = document.getElementById('photo-upload-input');
         const photoCountLabel = document.getElementById('photo-count-label');
@@ -799,7 +831,7 @@
         });
 
         // ============================================================
-        // 10. АДМИН-ПАНЕЛЬ
+        // 11. АДМИН-ПАНЕЛЬ
         // ============================================================
         const loginOverlay = document.getElementById('admin-login-overlay');
         const adminToggleBtn = document.getElementById('admin-toggle-btn');
@@ -854,12 +886,16 @@
         }
 
         // ============================================================
-        // 11. ЗАПУСК
+        // 12. ЗАПУСК
         // ============================================================
-        loadData();
-        initMap();
+        async function startApp() {
+            await loadFromCloud();
+            initMap();
+            console.log('✅ Атлас загружен! Пароль: pivoyVari2006');
+            console.log('☁️ Данные синхронизируются с Supabase');
+        }
 
-        console.log('✅ Атлас загружен! Пароль: pivoyVari2006');
+        startApp();
     </script>
 </body>
 </html>
