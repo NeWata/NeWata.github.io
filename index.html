@@ -4,8 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Провальный сюжет этого злодея / The Antagonist's Miserable Plot</title>
+    <!-- Подключаем Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Подключаем Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
         body { background: #0a0a12; color: #e0dcc8; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
@@ -338,7 +341,7 @@
         </div>
     </div>
 
-    <!-- Остальной HTML-код (модалки и т.д.) такой же, как в прошлый раз, я его не трогаю -->
+    <!-- МОДАЛКИ -->
     <div class="modal-overlay" id="location-modal">
         <div class="modal-content">
             <button class="modal-close" id="modal-close-btn">✕</button>
@@ -381,8 +384,6 @@
         </div>
     </div>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         // ============================================================
         // 1. КОНФИГ
@@ -391,7 +392,7 @@
         const MAP_IMAGE_URL = 'image.png';
 
         // ============================================================
-        // 2. SUPABASE — ТВОЙ ANON KEY (уже вставлен правильно):
+        // 2. SUPABASE
         // ============================================================
         const SUPABASE_URL = 'https://ufekhgjpxnnoitikkjk.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmZWtoZ2pweG5ub3V0aWlra2prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNzIwNTYsImV4cCI6MjEwMjY0ODA1Nn0.Wc5_W5sD6VAVZVCg5hBlj2zvQCE72gTdX5KUXo0mqvs';
@@ -406,10 +407,13 @@
         let imageOverlay = null;
         let markerMap = new Map();
 
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        // ============================================================
+        // 4. ИНИЦИАЛИЗАЦИЯ SUPABASE
+        // ============================================================
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // ============================================================
-        // 4. РАБОТА С SUPABASE
+        // 5. ЗАГРУЗКА/СОХРАНЕНИЕ
         // ============================================================
         async function loadFromCloud() {
             try {
@@ -469,9 +473,11 @@
         }
 
         // ============================================================
-        // 5. КАРТА
+        // 6. КАРТА (ОСНОВНАЯ ФУНКЦИЯ)
         // ============================================================
         function initMap() {
+            console.log('🔄 Инициализация карты...');
+            
             mapInstance = L.map('map', {
                 center: [0, 0],
                 zoom: 1.5,
@@ -483,24 +489,35 @@
             });
 
             const bounds = [[-220, -400], [220, 400]];
+            
+            // Пытаемся загрузить картинку
             const img = new Image();
             img.onload = function() {
+                console.log('✅ Картинка загружена!');
                 if (imageOverlay) mapInstance.removeLayer(imageOverlay);
-                imageOverlay = L.imageOverlay(MAP_IMAGE_URL, bounds, { opacity: 1, interactive: false }).addTo(mapInstance);
+                imageOverlay = L.imageOverlay(MAP_IMAGE_URL, bounds, { 
+                    opacity: 1, 
+                    interactive: false 
+                }).addTo(mapInstance);
                 mapInstance.fitBounds(bounds);
                 mapInstance.setMaxBounds(bounds);
-                console.log('Карта загружена!');
             };
             img.onerror = function() {
+                console.error('❌ Картинка не загружена!');
                 alert('Файл "image.png" не найден! Положите картинку рядом с index.html');
+                // Показываем тёмный фон вместо карты
                 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
                     attribution: 'OpenStreetMap'
                 }).addTo(mapInstance);
             };
             img.src = MAP_IMAGE_URL;
 
+            // Клик по карте — добавление локации (только админ)
             mapInstance.on('click', function(e) {
-                if (!isAdmin) { alert('Войдите в админ-панель!'); return; }
+                if (!isAdmin) { 
+                    alert('Войдите в админ-панель!'); 
+                    return; 
+                }
                 const lat = e.latlng.lat.toFixed(3);
                 const lng = e.latlng.lng.toFixed(3);
                 const name = prompt('Название локации:');
@@ -510,10 +527,11 @@
             });
 
             renderMarkers();
+            console.log('✅ Карта инициализирована!');
         }
 
         // ============================================================
-        // 6. УПРАВЛЕНИЕ ЛОКАЦИЯМИ
+        // 7. УПРАВЛЕНИЕ ЛОКАЦИЯМИ
         // ============================================================
         async function addLocation(lat, lng, name, desc) {
             const newLoc = {
@@ -569,7 +587,7 @@
         }
 
         // ============================================================
-        // 7. ОТРИСОВКА
+        // 8. ОТРИСОВКА
         // ============================================================
         function renderAll() {
             renderList();
@@ -639,7 +657,7 @@
         }
 
         // ============================================================
-        // 8. МОДАЛКА
+        // 9. МОДАЛКА
         // ============================================================
         function openModal(id) {
             const loc = locations.find(l => l.id === id);
@@ -724,7 +742,7 @@
         });
 
         // ============================================================
-        // 9. ПОЛНОЭКРАННЫЙ ПРОСМОТРЩИК
+        // 10. ПОЛНОЭКРАННЫЙ ПРОСМОТРЩИК
         // ============================================================
         let viewerData = { locId: null, index: 0, photos: [] };
 
@@ -792,7 +810,7 @@
         });
 
         // ============================================================
-        // 10. ЗАГРУЗКА ФОТО
+        // 11. ЗАГРУЗКА ФОТО
         // ============================================================
         const photoInput = document.getElementById('photo-upload-input');
         const photoCountLabel = document.getElementById('photo-count-label');
@@ -833,7 +851,7 @@
         });
 
         // ============================================================
-        // 11. АДМИН-ПАНЕЛЬ
+        // 12. АДМИН-ПАНЕЛЬ
         // ============================================================
         const loginOverlay = document.getElementById('admin-login-overlay');
         const adminToggleBtn = document.getElementById('admin-toggle-btn');
@@ -888,16 +906,21 @@
         }
 
         // ============================================================
-        // 12. ЗАПУСК
+        // 13. ЗАПУСК
         // ============================================================
         async function startApp() {
+            console.log('🚀 Запуск приложения...');
             await loadFromCloud();
             initMap();
             console.log('✅ Атлас загружен! Пароль: pivoyVari2006');
-            console.log('☁️ Данные синхронизируются с Supabase');
         }
 
-        startApp();
+        // Ждём, пока загрузится Supabase
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', startApp);
+        } else {
+            startApp();
+        }
     </script>
 </body>
 </html>
