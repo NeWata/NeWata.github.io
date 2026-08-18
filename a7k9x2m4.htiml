@@ -3,30 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Админ-панель — Провальный сюжет этого злодея</title>
+    <title>Админ-панель</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
-        body { 
-            background: #0a0a12; 
-            color: #e0dcc8; 
-            min-height: 100vh; 
-            display: flex; 
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-
-        #login-page {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            width: 100%;
-            background: #0a0a12;
-        }
-        #login-page.hidden { display: none; }
+        body { background: #0a0a12; color: #e0dcc8; min-height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; }
 
         .login-box {
             background: #161624;
@@ -37,372 +19,48 @@
             max-width: 92%;
             box-shadow: 0 30px 80px rgba(0,0,0,0.9);
         }
-        .login-box h2 {
-            color: #f0e8c8;
-            font-size: 24px;
-            font-weight: 300;
-            text-align: center;
-            margin-bottom: 8px;
-        }
-        .login-box p {
-            color: #666;
-            font-size: 14px;
-            text-align: center;
-            margin-bottom: 24px;
-        }
-        .login-box .form-group {
-            margin-bottom: 16px;
-        }
-        .login-box .form-group label {
-            display: block;
-            font-size: 12px;
-            color: #888;
-            margin-bottom: 4px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+        .login-box h2 { color: #f0e8c8; font-size: 24px; font-weight: 300; text-align: center; margin-bottom: 8px; }
+        .login-box p { color: #666; font-size: 14px; text-align: center; margin-bottom: 24px; }
+        .login-box .form-group { margin-bottom: 16px; }
+        .login-box .form-group label { display: block; font-size: 12px; color: #888; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
         .login-box .form-group input {
-            width: 100%;
-            padding: 12px 16px;
-            border-radius: 10px;
-            border: 1px solid #2a2a40;
-            background: #0a0a12;
-            color: #eee;
-            font-size: 15px;
-            outline: none;
-        }
-        .login-box .form-group input:focus {
-            border-color: #d4c08a;
-        }
-        .login-box button {
-            width: 100%;
-            padding: 12px;
-            border-radius: 10px;
-            border: none;
-            background: #d4c08a;
-            color: #0a0a12;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .login-box button:hover {
-            background: #e8d4a0;
-        }
-        .login-box .error-msg {
-            color: #ff5555;
-            font-size: 13px;
-            text-align: center;
-            margin-top: 12px;
-            display: none;
-        }
-
-        #admin-panel {
-            display: none;
-            width: 100%;
-            height: 100vh;
-            flex-direction: column;
-        }
-        #admin-panel.active { display: flex; }
-
-        #header {
-            background: rgba(13,13,26,0.95);
-            padding: 12px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #2a2a3e;
-            backdrop-filter: blur(8px);
-            flex-shrink: 0;
-            z-index: 100;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        #header h1 { font-size: 18px; font-weight: 300; color: #f0e8c8; }
-        #header h1 small { font-size: 13px; color: #888; font-weight: 300; }
-        #header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        #header-actions button {
-            background: rgba(255,255,255,0.06);
-            border: 1px solid #3a3a50;
-            color: #ccc;
-            padding: 6px 16px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: 0.3s;
-            font-size: 13px;
-        }
-        #header-actions button:hover { background: rgba(255,255,255,0.12); border-color: #d4c08a; color: #fff; }
-        #header-actions .primary { background: #d4c08a; color: #0a0a12; border-color: #d4c08a; }
-        #header-actions .primary:hover { background: #e8d4a0; }
-        #header-actions .danger { color: #ff5555; border-color: #ff555540; }
-        #header-actions .danger:hover { background: #ff555520; border-color: #ff5555; }
-        #sync-status { font-size: 12px; color: #555; }
-
-        #main { display: flex; flex: 1; overflow: hidden; }
-
-        #sidebar {
-            width: 260px; min-width: 260px;
-            background: rgba(16,16,28,0.95);
-            border-right: 1px solid #1e1e30;
-            padding: 16px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-        #sidebar h2 { font-size: 12px; text-transform: uppercase; letter-spacing: 2px; color: #666; margin-bottom: 12px; border-bottom: 1px solid #1e1e30; padding-bottom: 10px; }
-        #location-list { list-style: none; flex: 1; }
-        #location-list li {
-            background: rgba(22,22,34,0.8);
-            margin-bottom: 4px;
-            padding: 8px 12px;
-            border-radius: 6px;
-            border-left: 3px solid #d4c08a;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-        }
-        #location-list li:hover { background: #1e1e32; }
-        #location-list li .loc-name { font-weight: 500; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        #location-list li .loc-actions { display: flex; gap: 6px; }
-        #location-list li .loc-actions button {
-            background: none; border: none; color: #666; cursor: pointer; font-size: 14px; padding: 0 4px; transition: 0.2s;
-        }
-        #location-list li .loc-actions .del:hover { color: #ff5555; }
-        #location-list li .loc-actions .edit:hover { color: #d4c08a; }
-        .empty-msg { color: #444; text-align: center; font-style: italic; padding: 30px 0; font-size: 13px; }
-        #sidebar .footer-note { font-size: 11px; color: #333; text-align: center; border-top: 1px solid #181828; padding-top: 10px; margin-top: 10px; }
-
-        #map-container { flex: 1; position: relative; background: #0a0a12; }
-        #map { width: 100%; height: 100%; background: #0a0a12; }
-
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
-            z-index: 9999;
-            display: none;
-            justify-content: center; align-items: center;
-        }
-        .modal-overlay.active { display: flex; }
-        .modal-content {
-            background: #161624;
-            border-radius: 16px;
-            max-width: 650px;
-            width: 92%;
-            max-height: 85vh;
-            overflow-y: auto;
-            padding: 28px;
-            border: 1px solid #2e2e48;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.9);
-            position: relative;
-        }
-        .modal-close {
-            position: absolute; top: 12px; right: 16px;
-            font-size: 24px; color: #666; cursor: pointer;
-            background: none; border: none;
-        }
-        .modal-close:hover { color: #fff; transform: rotate(90deg); }
-        .modal-content h2 { font-size: 22px; color: #f0e8c8; margin-bottom: 16px; }
-
-        .form-group { margin-bottom: 14px; }
-        .form-group label { display: block; font-size: 12px; color: #888; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px; }
-        .form-group input, .form-group textarea {
-            width: 100%; padding: 10px 14px; border-radius: 8px;
+            width: 100%; padding: 12px 16px; border-radius: 10px;
             border: 1px solid #2a2a40; background: #0a0a12;
-            color: #eee; font-size: 14px; outline: none;
+            color: #eee; font-size: 15px; outline: none;
         }
-        .form-group input:focus, .form-group textarea:focus { border-color: #d4c08a; }
-        .form-group textarea { resize: vertical; min-height: 60px; font-family: inherit; }
-
-        .btn { padding: 8px 20px; border-radius: 20px; border: none; cursor: pointer; font-size: 14px; transition: 0.2s; }
-        .btn-primary { background: #d4c08a; color: #0a0a12; }
-        .btn-primary:hover { background: #e8d4a0; }
-        .btn-danger { background: #ff5555; color: #fff; }
-        .btn-danger:hover { background: #ff7777; }
-        .btn-secondary { background: rgba(255,255,255,0.06); color: #ccc; border: 1px solid #3a3a50; }
-        .btn-secondary:hover { background: rgba(255,255,255,0.12); }
-        .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
-
-        .photo-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-            gap: 10px;
-            margin: 12px 0;
+        .login-box .form-group input:focus { border-color: #d4c08a; }
+        .login-box button {
+            width: 100%; padding: 12px; border-radius: 10px;
+            border: none; background: #d4c08a;
+            color: #0a0a12; font-size: 16px; font-weight: 600;
+            cursor: pointer; transition: 0.2s;
         }
-        .photo-grid .photo-item {
-            position: relative;
-            border-radius: 8px;
-            overflow: hidden;
-            background: #0a0a12;
-            border: 1px solid #2a2a40;
-            aspect-ratio: 1;
-        }
-        .photo-grid .photo-item img { width: 100%; height: 100%; object-fit: cover; }
-        .photo-grid .photo-item .photo-caption {
-            padding: 4px 6px;
-            font-size: 11px;
-            color: #aaa;
-            background: rgba(15,15,26,0.9);
-            border-top: 1px solid #1e1e30;
-            min-height: 24px;
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-        }
-        .photo-grid .photo-item .photo-del {
-            position: absolute; top: 4px; right: 4px;
-            background: rgba(0,0,0,0.7); border: none;
-            color: #ff5555; border-radius: 50%;
-            width: 22px; height: 22px; font-size: 12px;
-            cursor: pointer; display: none; z-index: 2;
-        }
-        .photo-grid .photo-item:hover .photo-del { display: flex; align-items: center; justify-content: center; }
-
-        .file-upload-area {
-            border: 2px dashed #3a3a50;
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            color: #666;
-            cursor: pointer;
-            transition: 0.2s;
-            margin: 12px 0;
-        }
-        .file-upload-area:hover { border-color: #d4c08a; color: #aaa; }
-        .file-upload-area input[type="file"] { display: none; }
-
-        @media (max-width: 768px) {
-            #sidebar { width: 200px; min-width: 200px; }
-        }
-        @media (max-width: 500px) {
-            #sidebar { display: none; }
-        }
+        .login-box button:hover { background: #e8d4a0; }
+        .login-box .error-msg { color: #ff5555; font-size: 13px; text-align: center; margin-top: 12px; display: none; }
     </style>
 </head>
 <body>
-
-    <!-- СТРАНИЦА ВХОДА -->
-    <div id="login-page">
-        <div class="login-box">
-            <h2>Вход в админ-панель</h2>
-            <p>Введите email и пароль администратора</p>
-            <div class="form-group">
-                <label>Email</label>
-                <input type="email" id="login-email" placeholder="admin@example.com" autocomplete="email">
-            </div>
-            <div class="form-group">
-                <label>Пароль</label>
-                <input type="password" id="login-password" placeholder="Введите пароль" autocomplete="current-password">
-            </div>
-            <button id="login-btn">Войти</button>
-            <div class="error-msg" id="login-error">Неверный email или пароль</div>
+    <div class="login-box">
+        <h2>Вход в админ-панель</h2>
+        <p>Введите email и пароль администратора</p>
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="login-email" placeholder="tsumimak21@gmail.com">
         </div>
-    </div>
-
-    <!-- АДМИН-ПАНЕЛЬ -->
-    <div id="admin-panel">
-        <div id="header">
-            <h1>Админ-панель <small>Управление локациями</small></h1>
-            <div id="header-actions">
-                <span id="sync-status">Загрузка...</span>
-                <button onclick="addLocation()">Добавить локацию</button>
-                <button class="primary" onclick="saveAll()">Сохранить всё</button>
-                <button class="danger" onclick="logout()">Выйти</button>
-            </div>
+        <div class="form-group">
+            <label>Пароль</label>
+            <input type="password" id="login-password" placeholder="Введите пароль">
         </div>
-
-        <div id="main">
-            <div id="sidebar">
-                <h2>Локации</h2>
-                <ul id="location-list"><li class="empty-msg">Загрузка...</li></ul>
-                <div class="footer-note">Кликните по карте, чтобы добавить точку</div>
-            </div>
-            <div id="map-container">
-                <div id="map"></div>
-            </div>
-        </div>
-
-        <!-- Модалка редактирования -->
-        <div class="modal-overlay" id="edit-modal">
-            <div class="modal-content">
-                <button class="modal-close" onclick="closeEditModal()">✕</button>
-                <h2 id="edit-title">Редактирование</h2>
-                <div class="form-group">
-                    <label>Название</label>
-                    <input id="edit-name" placeholder="Название локации">
-                </div>
-                <div class="form-group">
-                    <label>Описание</label>
-                    <textarea id="edit-description" placeholder="Описание локации"></textarea>
-                </div>
-
-                <div id="edit-photos-section">
-                    <label style="font-size:12px;color:#888;text-transform:uppercase;letter-spacing:1px;">Фотографии</label>
-                    <div class="photo-grid" id="edit-photos-grid"></div>
-                    <div class="file-upload-area" onclick="document.getElementById('file-input').click()">
-                        Нажмите, чтобы добавить фотографии
-                        <input type="file" id="file-input" accept="image/*" multiple>
-                    </div>
-                    <div class="form-group" style="margin-top:8px;">
-                        <label>Подпись для новых фото (необязательно)</label>
-                        <input id="edit-caption-input" placeholder="Общая подпись для всех загружаемых фото">
-                    </div>
-                </div>
-
-                <div class="btn-group">
-                    <button class="btn btn-primary" onclick="saveLocation()">Сохранить</button>
-                    <button class="btn btn-secondary" onclick="closeEditModal()">Отмена</button>
-                    <button class="btn btn-danger" onclick="deleteLocation()" style="margin-left:auto;">Удалить локацию</button>
-                </div>
-            </div>
-        </div>
+        <button id="login-btn">Войти</button>
+        <div class="error-msg" id="login-error">Неверный email или пароль</div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // ============================================================
-        //  КОНФИГУРАЦИЯ
-        // ============================================================
         const SUPABASE_URL = 'https://ufekhgjpxnnoutiikkjk.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmZWtoZ2pweG5ub3V0aWlra2prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNzIwNTYsImV4cCI6MjEwMjY0ODA1Nn0.Wc5_W5sD6VAVZVCg5hBlj2zvQCE72gTdX5KUXo0mqvs';
-        const MAP_IMAGE_URL = 'image.png';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // ============================================================
-        //  СОСТОЯНИЕ
-        // ============================================================
-        let locations = [];
-        let mapInstance = null;
-        let imageOverlay = null;
-        let markerMap = new Map();
-        let editingId = null;
-        let isAdmin = false;
-
-        // ============================================================
-        //  АВТОРИЗАЦИЯ
-        // ============================================================
-        async function checkAuth() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            
-            if (session) {
-                isAdmin = true;
-                document.getElementById('login-page').classList.add('hidden');
-                document.getElementById('login-page').style.display = 'none';
-                document.getElementById('admin-panel').style.display = 'flex';
-                document.getElementById('admin-panel').classList.add('active');
-                loadLocations();
-                initMap();
-            } else {
-                document.getElementById('login-page').classList.remove('hidden');
-                document.getElementById('login-page').style.display = 'flex';
-                document.getElementById('admin-panel').style.display = 'none';
-                document.getElementById('admin-panel').classList.remove('active');
-            }
-        }
-
-        // Вход
         document.getElementById('login-btn').addEventListener('click', async function() {
             const email = document.getElementById('login-email').value.trim();
             const password = document.getElementById('login-password').value;
@@ -427,328 +85,19 @@
                 }
 
                 errorEl.style.display = 'none';
-                checkAuth();
+                alert('Вход выполнен! Добро пожаловать в админ-панель!');
+                // После входа можно показать админ-панель
             } catch (e) {
                 errorEl.textContent = 'Ошибка входа';
                 errorEl.style.display = 'block';
             }
         });
 
-        // Вход по Enter
         document.getElementById('login-password').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') document.getElementById('login-btn').click();
         });
         document.getElementById('login-email').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') document.getElementById('login-btn').click();
-        });
-
-        // Выход
-        async function logout() {
-            await supabaseClient.auth.signOut();
-            isAdmin = false;
-            checkAuth();
-        }
-
-        // ============================================================
-        //  ЗАГРУЗКА ДАННЫХ
-        // ============================================================
-        async function loadLocations() {
-            try {
-                const { data, error } = await supabaseClient
-                    .from('locations')
-                    .select('*')
-                    .order('id', { ascending: true });
-
-                if (error) throw error;
-                locations = data || [];
-                renderLocations();
-                renderMarkers();
-                document.getElementById('sync-status').textContent = '✅ Синхронизировано';
-                document.getElementById('sync-status').style.color = '#4caf50';
-                return true;
-            } catch (e) {
-                console.error('Ошибка загрузки:', e);
-                document.getElementById('sync-status').textContent = '⚠️ Ошибка загрузки';
-                document.getElementById('sync-status').style.color = '#ff5555';
-                return false;
-            }
-        }
-
-        async function saveAll() {
-            const btn = event?.target || document.querySelector('.primary');
-            btn.disabled = true;
-            btn.textContent = '⏳ Сохранение...';
-            try {
-                for (const loc of locations) {
-                    const { error } = await supabaseClient
-                        .from('locations')
-                        .upsert(loc, { onConflict: 'id' });
-                    if (error) throw error;
-                }
-                alert('Все данные сохранены!');
-                await loadLocations();
-            } catch (e) {
-                console.error('Ошибка сохранения:', e);
-                alert('Ошибка сохранения: ' + e.message);
-            }
-            btn.disabled = false;
-            btn.textContent = 'Сохранить всё';
-        }
-
-        // ============================================================
-        //  КАРТА
-        // ============================================================
-        function initMap() {
-            mapInstance = L.map('map', {
-                center: [0, 0],
-                zoom: 1.5,
-                zoomControl: true,
-                attributionControl: false,
-                crs: L.CRS.Simple,
-                minZoom: 0.5,
-                maxZoom: 10
-            });
-
-            const bounds = [[-220, -400], [220, 400]];
-            const img = new Image();
-            img.onload = function() {
-                if (imageOverlay) mapInstance.removeLayer(imageOverlay);
-                imageOverlay = L.imageOverlay(MAP_IMAGE_URL, bounds, {
-                    opacity: 1,
-                    interactive: false
-                }).addTo(mapInstance);
-                mapInstance.fitBounds(bounds);
-                mapInstance.setMaxBounds(bounds);
-            };
-            img.onerror = function() {
-                alert('Файл "image.png" не найден!');
-            };
-            img.src = MAP_IMAGE_URL;
-
-            mapInstance.on('click', function(e) {
-                if (!isAdmin) return;
-                const lat = e.latlng.lat.toFixed(3);
-                const lng = e.latlng.lng.toFixed(3);
-                const name = prompt('Название новой локации:');
-                if (!name) return;
-                const desc = prompt('Описание:');
-                createLocation(parseFloat(lat), parseFloat(lng), name, desc || '');
-            });
-
-            renderMarkers();
-        }
-
-        // ============================================================
-        //  УПРАВЛЕНИЕ ЛОКАЦИЯМИ
-        // ============================================================
-        function createLocation(lat, lng, name, desc) {
-            const newLoc = {
-                id: Date.now(),
-                lat: parseFloat(lat),
-                lng: parseFloat(lng),
-                name: name.trim(),
-                description: desc.trim() || 'Описание отсутствует',
-                photos: []
-            };
-            locations.push(newLoc);
-            renderAll();
-            saveAll();
-        }
-
-        function renderAll() {
-            renderLocations();
-            renderMarkers();
-        }
-
-        function renderLocations() {
-            const list = document.getElementById('location-list');
-            if (!locations || locations.length === 0) {
-                list.innerHTML = '<li class="empty-msg">Нет локаций. Кликните по карте, чтобы добавить.</li>';
-                return;
-            }
-            let html = '';
-            locations.forEach(loc => {
-                const count = loc.photos ? loc.photos.length : 0;
-                html += `
-                    <li>
-                        <span class="loc-name">${loc.name}</span>
-                        <span style="color:#666;font-size:11px;">${count}</span>
-                        <div class="loc-actions">
-                            <button class="edit" onclick="openEditModal(${loc.id})">✎</button>
-                            <button class="del" onclick="deleteLocation(${loc.id})">✕</button>
-                        </div>
-                    </li>
-                `;
-            });
-            list.innerHTML = html;
-        }
-
-        function renderMarkers() {
-            if (!mapInstance) return;
-            markerMap.forEach(m => mapInstance.removeLayer(m));
-            markerMap.clear();
-
-            const icon = L.divIcon({
-                html: '📍',
-                iconSize: [28, 28],
-                className: 'custom-marker',
-                iconAnchor: [14, 28]
-            });
-
-            locations.forEach(loc => {
-                const marker = L.marker([loc.lat, loc.lng], { icon })
-                    .addTo(mapInstance)
-                    .bindPopup(`
-                        <div style="text-align:center;">
-                            <b>${loc.name}</b><br>
-                            <span style="color:#aaa;font-size:12px;">${(loc.description || '').substring(0, 50)}</span>
-                        </div>
-                    `, { className: 'custom-popup', maxWidth: 200 });
-                markerMap.set(loc.id, marker);
-            });
-        }
-
-        // ============================================================
-        //  РЕДАКТИРОВАНИЕ
-        // ============================================================
-        function openEditModal(id) {
-            const loc = locations.find(l => l.id === id);
-            if (!loc) return;
-            editingId = id;
-
-            document.getElementById('edit-title').textContent = 'Редактирование: ' + loc.name;
-            document.getElementById('edit-name').value = loc.name;
-            document.getElementById('edit-description').value = loc.description || '';
-
-            const grid = document.getElementById('edit-photos-grid');
-            grid.innerHTML = '';
-            if (loc.photos && loc.photos.length > 0) {
-                loc.photos.forEach((photo, idx) => {
-                    const div = document.createElement('div');
-                    div.className = 'photo-item';
-                    const url = typeof photo === 'object' && photo.url ? photo.url : photo;
-                    const cap = typeof photo === 'object' && photo.caption ? photo.caption : '';
-                    div.innerHTML = `
-                        <img src="${url}" loading="lazy">
-                        <div class="photo-caption">${cap || 'Без подписи'}</div>
-                        <button class="photo-del" onclick="deletePhoto(${id}, ${idx})">✕</button>
-                    `;
-                    grid.appendChild(div);
-                });
-            }
-
-            document.getElementById('edit-modal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        function closeEditModal() {
-            document.getElementById('edit-modal').classList.remove('active');
-            document.body.style.overflow = '';
-            editingId = null;
-        }
-
-        // ============================================================
-        //  СОХРАНЕНИЕ ЛОКАЦИИ
-        // ============================================================
-        function saveLocation() {
-            if (editingId === null) return;
-            const loc = locations.find(l => l.id === editingId);
-            if (!loc) return;
-
-            loc.name = document.getElementById('edit-name').value.trim() || 'Без названия';
-            loc.description = document.getElementById('edit-description').value.trim() || 'Описание отсутствует';
-
-            renderAll();
-            saveAll();
-            closeEditModal();
-        }
-
-        // ============================================================
-        //  УДАЛЕНИЕ
-        // ============================================================
-        function deleteLocation(id) {
-            if (!confirm('Удалить эту локацию?')) return;
-            locations = locations.filter(l => l.id !== id);
-            renderAll();
-            saveAll();
-            if (editingId === id) closeEditModal();
-        }
-
-        function deletePhoto(locId, photoIdx) {
-            if (!confirm('Удалить это фото?')) return;
-            const loc = locations.find(l => l.id === locId);
-            if (!loc || !loc.photos) return;
-            loc.photos.splice(photoIdx, 1);
-            renderAll();
-            saveAll();
-            openEditModal(locId);
-        }
-
-        // ============================================================
-        //  ЗАГРУЗКА ФОТО В STORAGE
-        // ============================================================
-        document.getElementById('file-input').addEventListener('change', async function(e) {
-            if (editingId === null) return;
-            const files = e.target.files;
-            if (!files.length) return;
-
-            const loc = locations.find(l => l.id === editingId);
-            if (!loc) return;
-
-            const caption = document.getElementById('edit-caption-input').value.trim();
-
-            for (const file of files) {
-                try {
-                    const fileExt = file.name.split('.').pop();
-                    const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
-                    const filePath = `locations/${editingId}/${fileName}`;
-
-                    const { error: uploadError } = await supabaseClient.storage
-                        .from('photos')
-                        .upload(filePath, file);
-
-                    if (uploadError) throw uploadError;
-
-                    const { data: urlData } = supabaseClient.storage
-                        .from('photos')
-                        .getPublicUrl(filePath);
-
-                    const photoData = {
-                        url: urlData.publicUrl,
-                        caption: caption || ''
-                    };
-
-                    if (!loc.photos) loc.photos = [];
-                    loc.photos.push(photoData);
-                } catch (err) {
-                    console.error('Ошибка загрузки фото:', err);
-                    alert('Ошибка загрузки фото: ' + err.message);
-                }
-            }
-
-            renderAll();
-            await saveAll();
-            openEditModal(editingId);
-            document.getElementById('file-input').value = '';
-            document.getElementById('edit-caption-input').value = '';
-        });
-
-        // ============================================================
-        //  ДОБАВЛЕНИЕ ЛОКАЦИИ (кнопка)
-        // ============================================================
-        function addLocation() {
-            if (!mapInstance) return;
-            mapInstance.setView([0, 0], 1.5);
-            alert('Кликните по карте, чтобы добавить новую локацию.');
-        }
-
-        // ============================================================
-        //  ЗАПУСК
-        // ============================================================
-        checkAuth();
-
-        document.addEventListener('visibilitychange', function() {
-            if (!document.hidden) checkAuth();
         });
     </script>
 </body>
