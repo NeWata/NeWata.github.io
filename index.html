@@ -228,14 +228,14 @@
             #header h1 .separator { display: none; }
         }
 
-        /* ===== АДМИН-ПАНЕЛЬ (всплывающая) ===== */
+        /* ===== АДМИН-ПАНЕЛЬ ===== */
         .admin-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.92);
             backdrop-filter: blur(12px);
             z-index: 10000;
             display: none;
@@ -247,18 +247,22 @@
 
         .admin-box {
             background: #161624;
-            padding: 40px;
-            border-radius: 20px;
+            padding: 30px;
+            border-radius: 16px;
             border: 1px solid #2e2e48;
-            width: 420px;
-            max-width: 92%;
+            width: 500px;
+            max-width: 94%;
             box-shadow: 0 30px 80px rgba(0,0,0,0.9);
             max-height: 90vh;
             overflow-y: auto;
+            position: relative;
         }
+        .admin-box::-webkit-scrollbar { width: 4px; }
+        .admin-box::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
+
         .admin-box h2 {
             color: #f0e8c8;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: 300;
             text-align: center;
             margin-bottom: 4px;
@@ -267,22 +271,34 @@
             color: #666;
             font-size: 13px;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
         }
-        .admin-box .form-group { margin-bottom: 14px; }
+        .admin-close {
+            position: absolute;
+            top: 10px;
+            right: 16px;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        .admin-close:hover { color: #fff; transform: rotate(90deg); }
+
+        .admin-box .form-group { margin-bottom: 12px; }
         .admin-box .form-group label {
             display: block;
             font-size: 11px;
             color: #888;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
             text-transform: uppercase;
             letter-spacing: 1px;
         }
         .admin-box .form-group input,
         .admin-box .form-group textarea {
             width: 100%;
-            padding: 10px 14px;
-            border-radius: 8px;
+            padding: 8px 12px;
+            border-radius: 6px;
             border: 1px solid #2a2a40;
             background: #0a0a12;
             color: #eee;
@@ -291,14 +307,14 @@
         }
         .admin-box .form-group input:focus,
         .admin-box .form-group textarea:focus { border-color: #d4c08a; }
-        .admin-box .form-group textarea { resize: vertical; min-height: 60px; font-family: inherit; }
+        .admin-box .form-group textarea { resize: vertical; min-height: 50px; font-family: inherit; }
 
         .admin-box .btn {
-            padding: 10px 24px;
-            border-radius: 20px;
+            padding: 8px 18px;
+            border-radius: 16px;
             border: none;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             transition: 0.2s;
         }
         .admin-box .btn-primary { background: #d4c08a; color: #0a0a12; }
@@ -307,25 +323,13 @@
         .admin-box .btn-danger:hover { background: #ff7777; }
         .admin-box .btn-secondary { background: rgba(255,255,255,0.06); color: #ccc; border: 1px solid #3a3a50; }
         .admin-box .btn-secondary:hover { background: rgba(255,255,255,0.12); }
-        .admin-box .btn-group { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; }
-        .admin-box .admin-close {
-            position: absolute;
-            top: 20px;
-            right: 30px;
-            font-size: 28px;
-            color: #666;
-            cursor: pointer;
-            background: none;
-            border: none;
-        }
-        .admin-box .admin-close:hover { color: #fff; transform: rotate(90deg); }
-        .admin-box .error-msg { color: #ff5555; font-size: 13px; text-align: center; margin-top: 10px; display: none; }
+        .admin-box .btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
 
         .admin-box .photo-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
             gap: 8px;
-            margin: 10px 0;
+            margin: 8px 0;
         }
         .admin-box .photo-grid .photo-item {
             position: relative;
@@ -352,18 +356,20 @@
             color: #ff5555; border-radius: 50%;
             width: 20px; height: 20px; font-size: 11px;
             cursor: pointer; display: none; z-index: 2;
+            align-items: center;
+            justify-content: center;
         }
-        .admin-box .photo-grid .photo-item:hover .photo-del { display: flex; align-items: center; justify-content: center; }
+        .admin-box .photo-grid .photo-item:hover .photo-del { display: flex; }
 
         .admin-box .file-upload-area {
             border: 2px dashed #3a3a50;
-            border-radius: 8px;
-            padding: 16px;
+            border-radius: 6px;
+            padding: 14px;
             text-align: center;
             color: #666;
             cursor: pointer;
             transition: 0.2s;
-            margin: 10px 0;
+            margin: 8px 0;
             font-size: 13px;
         }
         .admin-box .file-upload-area:hover { border-color: #d4c08a; color: #aaa; }
@@ -371,26 +377,40 @@
 
         .admin-box .admin-list {
             list-style: none;
-            max-height: 200px;
+            max-height: 150px;
             overflow-y: auto;
-            margin: 8px 0;
+            margin: 6px 0;
         }
         .admin-box .admin-list li {
             background: rgba(22,22,34,0.8);
-            padding: 6px 10px;
+            padding: 5px 10px;
             border-radius: 4px;
             border-left: 2px solid #d4c08a;
             display: flex;
             justify-content: space-between;
             align-items: center;
             font-size: 13px;
-            margin-bottom: 4px;
+            margin-bottom: 3px;
         }
         .admin-box .admin-list li .loc-actions button {
             background: none; border: none; color: #666; cursor: pointer; font-size: 13px; padding: 0 4px;
         }
         .admin-box .admin-list li .loc-actions .del:hover { color: #ff5555; }
         .admin-box .admin-list li .loc-actions .edit:hover { color: #d4c08a; }
+
+        .admin-box .status-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 10px;
+            font-size: 12px;
+            color: #555;
+        }
+        .admin-box .status-bar .status-ok { color: #4caf50; }
+        .admin-box .status-bar .status-error { color: #ff5555; }
+        .admin-box .status-bar .status-syncing { color: #ffa726; }
     </style>
 </head>
 <body>
@@ -431,7 +451,7 @@
 
     <!-- ===== АДМИН-ПАНЕЛЬ (всплывающая) ===== -->
     <div class="admin-overlay" id="admin-overlay">
-        <div class="admin-box" style="position:relative;">
+        <div class="admin-box">
             <button class="admin-close" id="admin-close-btn">✕</button>
 
             <div id="admin-login">
@@ -446,18 +466,20 @@
                     <input type="password" id="admin-password" placeholder="Введите пароль">
                 </div>
                 <button class="btn btn-primary" id="admin-login-btn" style="width:100%;">Войти</button>
-                <div class="error-msg" id="admin-login-error">Неверный email или пароль</div>
+                <div class="error-msg" id="admin-login-error" style="color:#ff5555;font-size:13px;text-align:center;margin-top:8px;display:none;">Неверный email или пароль</div>
             </div>
 
             <div id="admin-panel-content" style="display:none;">
                 <h2>Админ-панель</h2>
                 <p class="subtitle">Управление локациями</p>
 
-                <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
-                    <button class="btn btn-primary" id="admin-add-location">Добавить локацию</button>
-                    <button class="btn btn-secondary" id="admin-save-all">Сохранить всё</button>
-                    <button class="btn btn-danger" id="admin-logout">Выйти</button>
-                    <span id="admin-sync-status" style="font-size:11px;color:#555;margin-left:auto;align-self:center;">⏳ Загрузка...</span>
+                <div class="status-bar">
+                    <span id="admin-sync-status">⏳ Загрузка...</span>
+                    <div>
+                        <button class="btn btn-primary" id="admin-add-location" style="padding:4px 12px;font-size:12px;">+ Добавить</button>
+                        <button class="btn btn-secondary" id="admin-save-all" style="padding:4px 12px;font-size:12px;">💾 Сохранить</button>
+                        <button class="btn btn-danger" id="admin-logout" style="padding:4px 12px;font-size:12px;">🚪 Выйти</button>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -473,7 +495,7 @@
                     <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Фотографии</label>
                     <div class="photo-grid" id="admin-photos-grid"></div>
                     <div class="file-upload-area" id="admin-file-upload">
-                        Нажмите, чтобы добавить фотографии
+                        📁 Нажмите, чтобы добавить фотографии
                         <input type="file" id="admin-file-input" accept="image/*" multiple>
                     </div>
                     <div class="form-group" style="margin-top:6px;">
@@ -483,12 +505,12 @@
                 </div>
 
                 <div class="btn-group">
-                    <button class="btn btn-primary" id="admin-save-location">Сохранить</button>
-                    <button class="btn btn-secondary" id="admin-cancel-edit">Отмена</button>
-                    <button class="btn btn-danger" id="admin-delete-location" style="margin-left:auto;">Удалить локацию</button>
+                    <button class="btn btn-primary" id="admin-save-location">💾 Сохранить</button>
+                    <button class="btn btn-secondary" id="admin-cancel-edit">↩️ Отмена</button>
+                    <button class="btn btn-danger" id="admin-delete-location" style="margin-left:auto;">🗑️ Удалить</button>
                 </div>
 
-                <hr style="border-color:#1e1e30; margin:16px 0;">
+                <hr style="border-color:#1e1e30; margin:12px 0;">
 
                 <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Все локации</label>
                 <ul class="admin-list" id="admin-location-list"></ul>
@@ -514,9 +536,8 @@
         let imageOverlay = null;
         let markerMap = new Map();
         let currentModalId = null;
-        let adminEditingId = null;
+        let editingId = null;
         let isAdmin = false;
-        let selectedFiles = [];
 
         // ============================================================
         //  ЗАГРУЗКА ДАННЫХ (ПУБЛИЧНАЯ)
@@ -759,7 +780,7 @@
         }
 
         // ============================================================
-        //  АДМИН-ПАНЕЛЬ (всплывающая)
+        //  АДМИН-ПАНЕЛЬ
         // ============================================================
         const adminOverlay = document.getElementById('admin-overlay');
         const adminToggleBtn = document.getElementById('admin-toggle-btn');
@@ -778,12 +799,14 @@
         adminCloseBtn.addEventListener('click', () => {
             adminOverlay.classList.remove('active');
             document.body.style.overflow = '';
+            editingId = null;
         });
 
         adminOverlay.addEventListener('click', (e) => {
             if (e.target === e.currentTarget) {
                 adminOverlay.classList.remove('active');
                 document.body.style.overflow = '';
+                editingId = null;
             }
         });
 
@@ -794,22 +817,14 @@
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
                 isAdmin = true;
-                showAdminPanel();
+                document.getElementById('admin-login').style.display = 'none';
+                document.getElementById('admin-panel-content').style.display = 'block';
+                document.getElementById('admin-login-error').style.display = 'none';
+                loadAdminLocations();
             } else {
-                showAdminLogin();
+                document.getElementById('admin-login').style.display = 'block';
+                document.getElementById('admin-panel-content').style.display = 'none';
             }
-        }
-
-        function showAdminLogin() {
-            document.getElementById('admin-login').style.display = 'block';
-            document.getElementById('admin-panel-content').style.display = 'none';
-            document.getElementById('admin-login-error').style.display = 'none';
-        }
-
-        function showAdminPanel() {
-            document.getElementById('admin-login').style.display = 'none';
-            document.getElementById('admin-panel-content').style.display = 'block';
-            loadAdminLocations();
         }
 
         document.getElementById('admin-login-btn').addEventListener('click', async function() {
@@ -837,7 +852,9 @@
 
                 errorEl.style.display = 'none';
                 isAdmin = true;
-                showAdminPanel();
+                document.getElementById('admin-login').style.display = 'none';
+                document.getElementById('admin-panel-content').style.display = 'block';
+                loadAdminLocations();
             } catch (e) {
                 errorEl.textContent = 'Ошибка входа';
                 errorEl.style.display = 'block';
@@ -854,9 +871,9 @@
         document.getElementById('admin-logout').addEventListener('click', async function() {
             await supabaseClient.auth.signOut();
             isAdmin = false;
-            showAdminLogin();
             document.getElementById('admin-login').style.display = 'block';
             document.getElementById('admin-panel-content').style.display = 'none';
+            editingId = null;
         });
 
         // ============================================================
@@ -874,13 +891,17 @@
                 renderAdminList();
                 renderMarkers();
                 renderLocations();
-                document.getElementById('admin-sync-status').textContent = '✅ Синхронизировано';
-                document.getElementById('admin-sync-status').style.color = '#4caf50';
+                setAdminStatus('✅ Синхронизировано', 'ok');
             } catch (e) {
                 console.error('Ошибка загрузки:', e);
-                document.getElementById('admin-sync-status').textContent = '⚠️ Ошибка загрузки';
-                document.getElementById('admin-sync-status').style.color = '#ff5555';
+                setAdminStatus('⚠️ Ошибка загрузки', 'error');
             }
+        }
+
+        function setAdminStatus(text, type) {
+            const el = document.getElementById('admin-sync-status');
+            el.textContent = text;
+            el.className = type === 'ok' ? 'status-ok' : type === 'error' ? 'status-error' : 'status-syncing';
         }
 
         function renderAdminList() {
@@ -896,8 +917,8 @@
                     <li>
                         <span>${loc.name} <span style="color:#666;font-size:11px;">(${count})</span></span>
                         <div class="loc-actions">
-                            <button class="edit" onclick="adminEditLocation(${loc.id})">✎</button>
-                            <button class="del" onclick="adminDeleteLocation(${loc.id})">✕</button>
+                            <button class="edit" onclick="editLocation(${loc.id})">✎</button>
+                            <button class="del" onclick="deleteLocation(${loc.id})">✕</button>
                         </div>
                     </li>
                 `;
@@ -909,183 +930,186 @@
             if (!mapInstance) return;
             mapInstance.setView([0, 0], 1.5);
             alert('Кликните по карте, чтобы добавить новую локацию.');
-            // Добавляем обработчик клика по карте
             mapInstance.once('click', async function(e) {
                 const lat = e.latlng.lat.toFixed(3);
                 const lng = e.latlng.lng.toFixed(3);
                 const name = prompt('Название новой локации:');
                 if (!name) return;
                 const desc = prompt('Описание:');
-                if (!desc) return;
-                await adminCreateLocation(parseFloat(lat), parseFloat(lng), name, desc);
+                const newLoc = {
+                    id: Date.now(),
+                    lat: parseFloat(lat),
+                    lng: parseFloat(lng),
+                    name: name.trim(),
+                    description: desc?.trim() || 'Описание отсутствует',
+                    photos: []
+                };
+                locations.push(newLoc);
+                await saveAll();
+                renderAdminList();
+                renderMarkers();
+                renderLocations();
+                alert('Локация добавлена!');
             });
         });
 
-        async function adminCreateLocation(lat, lng, name, desc) {
-            const newLoc = {
-                id: Date.now(),
-                lat: parseFloat(lat),
-                lng: parseFloat(lng),
-                name: name.trim(),
-                description: desc.trim() || 'Описание отсутствует',
-                photos: []
-            };
-            locations.push(newLoc);
-            await saveAllAdmin();
-            renderAdminList();
-            renderMarkers();
-            renderLocations();
-            alert('Локация "' + name + '" добавлена!');
-        }
-
-        function adminEditLocation(id) {
+        function editLocation(id) {
             const loc = locations.find(l => l.id === id);
             if (!loc) return;
-            adminEditingId = id;
+            editingId = id;
 
-            document.getElementById('admin-location-name').value = loc.name;
+            document.getElementById('admin-location-name').value = loc.name || '';
             document.getElementById('admin-location-desc').value = loc.description || '';
 
+            // Отображаем фото
             const grid = document.getElementById('admin-photos-grid');
             grid.innerHTML = '';
-            if (loc.photos && loc.photos.length > 0) {
+            if (loc.photos && Array.isArray(loc.photos) && loc.photos.length > 0) {
                 loc.photos.forEach((photo, idx) => {
+                    const url = typeof photo === 'object' ? photo.url : photo;
+                    const cap = typeof photo === 'object' ? (photo.caption || 'Без подписи') : 'Без подписи';
                     const div = document.createElement('div');
                     div.className = 'photo-item';
-                    const url = typeof photo === 'object' && photo.url ? photo.url : photo;
-                    const cap = typeof photo === 'object' && photo.caption ? photo.caption : '';
                     div.innerHTML = `
-                        <img src="${url}" loading="lazy">
-                        <div class="photo-caption">${cap || 'Без подписи'}</div>
-                        <button class="photo-del" onclick="adminDeletePhoto(${id}, ${idx})">✕</button>
+                        <img src="${url}" loading="lazy" onerror="this.style.display='none'">
+                        <div class="photo-caption">${cap}</div>
+                        <button class="photo-del" onclick="deletePhoto(${id}, ${idx})">✕</button>
                     `;
                     grid.appendChild(div);
                 });
             }
         }
 
+        // ============================================================
+        //  УДАЛЕНИЕ
+        // ============================================================
+        async function deleteLocation(id) {
+            if (!confirm('Удалить эту локацию?')) return;
+            try {
+                const { error } = await supabaseClient
+                    .from('locations')
+                    .delete()
+                    .eq('id', id);
+                if (error) throw error;
+                locations = locations.filter(l => l.id !== id);
+                renderAdminList();
+                renderMarkers();
+                renderLocations();
+                if (editingId === id) {
+                    editingId = null;
+                    document.getElementById('admin-location-name').value = '';
+                    document.getElementById('admin-location-desc').value = '';
+                    document.getElementById('admin-photos-grid').innerHTML = '';
+                }
+                setAdminStatus('✅ Удалено', 'ok');
+            } catch (e) {
+                console.error('Ошибка удаления:', e);
+                alert('Ошибка удаления: ' + e.message);
+                setAdminStatus('⚠️ Ошибка удаления', 'error');
+            }
+        }
+
+        async function deletePhoto(locId, photoIdx) {
+            if (!confirm('Удалить это фото?')) return;
+            const loc = locations.find(l => l.id === locId);
+            if (!loc || !loc.photos || !Array.isArray(loc.photos)) return;
+
+            try {
+                // Удаляем файл из Storage
+                const photo = loc.photos[photoIdx];
+                if (photo && photo.url) {
+                    const urlParts = photo.url.split('/storage/v1/object/public/photos/');
+                    if (urlParts.length > 1) {
+                        const filePath = urlParts[1];
+                        await supabaseClient.storage.from('photos').remove([filePath]);
+                    }
+                }
+                // Удаляем из массива
+                loc.photos.splice(photoIdx, 1);
+                await saveAll();
+                renderAdminList();
+                renderMarkers();
+                renderLocations();
+                editLocation(locId);
+                setAdminStatus('✅ Фото удалено', 'ok');
+            } catch (e) {
+                console.error('Ошибка удаления фото:', e);
+                alert('Ошибка удаления фото: ' + e.message);
+                setAdminStatus('⚠️ Ошибка удаления фото', 'error');
+            }
+        }
+
+        // ============================================================
+        //  СОХРАНЕНИЕ
+        // ============================================================
+        async function saveAll() {
+            try {
+                for (const loc of locations) {
+                    const { error } = await supabaseClient
+                        .from('locations')
+                        .upsert(loc, { onConflict: 'id' });
+                    if (error) throw error;
+                }
+                setAdminStatus('✅ Сохранено', 'ok');
+                return true;
+            } catch (e) {
+                console.error('Ошибка сохранения:', e);
+                setAdminStatus('⚠️ Ошибка сохранения', 'error');
+                alert('Ошибка сохранения: ' + e.message);
+                return false;
+            }
+        }
+
+        document.getElementById('admin-save-all').addEventListener('click', async function() {
+            await saveAll();
+        });
+
         document.getElementById('admin-save-location').addEventListener('click', async function() {
-            if (adminEditingId === null) {
+            if (editingId === null) {
                 alert('Сначала выберите локацию для редактирования.');
                 return;
             }
-            const loc = locations.find(l => l.id === adminEditingId);
+            const loc = locations.find(l => l.id === editingId);
             if (!loc) return;
 
             loc.name = document.getElementById('admin-location-name').value.trim() || 'Без названия';
             loc.description = document.getElementById('admin-location-desc').value.trim() || 'Описание отсутствует';
 
-            await saveAllAdmin();
+            await saveAll();
             renderAdminList();
             renderMarkers();
             renderLocations();
-            alert('Локация обновлена!');
+            alert('Локация сохранена!');
         });
 
         document.getElementById('admin-cancel-edit').addEventListener('click', function() {
-            adminEditingId = null;
+            editingId = null;
             document.getElementById('admin-location-name').value = '';
             document.getElementById('admin-location-desc').value = '';
             document.getElementById('admin-photos-grid').innerHTML = '';
             document.getElementById('admin-caption-input').value = '';
         });
 
-        document.getElementById('admin-delete-location').addEventListener('click', async function() {
-            if (adminEditingId === null) return;
-            if (!confirm('Удалить эту локацию?')) return;
-            await adminDeleteLocation(adminEditingId);
+        document.getElementById('admin-delete-location').addEventListener('click', function() {
+            if (editingId !== null) deleteLocation(editingId);
         });
 
         // ============================================================
-        //  УДАЛЕНИЕ ЛОКАЦИИ (из Supabase)
-        // ============================================================
-        async function adminDeleteLocation(id) {
-            if (!confirm('Удалить эту локацию?')) return;
-            
-            try {
-                const { error } = await supabaseClient
-                    .from('locations')
-                    .delete()
-                    .eq('id', id);
-                
-                if (error) throw error;
-                
-                locations = locations.filter(l => l.id !== id);
-                
-                renderAdminList();
-                renderLocations();
-                renderMarkers();
-                
-                if (adminEditingId === id) {
-                    adminEditingId = null;
-                    document.getElementById('admin-location-name').value = '';
-                    document.getElementById('admin-location-desc').value = '';
-                    document.getElementById('admin-photos-grid').innerHTML = '';
-                }
-                
-                document.getElementById('admin-sync-status').textContent = '✅ Удалено';
-                document.getElementById('admin-sync-status').style.color = '#4caf50';
-                alert('Локация удалена!');
-                
-            } catch (e) {
-                console.error('Ошибка удаления:', e);
-                alert('Ошибка удаления: ' + e.message);
-                document.getElementById('admin-sync-status').textContent = '⚠️ Ошибка удаления';
-                document.getElementById('admin-sync-status').style.color = '#ff5555';
-            }
-        }
-
-        // ============================================================
-        //  УДАЛЕНИЕ ФОТО
-        // ============================================================
-        async function adminDeletePhoto(locId, photoIdx) {
-            if (!confirm('Удалить это фото?')) return;
-            
-            const loc = locations.find(l => l.id === locId);
-            if (!loc || !loc.photos) return;
-            
-            try {
-                loc.photos.splice(photoIdx, 1);
-                
-                const { error } = await supabaseClient
-                    .from('locations')
-                    .upsert(loc, { onConflict: 'id' });
-                
-                if (error) throw error;
-                
-                renderAdminList();
-                renderLocations();
-                renderMarkers();
-                
-                adminEditLocation(locId);
-                
-                document.getElementById('admin-sync-status').textContent = '✅ Фото удалено';
-                document.getElementById('admin-sync-status').style.color = '#4caf50';
-                alert('Фото удалено!');
-                
-            } catch (e) {
-                console.error('Ошибка удаления фото:', e);
-                alert('Ошибка удаления фото: ' + e.message);
-            }
-        }
-
-        // ============================================================
-        //  🔥 ИСПРАВЛЕННАЯ ЗАГРУЗКА ФОТО (сохраняет в правильном формате)
+        //  ЗАГРУЗКА ФОТО
         // ============================================================
         document.getElementById('admin-file-input').addEventListener('change', async function(e) {
-            if (adminEditingId === null) {
+            if (editingId === null) {
                 alert('Сначала выберите локацию для редактирования.');
                 return;
             }
             const files = e.target.files;
             if (!files.length) return;
 
-            const loc = locations.find(l => l.id === adminEditingId);
+            const loc = locations.find(l => l.id === editingId);
             if (!loc) return;
 
             const caption = document.getElementById('admin-caption-input').value.trim();
 
-            // Если поле photos не массив — создаём массив
             if (!Array.isArray(loc.photos)) {
                 loc.photos = [];
             }
@@ -1094,7 +1118,7 @@
                 try {
                     const fileExt = file.name.split('.').pop();
                     const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
-                    const filePath = `locations/${adminEditingId}/${fileName}`;
+                    const filePath = `locations/${editingId}/${fileName}`;
 
                     const { error: uploadError } = await supabaseClient.storage
                         .from('photos')
@@ -1106,66 +1130,34 @@
                         .from('photos')
                         .getPublicUrl(filePath);
 
-                    // ✅ ПРАВИЛЬНЫЙ ФОРМАТ — объект с полями url и caption
-                    const photoData = {
+                    loc.photos.push({
                         url: urlData.publicUrl,
                         caption: caption || ''
-                    };
-
-                    loc.photos.push(photoData);
+                    });
                 } catch (err) {
                     console.error('Ошибка загрузки фото:', err);
                     alert('Ошибка загрузки фото: ' + err.message);
                 }
             }
 
-            // ✅ Сохраняем в Supabase
-            await saveAllAdmin();
-            
-            // Перерисовываем всё
+            await saveAll();
             renderAdminList();
-            renderLocations();
             renderMarkers();
-            adminEditLocation(adminEditingId);
-            
+            renderLocations();
+            editLocation(editingId);
             document.getElementById('admin-file-input').value = '';
             document.getElementById('admin-caption-input').value = '';
-            
+            setAdminStatus('✅ Фото загружены', 'ok');
             alert('Фото загружены!');
         });
 
         document.getElementById('admin-file-upload').addEventListener('click', function() {
-            if (adminEditingId === null) {
+            if (editingId === null) {
                 alert('Сначала выберите локацию для редактирования.');
                 return;
             }
             document.getElementById('admin-file-input').click();
         });
-
-        document.getElementById('admin-save-all').addEventListener('click', async function() {
-            await saveAllAdmin();
-            alert('Все данные сохранены!');
-        });
-
-        async function saveAllAdmin() {
-            try {
-                for (const loc of locations) {
-                    const { error } = await supabaseClient
-                        .from('locations')
-                        .upsert(loc, { onConflict: 'id' });
-                    if (error) throw error;
-                }
-                document.getElementById('admin-sync-status').textContent = '✅ Сохранено';
-                document.getElementById('admin-sync-status').style.color = '#4caf50';
-                return true;
-            } catch (e) {
-                console.error('Ошибка сохранения:', e);
-                document.getElementById('admin-sync-status').textContent = '⚠️ Ошибка сохранения';
-                document.getElementById('admin-sync-status').style.color = '#ff5555';
-                alert('Ошибка сохранения: ' + e.message);
-                return false;
-            }
-        }
 
         // ============================================================
         //  ЗАПУСК
