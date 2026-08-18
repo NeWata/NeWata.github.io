@@ -338,6 +338,7 @@
         </div>
     </div>
 
+    <!-- Остальной HTML-код (модалки и т.д.) такой же, как в прошлый раз, я его не трогаю -->
     <div class="modal-overlay" id="location-modal">
         <div class="modal-content">
             <button class="modal-close" id="modal-close-btn">✕</button>
@@ -390,7 +391,7 @@
         const MAP_IMAGE_URL = 'image.png';
 
         // ============================================================
-        // 2. SUPABASE — ТВОЙ ANON KEY УЖЕ ВСТАВЛЕН:
+        // 2. SUPABASE — ТВОЙ ANON KEY (уже вставлен правильно):
         // ============================================================
         const SUPABASE_URL = 'https://ufekhgjpxnnoitikkjk.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmZWtoZ2pweG5ub3V0aWlra2prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNzIwNTYsImV4cCI6MjEwMjY0ODA1Nn0.Wc5_W5sD6VAVZVCg5hBlj2zvQCE72gTdX5KUXo0mqvs';
@@ -488,6 +489,7 @@
                 imageOverlay = L.imageOverlay(MAP_IMAGE_URL, bounds, { opacity: 1, interactive: false }).addTo(mapInstance);
                 mapInstance.fitBounds(bounds);
                 mapInstance.setMaxBounds(bounds);
+                console.log('Карта загружена!');
             };
             img.onerror = function() {
                 alert('Файл "image.png" не найден! Положите картинку рядом с index.html');
