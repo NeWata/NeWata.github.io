@@ -411,6 +411,50 @@
         .admin-box .status-bar .status-ok { color: #4caf50; }
         .admin-box .status-bar .status-error { color: #ff5555; }
         .admin-box .status-bar .status-syncing { color: #ffa726; }
+
+        /* ===== КРАСИВЫЕ МАРКЕРЫ НА КАРТЕ ===== */
+        .custom-marker {
+            background: none;
+            border: none;
+            filter: drop-shadow(0 0 10px rgba(212, 192, 138, 0.3));
+        }
+        .marker-dot {
+            width: 28px;
+            height: 28px;
+            background: radial-gradient(circle at 30% 30%, #f0e8c8, #d4c08a);
+            border-radius: 50%;
+            border: 3px solid #f0e8c8;
+            box-shadow: 0 0 20px rgba(212, 192, 138, 0.4), inset 0 -2px 4px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #0a0a12;
+            position: relative;
+        }
+        .marker-dot::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 50%;
+            border: 2px solid rgba(212, 192, 138, 0.2);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 0.2; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+        .marker-dot:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 30px rgba(212, 192, 138, 0.6);
+        }
     </style>
 </head>
 <body>
@@ -494,13 +538,20 @@
                 <div id="admin-photos-section">
                     <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Фотографии</label>
                     <div class="photo-grid" id="admin-photos-grid"></div>
-                    <div class="file-upload-area" id="admin-file-upload">
-                        📁 Нажмите, чтобы добавить фотографии
-                        <input type="file" id="admin-file-input" accept="image/*" multiple>
-                    </div>
-                    <div class="form-group" style="margin-top:6px;">
-                        <label>Подпись для новых фото</label>
-                        <input id="admin-caption-input" placeholder="Общая подпись">
+                    
+                    <!-- ===== ПОНЯТНЫЙ ИНТЕРФЕЙС ДЛЯ ДОБАВЛЕНИЯ ФОТО ===== -->
+                    <div style="background: #0f0f1a; border-radius: 8px; padding: 14px; margin: 8px 0; border: 1px solid #1e1e30;">
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+                            <label style="font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px;">Добавить фото:</label>
+                            <button class="btn btn-secondary" id="admin-file-upload" style="padding: 4px 14px; font-size: 12px;">📁 Выбрать файлы</button>
+                            <input type="file" id="admin-file-input" accept="image/*" multiple style="display:none;">
+                            <span id="admin-file-count" style="font-size: 12px; color: #555;">0 файлов</span>
+                        </div>
+                        <div class="form-group" style="margin: 0;">
+                            <label style="font-size: 10px; color: #666;">Подпись для новых фото (будет применена ко всем загружаемым фото)</label>
+                            <input id="admin-caption-input" placeholder="Например: Вид с высоты, 2024 г." style="font-size: 13px; padding: 6px 10px;">
+                        </div>
+                        <button class="btn btn-primary" id="admin-upload-btn" style="padding: 4px 18px; font-size: 12px; margin-top: 6px;">⬆ Загрузить фото</button>
                     </div>
                 </div>
 
@@ -538,6 +589,7 @@
         let currentModalId = null;
         let editingId = null;
         let isAdmin = false;
+        let selectedFiles = [];
 
         // ============================================================
         //  ЗАГРУЗКА ДАННЫХ
@@ -621,16 +673,20 @@
             list.innerHTML = html;
         }
 
+        // ============================================================
+        //  ⭐ КРАСИВЫЕ МАРКЕРЫ (ТОЧКИ)
+        // ============================================================
         function renderMarkers() {
             if (!mapInstance) return;
             markerMap.forEach(m => mapInstance.removeLayer(m));
             markerMap.clear();
 
+            // Создаём DIV-иконку с красивой точкой
             const icon = L.divIcon({
-                html: '📍',
-                iconSize: [28, 28],
                 className: 'custom-marker',
-                iconAnchor: [14, 28]
+                html: '<div class="marker-dot"></div>',
+                iconSize: [28, 28],
+                iconAnchor: [14, 14]
             });
 
             locations.forEach(loc => {
@@ -954,7 +1010,7 @@
         });
 
         // ============================================================
-        //  🔥 ГЛАВНАЯ ФУНКЦИЯ — РЕДАКТИРОВАНИЕ (фото показываются!)
+        //  РЕДАКТИРОВАНИЕ
         // ============================================================
         function editLocation(id) {
             const loc = locations.find(l => l.id === id);
@@ -967,51 +1023,21 @@
             const grid = document.getElementById('admin-photos-grid');
             grid.innerHTML = '';
 
-            // Проверяем, есть ли фото
-            if (!loc.photos) {
+            if (!loc.photos || !Array.isArray(loc.photos) || loc.photos.length === 0) {
                 grid.innerHTML = '<div style="color:#444;font-style:italic;padding:10px;text-align:center;">Нет фотографий</div>';
                 return;
             }
 
-            // Приводим к массиву
-            let photosArray = [];
-            if (Array.isArray(loc.photos)) {
-                photosArray = loc.photos;
-            } else if (typeof loc.photos === 'string') {
-                try {
-                    const parsed = JSON.parse(loc.photos);
-                    photosArray = Array.isArray(parsed) ? parsed : [parsed];
-                } catch (e) {
-                    photosArray = [];
-                }
-            } else if (typeof loc.photos === 'object') {
-                photosArray = Object.values(loc.photos);
-            }
-
-            if (photosArray.length === 0) {
-                grid.innerHTML = '<div style="color:#444;font-style:italic;padding:10px;text-align:center;">Нет фотографий</div>';
-                return;
-            }
-
-            photosArray.forEach((photo, idx) => {
-                // 🔥 БЕРЁМ URL — В ЛЮБОМ ФОРМАТЕ!
-                let url = null;
-                let caption = 'Без подписи';
-                
-                if (typeof photo === 'string') {
-                    url = photo;
-                } else if (typeof photo === 'object' && photo !== null) {
-                    url = photo.url || photo.image || photo.src || photo;
-                    caption = photo.caption || photo.description || photo.name || 'Без подписи';
-                }
-
+            loc.photos.forEach((photo, idx) => {
+                const url = typeof photo === 'object' && photo.url ? photo.url : photo;
+                const cap = typeof photo === 'object' && photo.caption ? photo.caption : 'Без подписи';
                 if (!url) return;
 
                 const div = document.createElement('div');
                 div.className = 'photo-item';
                 div.innerHTML = `
                     <img src="${url}" loading="lazy" onerror="this.parentElement.style.display='none'">
-                    <div class="photo-caption">${caption}</div>
+                    <div class="photo-caption">${cap}</div>
                     <button class="photo-del" onclick="deletePhoto(${id}, ${idx})">✕</button>
                 `;
                 grid.appendChild(div);
@@ -1040,6 +1066,7 @@
                     document.getElementById('admin-photos-grid').innerHTML = '';
                 }
                 setAdminStatus('✅ Удалено', 'ok');
+                alert('Локация удалена!');
             } catch (e) {
                 console.error('Ошибка удаления:', e);
                 alert('Ошибка удаления: ' + e.message);
@@ -1053,35 +1080,17 @@
             if (!loc || !loc.photos) return;
 
             try {
-                // Удаляем файл из Storage
-                let photosArray = [];
-                if (Array.isArray(loc.photos)) {
-                    photosArray = loc.photos;
-                } else if (typeof loc.photos === 'string') {
-                    try { photosArray = JSON.parse(loc.photos); } catch(e) { photosArray = []; }
-                } else if (typeof loc.photos === 'object') {
-                    photosArray = Object.values(loc.photos);
-                }
-
-                const photo = photosArray[photoIdx];
-                if (photo && typeof photo === 'object' && photo.url) {
-                    const urlParts = photo.url.split('/storage/v1/object/public/photos/');
+                const photo = loc.photos[photoIdx];
+                const url = typeof photo === 'object' && photo.url ? photo.url : photo;
+                if (url && typeof url === 'string') {
+                    const urlParts = url.split('/storage/v1/object/public/photos/');
                     if (urlParts.length > 1) {
                         const filePath = urlParts[1];
                         await supabaseClient.storage.from('photos').remove([filePath]);
                     }
                 }
 
-                // Удаляем из массива
-                photosArray.splice(photoIdx, 1);
-                
-                // Сохраняем обратно в том же формате
-                if (Array.isArray(loc.photos)) {
-                    loc.photos = photosArray;
-                } else {
-                    loc.photos = photosArray;
-                }
-
+                loc.photos.splice(photoIdx, 1);
                 await saveAll();
                 renderAdminList();
                 renderMarkers();
@@ -1152,27 +1161,43 @@
         });
 
         // ============================================================
-        //  ЗАГРУЗКА ФОТО
+        //  ⭐ ЗАГРУЗКА ФОТО (ПОНЯТНЫЙ ИНТЕРФЕЙС)
         // ============================================================
-        document.getElementById('admin-file-input').addEventListener('change', async function(e) {
+        document.getElementById('admin-file-upload').addEventListener('click', function() {
             if (editingId === null) {
                 alert('Сначала выберите локацию для редактирования.');
                 return;
             }
-            const files = e.target.files;
-            if (!files.length) return;
+            document.getElementById('admin-file-input').click();
+        });
+
+        document.getElementById('admin-file-input').addEventListener('change', function(e) {
+            selectedFiles = Array.from(e.target.files);
+            document.getElementById('admin-file-count').textContent = selectedFiles.length + ' файлов';
+        });
+
+        document.getElementById('admin-upload-btn').addEventListener('click', async function() {
+            if (editingId === null) {
+                alert('Сначала выберите локацию для редактирования.');
+                return;
+            }
+            if (selectedFiles.length === 0) {
+                alert('Выберите файлы для загрузки.');
+                return;
+            }
 
             const loc = locations.find(l => l.id === editingId);
             if (!loc) return;
 
             const caption = document.getElementById('admin-caption-input').value.trim();
 
-            // Убедимся, что loc.photos — это массив
             if (!Array.isArray(loc.photos)) {
                 loc.photos = [];
             }
 
-            for (const file of files) {
+            setAdminStatus('⏳ Загрузка...', 'syncing');
+
+            for (const file of selectedFiles) {
                 try {
                     const fileExt = file.name.split('.').pop();
                     const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
@@ -1203,18 +1228,14 @@
             renderMarkers();
             renderLocations();
             editLocation(editingId);
+            
             document.getElementById('admin-file-input').value = '';
             document.getElementById('admin-caption-input').value = '';
+            selectedFiles = [];
+            document.getElementById('admin-file-count').textContent = '0 файлов';
+            
             setAdminStatus('✅ Фото загружены', 'ok');
             alert('Фото загружены!');
-        });
-
-        document.getElementById('admin-file-upload').addEventListener('click', function() {
-            if (editingId === null) {
-                alert('Сначала выберите локацию для редактирования.');
-                return;
-            }
-            document.getElementById('admin-file-input').click();
         });
 
         // ============================================================
