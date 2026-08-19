@@ -102,7 +102,6 @@
         #map-container { flex: 1; position: relative; background: #0a0a12; }
         #map { width: 100%; height: 100%; background: #0a0a12; }
 
-        /* Модалка просмотра локации (галерея) */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -328,7 +327,7 @@
 
         .admin-box .photo-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
             gap: 8px;
             margin: 8px 0;
         }
@@ -340,7 +339,12 @@
             border: 1px solid #2a2a40;
             aspect-ratio: 1;
         }
-        .admin-box .photo-grid .photo-item img { width: 100%; height: 100%; object-fit: cover; }
+        .admin-box .photo-grid .photo-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
         .admin-box .photo-grid .photo-item .photo-caption {
             padding: 3px 6px;
             font-size: 10px;
@@ -350,17 +354,32 @@
             min-height: 20px;
             position: absolute;
             bottom: 0; left: 0; right: 0;
-        }
-        .admin-box .photo-grid .photo-item .photo-del {
-            position: absolute; top: 2px; right: 2px;
-            background: rgba(0,0,0,0.7); border: none;
-            color: #ff5555; border-radius: 50%;
-            width: 20px; height: 20px; font-size: 11px;
-            cursor: pointer; display: none; z-index: 2;
+            display: flex;
+            justify-content: space-between;
             align-items: center;
-            justify-content: center;
+            gap: 4px;
         }
-        .admin-box .photo-grid .photo-item:hover .photo-del { display: flex; }
+        .admin-box .photo-grid .photo-item .photo-caption .cap-text {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .admin-box .photo-grid .photo-item .photo-actions {
+            display: flex;
+            gap: 2px;
+        }
+        .admin-box .photo-grid .photo-item .photo-actions button {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 11px;
+            padding: 0 3px;
+            transition: 0.2s;
+        }
+        .admin-box .photo-grid .photo-item .photo-actions .edit-cap:hover { color: #d4c08a; }
+        .admin-box .photo-grid .photo-item .photo-actions .del-photo:hover { color: #ff5555; }
 
         .admin-box .file-upload-area {
             border: 2px dashed #3a3a50;
@@ -413,7 +432,7 @@
         .admin-box .status-bar .status-error { color: #ff5555; }
         .admin-box .status-bar .status-syncing { color: #ffa726; }
 
-        /* ===== КРАСИВЫЕ МАРКЕРЫ ===== */
+        /* ===== МАРКЕРЫ ===== */
         .custom-marker {
             background: none;
             border: none;
@@ -457,7 +476,7 @@
             box-shadow: 0 0 30px rgba(212, 192, 138, 0.6);
         }
 
-        /* ===== ПОЛНОЭКРАННЫЙ ПРОСМОТР С ОПИСАНИЕМ СПРАВА ===== */
+        /* ===== ПОЛНОЭКРАННЫЙ ПРОСМОТР ===== */
         #photo-viewer-overlay {
             position: fixed;
             top: 0;
@@ -660,7 +679,7 @@
         </div>
     </div>
 
-    <!-- ===== ПОЛНОЭКРАННЫЙ ПРОСМОТР ФОТО С ОПИСАНИЕМ ===== -->
+    <!-- Полноэкранный просмотр -->
     <div id="photo-viewer-overlay">
         <div class="viewer-container">
             <button class="viewer-close-btn" id="viewer-close-btn">✕</button>
@@ -734,10 +753,6 @@
                             <input type="file" id="admin-file-input" accept="image/*" multiple style="display:none;">
                             <span id="admin-file-count" style="font-size: 12px; color: #555;">0 файлов</span>
                         </div>
-                        <div class="form-group" style="margin: 0;">
-                            <label style="font-size: 10px; color: #666;">Подпись для новых фото</label>
-                            <input id="admin-caption-input" placeholder="Например: Вид с высоты, 2024 г." style="font-size: 13px; padding: 6px 10px;">
-                        </div>
                         <button class="btn btn-primary" id="admin-upload-btn" style="padding: 4px 18px; font-size: 12px; margin-top: 6px;">⬆ Загрузить фото</button>
                     </div>
                 </div>
@@ -777,8 +792,6 @@
         let editingId = null;
         let isAdmin = false;
         let selectedFiles = [];
-
-        // Для просмотрщика
         let viewerData = { photos: [], index: 0, locId: null };
 
         // ============================================================
@@ -949,7 +962,7 @@
         });
 
         // ============================================================
-        //  ⭐ ПОЛНОЭКРАННЫЙ ПРОСМОТР ФОТО С ОПИСАНИЕМ СПРАВА
+        //  ПОЛНОЭКРАННЫЙ ПРОСМОТР
         // ============================================================
         function openViewer(locId, index) {
             const loc = locations.find(l => l.id === locId);
@@ -1020,7 +1033,7 @@
         });
 
         // ============================================================
-        //  АДМИН-ПАНЕЛЬ (такая же, как была, с небольшими правками)
+        //  АДМИН-ПАНЕЛЬ
         // ============================================================
         const adminOverlay = document.getElementById('admin-overlay');
         const adminToggleBtn = document.getElementById('admin-toggle-btn');
@@ -1187,6 +1200,9 @@
             });
         });
 
+        // ============================================================
+        //  ⭐ РЕДАКТИРОВАНИЕ ЛОКАЦИИ (С РЕДАКТИРОВАНИЕМ ПОДПИСЕЙ)
+        // ============================================================
         function editLocation(id) {
             const loc = locations.find(l => l.id === id);
             if (!loc) return;
@@ -1212,13 +1228,54 @@
                 div.className = 'photo-item';
                 div.innerHTML = `
                     <img src="${url}" loading="lazy" onerror="this.parentElement.style.display='none'">
-                    <div class="photo-caption">${cap}</div>
-                    <button class="photo-del" onclick="deletePhoto(${id}, ${idx})">✕</button>
+                    <div class="photo-caption">
+                        <span class="cap-text">${cap}</span>
+                        <div class="photo-actions">
+                            <button class="edit-cap" onclick="editPhotoCaption(${id}, ${idx})" title="Редактировать подпись">✎</button>
+                            <button class="del-photo" onclick="deletePhoto(${id}, ${idx})" title="Удалить фото">✕</button>
+                        </div>
+                    </div>
                 `;
                 grid.appendChild(div);
             });
         }
 
+        // ============================================================
+        //  ⭐ РЕДАКТИРОВАНИЕ ПОДПИСИ К ФОТО
+        // ============================================================
+        function editPhotoCaption(locId, photoIdx) {
+            const loc = locations.find(l => l.id === locId);
+            if (!loc || !loc.photos || !loc.photos[photoIdx]) return;
+
+            const photo = loc.photos[photoIdx];
+            const currentCaption = typeof photo === 'object' && photo.caption ? photo.caption : '';
+            
+            const newCaption = prompt('Введите подпись к фото:', currentCaption);
+            if (newCaption === null) return; // пользователь нажал "Отмена"
+
+            // Обновляем подпись
+            if (typeof photo === 'object') {
+                photo.caption = newCaption.trim() || '';
+            } else {
+                // Если фото было строкой, преобразуем в объект
+                loc.photos[photoIdx] = {
+                    url: photo,
+                    caption: newCaption.trim() || ''
+                };
+            }
+
+            // Сохраняем и обновляем интерфейс
+            saveAll();
+            renderAdminList();
+            renderMarkers();
+            renderLocations();
+            editLocation(locId);
+            setAdminStatus('✅ Подпись обновлена', 'ok');
+        }
+
+        // ============================================================
+        //  УДАЛЕНИЕ
+        // ============================================================
         async function deleteLocation(id) {
             if (!confirm('Удалить эту локацию?')) return;
             try {
@@ -1277,6 +1334,9 @@
             }
         }
 
+        // ============================================================
+        //  СОХРАНЕНИЕ
+        // ============================================================
         async function saveAll() {
             try {
                 for (const loc of locations) {
@@ -1322,7 +1382,6 @@
             document.getElementById('admin-location-name').value = '';
             document.getElementById('admin-location-desc').value = '';
             document.getElementById('admin-photos-grid').innerHTML = '';
-            document.getElementById('admin-caption-input').value = '';
         });
 
         document.getElementById('admin-delete-location').addEventListener('click', function() {
@@ -1330,7 +1389,7 @@
         });
 
         // ============================================================
-        //  ЗАГРУЗКА ФОТО (с подписями)
+        //  ЗАГРУЗКА ФОТО
         // ============================================================
         document.getElementById('admin-file-upload').addEventListener('click', function() {
             if (editingId === null) {
@@ -1358,8 +1417,6 @@
             const loc = locations.find(l => l.id === editingId);
             if (!loc) return;
 
-            const caption = document.getElementById('admin-caption-input').value.trim();
-
             if (!Array.isArray(loc.photos)) {
                 loc.photos = [];
             }
@@ -1384,7 +1441,7 @@
 
                     loc.photos.push({
                         url: urlData.publicUrl,
-                        caption: caption || ''
+                        caption: '' // подпись пустая, можно будет отредактировать потом
                     });
                 } catch (err) {
                     console.error('Ошибка загрузки фото:', err);
@@ -1399,12 +1456,11 @@
             editLocation(editingId);
             
             document.getElementById('admin-file-input').value = '';
-            document.getElementById('admin-caption-input').value = '';
             selectedFiles = [];
             document.getElementById('admin-file-count').textContent = '0 файлов';
             
             setAdminStatus('✅ Фото загружены', 'ok');
-            alert('Фото загружены!');
+            alert('Фото загружены! Теперь вы можете отредактировать подписи, нажав ✎ под каждым фото.');
         });
 
         // ============================================================
