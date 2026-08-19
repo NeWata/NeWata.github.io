@@ -55,6 +55,29 @@
             border-color: #d4c08a;
         }
 
+        /* Кнопка для пользователей - скрыть/показать надписи */
+        .toggle-labels-btn {
+            color: #888;
+            text-decoration: none;
+            font-size: 12px;
+            padding: 4px 12px;
+            border: 1px solid #555;
+            border-radius: 16px;
+            transition: 0.3s;
+            cursor: pointer;
+            background: none;
+        }
+        .toggle-labels-btn:hover {
+            background: #55555520;
+            border-color: #d4c08a;
+            color: #d4c08a;
+        }
+        .toggle-labels-btn.active {
+            border-color: #d4c08a;
+            color: #d4c08a;
+            background: #d4c08a20;
+        }
+
         #main { display: flex; flex: 1; overflow: hidden; }
 
         #sidebar {
@@ -276,7 +299,6 @@
         }
         .custom-popup .leaflet-popup-content b { color: #f0e8c8; }
         
-        /* Кнопки выбора цвета в попапе */
         .popup-color-picker {
             display: flex;
             gap: 4px;
@@ -528,31 +550,35 @@
         .admin-box .status-bar .status-error { color: #ff5555; }
         .admin-box .status-bar .status-syncing { color: #ffa726; }
 
-        /* ===== КАСТОМНЫЕ НАДПИСИ НА КАРТЕ ===== */
+        /* ===== КАСТОМНЫЕ НАДПИСИ НА КАРТЕ - БЕЗ ФОНА! ===== */
         .custom-label {
-            background: rgba(16, 16, 28, 0.92);
-            backdrop-filter: blur(8px);
-            padding: 6px 14px;
-            border-radius: 10px;
-            border: 1px solid rgba(212, 192, 138, 0.3);
+            background: none !important;
+            backdrop-filter: none !important;
+            padding: 2px 4px;
+            border: none !important;
             color: #f0e8c8;
-            font-family: 'Segoe UI', system-ui, sans-serif;
-            font-size: 16px;
-            font-weight: 500;
-            letter-spacing: 0.5px;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-shadow: 
+                0 0 10px rgba(0, 0, 0, 0.9),
+                0 0 20px rgba(0, 0, 0, 0.8),
+                0 0 40px rgba(0, 0, 0, 0.6),
+                2px 2px 4px rgba(0, 0, 0, 0.9);
             white-space: nowrap;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.6);
             cursor: default;
             user-select: none;
             transition: all 0.2s ease;
             pointer-events: all;
-            line-height: 1.4;
+            line-height: 1.2;
         }
         .custom-label:hover {
-            transform: scale(1.03);
-            border-color: #d4c08a;
-            box-shadow: 0 4px 32px rgba(212, 192, 138, 0.15);
+            transform: scale(1.05);
+            text-shadow: 
+                0 0 15px rgba(212, 192, 138, 0.3),
+                0 0 30px rgba(0, 0, 0, 0.9),
+                2px 2px 4px rgba(0, 0, 0, 0.9);
         }
         .custom-label .label-text {
             display: inline-block;
@@ -570,16 +596,19 @@
         .custom-label.admin-mode .label-size-up,
         .custom-label.admin-mode .label-size-down {
             display: inline-block;
+            background: rgba(0,0,0,0.5);
+            padding: 0 4px;
+            border-radius: 4px;
         }
         .custom-label .label-size-up,
         .custom-label .label-size-down {
-            margin-left: 4px;
+            margin-left: 2px;
             color: #f9ca24;
             font-size: 14px;
             cursor: pointer;
             background: none;
             border: none;
-            padding: 0 2px;
+            padding: 0 4px;
             font-weight: bold;
         }
         .custom-label .label-size-up:hover,
@@ -588,8 +617,7 @@
             transform: scale(1.2);
         }
         .custom-label.hidden-label {
-            opacity: 0.2;
-            filter: blur(1px);
+            opacity: 0.15;
             pointer-events: none;
         }
         .custom-label.dragging {
@@ -878,6 +906,7 @@
         </h1>
         <div id="header-actions">
             <span id="sync-status">⏳ Загрузка...</span>
+            <button class="toggle-labels-btn" id="user-toggle-labels">🏷️ Скрыть названия</button>
             <button class="admin-toggle" id="admin-toggle-btn">Админ-панель</button>
         </div>
     </div>
@@ -1063,6 +1092,7 @@
         let tempRouteLine = null;
         let hiddenRoutes = new Set();
         let labelsHidden = false;
+        let userLabelsHidden = false; // для пользователей
 
         // ============================================================
         //  ЗАГРУЗКА ДАННЫХ
@@ -1151,7 +1181,6 @@
                 iconAnchor: [14, 14]
             });
 
-            // Цвета для попапов
             const popupColors = [
                 { name: 'Золотой', value: '#d4c08a' },
                 { name: 'Красный', value: '#ff6b6b' },
@@ -1166,10 +1195,8 @@
             ];
 
             locations.forEach(loc => {
-                // Получаем цвет попапа из данных или дефолтный
                 const popupColor = loc.popupColor || '#d4c08a';
                 
-                // Создаём палитру цветов для выбора
                 let colorPickerHtml = '';
                 popupColors.forEach(c => {
                     const isActive = c.value === popupColor;
@@ -1221,7 +1248,6 @@
                         maxWidth: 220 
                     });
 
-                // Меняем цвет рамки попапа
                 marker.on('popupopen', function() {
                     const popupElement = this._popup._wrapper;
                     if (popupElement) {
@@ -1237,9 +1263,6 @@
             });
         }
 
-        // ============================================================
-        //  ФУНКЦИЯ СМЕНЫ ЦВЕТА ПОПАПА
-        // ============================================================
         async function changePopupColor(locId, color) {
             const loc = locations.find(l => l.id === locId);
             if (!loc) return;
@@ -1249,7 +1272,6 @@
                 await saveAll();
                 renderMarkers();
                 
-                // Открываем попап заново
                 const marker = markerMap.get(locId);
                 if (marker) {
                     marker.openPopup();
@@ -1747,7 +1769,7 @@
         }
 
         // ============================================================
-        //  ⭐ НАДПИСИ НА КАРТЕ С ИЗМЕНЕНИЕМ РАЗМЕРА
+        //  ⭐ НАДПИСИ НА КАРТЕ - БЕЗ ФОНА!
         // ============================================================
 
         async function loadLabels() {
@@ -1777,7 +1799,7 @@
                         text: labelData.text,
                         lat: labelData.lat,
                         lng: labelData.lng,
-                        font_size: labelData.font_size || 16,
+                        font_size: labelData.font_size || 18,
                         created_at: new Date().toISOString()
                     })
                     .select()
@@ -1861,7 +1883,8 @@
                 return;
             }
 
-            console.log(`📝 Рендерим ${labels.length} надписей`);
+            // Проверяем, скрыты ли надписи для пользователя
+            const shouldHide = userLabelsHidden && !isAdmin;
 
             labels.forEach(label => {
                 if (typeof label.lat !== 'number' || typeof label.lng !== 'number') {
@@ -1869,8 +1892,8 @@
                     return;
                 }
 
-                const isHidden = labelsHidden;
-                const fontSize = label.font_size || 16;
+                const isHidden = labelsHidden || shouldHide;
+                const fontSize = label.font_size || 18;
                 
                 let labelHtml = `<span class="label-text" style="font-size: ${fontSize}px;">${label.text}</span>`;
                 
@@ -1944,6 +1967,16 @@
         }
 
         // ============================================================
+        //  КНОПКА ДЛЯ ПОЛЬЗОВАТЕЛЕЙ - СКРЫТЬ/ПОКАЗАТЬ НАДПИСИ
+        // ============================================================
+        document.getElementById('user-toggle-labels').addEventListener('click', function() {
+            userLabelsHidden = !userLabelsHidden;
+            this.textContent = userLabelsHidden ? '🏷️ Показать названия' : '🏷️ Скрыть названия';
+            this.classList.toggle('active');
+            renderLabels();
+        });
+
+        // ============================================================
         //  ИЗМЕНЕНИЕ РАЗМЕРА НАДПИСИ
         // ============================================================
         async function changeLabelSize(labelId, delta) {
@@ -1955,11 +1988,11 @@
                 return;
             }
 
-            const currentSize = label.font_size || 16;
-            const newSize = Math.min(Math.max(currentSize + delta, 10), 48);
+            const currentSize = label.font_size || 18;
+            const newSize = Math.min(Math.max(currentSize + delta, 10), 60);
             
             if (newSize === currentSize) {
-                alert(`❌ Размер уже ${currentSize}px (мин: 10, макс: 48)`);
+                alert(`❌ Размер уже ${currentSize}px (мин: 10, макс: 60)`);
                 return;
             }
 
@@ -1977,7 +2010,7 @@
 
             let html = '';
             labels.forEach(label => {
-                const fontSize = label.font_size || 16;
+                const fontSize = label.font_size || 18;
                 html += `
                     <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px;border-bottom:1px solid #1a1a2a;font-size:12px;">
                         <span style="display:flex;align-items:center;gap:6px;">
@@ -2019,7 +2052,7 @@
                         text: text.trim(),
                         lat: lat,
                         lng: lng,
-                        font_size: 16
+                        font_size: 18
                     }).then(() => {
                         document.getElementById('admin-label-status').textContent = '✅ Надпись добавлена!';
                         document.getElementById('admin-label-status').style.color = '#4caf50';
@@ -2785,7 +2818,8 @@
             console.log('Атлас загружен');
             console.log('📱 На телефонах: свайп влево/вправо для переключения фото');
             console.log('⌨️ На ПК: стрелки ← → на клавиатуре');
-            console.log('🏷️ Надписи можно перемещать перетаскиванием в админ-режиме');
+            console.log('🏷️ Надписи можно перетаскивать в админ-режиме');
+            console.log('👁️ Пользователи могут скрыть/показать надписи кнопкой в хедере');
             console.log('🎨 Цвет попапа меняется кликом по кружочкам');
             console.log('🔤 Размер надписи меняется кнопками A+ / A-');
         }
