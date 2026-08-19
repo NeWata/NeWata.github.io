@@ -610,20 +610,27 @@
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1);
             color: #fff;
-            width: 44px;
-            height: 44px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
-            font-size: 20px;
+            font-size: 24px;
             cursor: pointer;
             transition: 0.2s;
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 2;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            user-select: none;
         }
         .viewer-nav-btn:hover {
             background: rgba(255,255,255,0.15);
             border-color: #d4c08a;
+        }
+        .viewer-nav-btn:active {
+            background: rgba(255,255,255,0.25);
+            transform: translateY(-50%) scale(0.95);
         }
         .viewer-nav-btn.prev { left: 10px; }
         .viewer-nav-btn.next { right: 10px; }
@@ -639,8 +646,31 @@
             background: none;
             border: none;
             z-index: 2;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
         }
         .viewer-close-btn:hover { color: #fff; transform: rotate(90deg); }
+        .viewer-close-btn:active { color: #fff; transform: rotate(90deg) scale(0.9); }
+
+        /* Свайп-индикатор для мобильных */
+        .swipe-indicator {
+            display: none;
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #555;
+            font-size: 12px;
+            background: rgba(0,0,0,0.5);
+            padding: 6px 16px;
+            border-radius: 20px;
+            z-index: 2;
+            pointer-events: none;
+            white-space: nowrap;
+        }
+        @media (max-width: 768px) {
+            .swipe-indicator { display: block; }
+        }
 
         @media (max-width: 768px) {
             .viewer-container {
@@ -665,7 +695,11 @@
                 min-height: 50px;
                 font-size: 14px;
             }
-            .viewer-nav-btn { width: 36px; height: 36px; font-size: 16px; }
+            .viewer-nav-btn { 
+                width: 44px; 
+                height: 44px; 
+                font-size: 20px;
+            }
             .viewer-nav-btn.prev { left: 4px; }
             .viewer-nav-btn.next { right: 4px; }
         }
@@ -713,6 +747,7 @@
             <button class="viewer-close-btn" id="viewer-close-btn">✕</button>
             <button class="viewer-nav-btn prev" id="viewer-prev">‹</button>
             <button class="viewer-nav-btn next" id="viewer-next">›</button>
+            <div class="swipe-indicator">← Свайпни →</div>
 
             <div class="viewer-image-area">
                 <img id="viewer-img" src="" alt="Просмотр фото">
@@ -993,8 +1028,11 @@
         });
 
         // ============================================================
-        //  ⭐ ПОЛНОЭКРАННЫЙ ПРОСМОТР (с правкой — только админ может редактировать)
+        //  ⭐ ПОЛНОЭКРАННЫЙ ПРОСМОТР С ПОДДЕРЖКОЙ ТЕЛЕФОНОВ
         // ============================================================
+        let touchStartX = 0;
+        let touchEndX = 0;
+
         function openViewer(locId, index) {
             const loc = locations.find(l => l.id === locId);
             if (!loc || !loc.photos || loc.photos.length === 0) return;
@@ -1008,6 +1046,10 @@
             updateViewer();
             document.getElementById('photo-viewer-overlay').classList.add('active');
             document.body.style.overflow = 'hidden';
+            
+            // Сбрасываем touch-координаты
+            touchStartX = 0;
+            touchEndX = 0;
         }
 
         function updateViewer() {
@@ -1025,7 +1067,6 @@
             captionEl.value = cap || '';
             captionEl.placeholder = 'Введите описание к фото...';
             
-            // ⭐ КНОПКА СОХРАНЕНИЯ ТОЛЬКО ДЛЯ АДМИНА
             const saveBtn = document.getElementById('viewer-caption-save');
             if (isAdmin) {
                 saveBtn.classList.remove('hidden');
@@ -1038,7 +1079,7 @@
             }
         }
 
-        // Сохранение подписи из просмотрщика
+        // Сохранение подписи
         document.getElementById('viewer-caption-save').addEventListener('click', async function() {
             if (viewerData.locId === null || viewerData.index === null) return;
             
@@ -1081,33 +1122,76 @@
             if (e.target === this) closeViewer();
         });
 
-        document.getElementById('viewer-prev').addEventListener('click', function(e) {
-            e.stopPropagation();
+        // ============================================================
+        //  ⭐ УПРАВЛЕНИЕ СТРЕЛКАМИ (работает и на телефонах)
+        // ============================================================
+        function goToPrev() {
             if (viewerData.photos.length === 0) return;
             viewerData.index = (viewerData.index - 1 + viewerData.photos.length) % viewerData.photos.length;
             updateViewer();
-        });
+        }
 
-        document.getElementById('viewer-next').addEventListener('click', function(e) {
-            e.stopPropagation();
+        function goToNext() {
             if (viewerData.photos.length === 0) return;
             viewerData.index = (viewerData.index + 1) % viewerData.photos.length;
             updateViewer();
+        }
+
+        // Обработчики для кнопок
+        document.getElementById('viewer-prev').addEventListener('click', function(e) {
+            e.stopPropagation();
+            goToPrev();
+        });
+        document.getElementById('viewer-next').addEventListener('click', function(e) {
+            e.stopPropagation();
+            goToNext();
         });
 
+        // ============================================================
+        //  ⭐ СВАЙПЫ ДЛЯ ТЕЛЕФОНОВ
+        // ============================================================
+        const viewerOverlay = document.getElementById('photo-viewer-overlay');
+        
+        viewerOverlay.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+
+        viewerOverlay.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+            
+            if (Math.abs(diff) < swipeThreshold) return;
+            
+            if (diff > 0) {
+                // Свайп влево → следующее фото
+                goToNext();
+            } else {
+                // Свайп вправо → предыдущее фото
+                goToPrev();
+            }
+        }
+
+        // ============================================================
+        //  ⭐ КЛАВИАТУРА (для ПК)
+        // ============================================================
         document.addEventListener('keydown', function(e) {
             const viewer = document.getElementById('photo-viewer-overlay');
             if (!viewer.classList.contains('active')) return;
             if (e.key === 'Escape') closeViewer();
-            else if (e.key === 'ArrowLeft') document.getElementById('viewer-prev').click();
-            else if (e.key === 'ArrowRight') document.getElementById('viewer-next').click();
+            else if (e.key === 'ArrowLeft') goToPrev();
+            else if (e.key === 'ArrowRight') goToNext();
             else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
                 document.getElementById('viewer-caption-save').click();
             }
         });
 
         // ============================================================
-        //  АДМИН-ПАНЕЛЬ
+        //  АДМИН-ПАНЕЛЬ (такая же, как была)
         // ============================================================
         const adminOverlay = document.getElementById('admin-overlay');
         const adminToggleBtn = document.getElementById('admin-toggle-btn');
@@ -1275,9 +1359,6 @@
             });
         });
 
-        // ============================================================
-        //  РЕДАКТИРОВАНИЕ ЛОКАЦИИ
-        // ============================================================
         function editLocation(id) {
             const loc = locations.find(l => l.id === id);
             if (!loc) return;
@@ -1315,9 +1396,6 @@
             });
         }
 
-        // ============================================================
-        //  РЕДАКТИРОВАНИЕ ПОДПИСИ (из админки)
-        // ============================================================
         function editPhotoCaption(locId, photoIdx) {
             const loc = locations.find(l => l.id === locId);
             if (!loc || !loc.photos || !loc.photos[photoIdx]) return;
@@ -1345,9 +1423,6 @@
             setAdminStatus('✅ Подпись обновлена', 'ok');
         }
 
-        // ============================================================
-        //  УДАЛЕНИЕ
-        // ============================================================
         async function deleteLocation(id) {
             if (!confirm('Удалить эту локацию?')) return;
             try {
@@ -1406,9 +1481,6 @@
             }
         }
 
-        // ============================================================
-        //  СОХРАНЕНИЕ
-        // ============================================================
         async function saveAll() {
             try {
                 for (const loc of locations) {
@@ -1460,9 +1532,6 @@
             if (editingId !== null) deleteLocation(editingId);
         });
 
-        // ============================================================
-        //  ЗАГРУЗКА ФОТО
-        // ============================================================
         document.getElementById('admin-file-upload').addEventListener('click', function() {
             if (editingId === null) {
                 alert('Сначала выберите локацию для редактирования.');
@@ -1542,6 +1611,8 @@
             await loadLocations();
             initMap();
             console.log('Атлас загружен');
+            console.log('📱 На телефонах: свайп влево/вправо для переключения фото');
+            console.log('⌨️ На ПК: стрелки ← → на клавиатуре');
         }
 
         startApp();
