@@ -756,7 +756,6 @@
     </style>
 </head>
 <body>
-    <!-- ===== ХЕДЕР ===== -->
     <div id="header">
         <h1>
             <span class="title-ru">Провальный сюжет этого злодея</span>
@@ -769,7 +768,6 @@
         </div>
     </div>
 
-    <!-- ===== ОСНОВНОЙ КОНТЕЙНЕР ===== -->
     <div id="main">
         <div id="sidebar">
             <h2>Локации</h2>
@@ -780,13 +778,13 @@
         </div>
     </div>
 
-    <!-- ===== ЛЕГЕНДА МАРШРУТОВ ===== -->
+    <!-- Легенда -->
     <div id="routes-legend">
         <h4>🗺️ Маршруты</h4>
         <div id="routes-list"></div>
     </div>
 
-    <!-- ===== МОДАЛКА ПРОСМОТРА ЛОКАЦИИ ===== -->
+    <!-- Модалка -->
     <div class="modal-overlay" id="location-modal">
         <div class="modal-content">
             <button class="modal-close" id="modal-close-btn">✕</button>
@@ -799,18 +797,16 @@
         </div>
     </div>
 
-    <!-- ===== ПОЛНОЭКРАННЫЙ ПРОСМОТР ===== -->
+    <!-- Просмотр фото -->
     <div id="photo-viewer-overlay">
         <div class="viewer-container">
             <button class="viewer-close-btn" id="viewer-close-btn">✕</button>
             <button class="viewer-nav-btn prev" id="viewer-prev">‹</button>
             <button class="viewer-nav-btn next" id="viewer-next">›</button>
             <div class="swipe-indicator">← Свайпни →</div>
-
             <div class="viewer-image-area">
                 <img id="viewer-img" src="" alt="Просмотр фото">
             </div>
-
             <div class="viewer-info">
                 <div class="viewer-counter" id="viewer-counter">1 / 1</div>
                 <div class="viewer-title" id="viewer-title">Название локации</div>
@@ -931,6 +927,8 @@
         let isAdmin = false;
         let selectedFiles = [];
         let viewerData = { photos: [], index: 0, locId: null };
+        
+        // ⭐ ПЕРЕМЕННЫЕ ДЛЯ МАРШРУТА (живут отдельно от админки)
         let routeBuilding = false;
         let tempRoutePoints = [];
         let tempRouteMarkers = [];
@@ -997,7 +995,7 @@
             renderMarkers();
             renderRoutes();
 
-            // ⭐ ОБРАБОТЧИК КЛИКА ПО КАРТЕ (для добавления точек маршрута)
+            // ⭐ ОБРАБОТЧИК ДЛЯ ДОБАВЛЕНИЯ ТОЧЕК МАРШРУТА
             mapInstance.on('click', function(e) {
                 if (!routeBuilding) return;
                 if (!isAdmin) {
@@ -1054,7 +1052,7 @@
         }
 
         // ============================================================
-        //  ОТРИСОВКА МАРКЕРОВ
+        //  МАРКЕРЫ
         // ============================================================
         function renderMarkers() {
             if (!mapInstance) return;
@@ -1105,7 +1103,7 @@
         }
 
         // ============================================================
-        //  МАРШРУТЫ
+        //  МАРШРУТЫ — ЗАГРУЗКА/СОХРАНЕНИЕ
         // ============================================================
         async function loadRoutes() {
             try {
@@ -1168,6 +1166,9 @@
             }
         }
 
+        // ============================================================
+        //  ОТРИСОВКА МАРШРУТОВ
+        // ============================================================
         function renderRoutes() {
             Object.values(routeLayers).forEach(layer => {
                 if (layer.polyline) mapInstance.removeLayer(layer.polyline);
@@ -1298,7 +1299,7 @@
         }
 
         // ============================================================
-        //  ПОСТРОЕНИЕ МАРШРУТА
+        //  ⭐ ПОСТРОЕНИЕ МАРШРУТА
         // ============================================================
         function cancelRouteBuilding() {
             routeBuilding = false;
@@ -1388,6 +1389,13 @@
             renderRoutesLegend();
             renderAdminRoutesList();
         });
+
+        // ============================================================
+        //  ⭐ ЗАКРЫТИЕ АДМИНКИ НЕ СБРАСЫВАЕТ МАРШРУТ
+        // ============================================================
+        // Я УБРАЛ cancelRouteBuilding() из обработчиков закрытия!
+        // Теперь маршрут сохраняется, даже если закрыть админку.
+        // Отмена только через кнопку "Отмена" в админке.
 
         // ============================================================
         //  ОСТАЛЬНЫЕ ФУНКЦИИ (галерея, просмотр, админка)
@@ -1625,7 +1633,7 @@
                 checkAdminAuth();
             } else {
                 document.body.style.overflow = '';
-                if (routeBuilding) cancelRouteBuilding();
+                // ⭐ НЕ СБРАСЫВАЕМ МАРШРУТ ПРИ ЗАКРЫТИИ!
             }
         });
 
@@ -1633,7 +1641,7 @@
             adminOverlay.classList.remove('active');
             document.body.style.overflow = '';
             editingId = null;
-            if (routeBuilding) cancelRouteBuilding();
+            // ⭐ НЕ СБРАСЫВАЕМ МАРШРУТ!
         });
 
         adminOverlay.addEventListener('click', (e) => {
@@ -1641,8 +1649,17 @@
                 adminOverlay.classList.remove('active');
                 document.body.style.overflow = '';
                 editingId = null;
-                if (routeBuilding) cancelRouteBuilding();
+                // ⭐ НЕ СБРАСЫВАЕМ МАРШРУТ!
             }
+        });
+
+        // ⭐ КНОПКА ОТМЕНЫ В АДМИНКЕ — ТОЛЬКО ОНА СБРАСЫВАЕТ МАРШРУТ
+        document.getElementById('admin-cancel-edit').addEventListener('click', function() {
+            editingId = null;
+            document.getElementById('admin-location-name').value = '';
+            document.getElementById('admin-location-desc').value = '';
+            document.getElementById('admin-photos-grid').innerHTML = '';
+            if (routeBuilding) cancelRouteBuilding();
         });
 
         async function checkAdminAuth() {
@@ -1709,7 +1726,7 @@
             document.getElementById('admin-login').style.display = 'block';
             document.getElementById('admin-panel-content').style.display = 'none';
             editingId = null;
-            if (routeBuilding) cancelRouteBuilding();
+            // ⭐ НЕ СБРАСЫВАЕМ МАРШРУТ ПРИ ВЫХОДЕ!
         });
 
         async function loadAdminLocations() {
@@ -1948,13 +1965,6 @@
             alert('Локация сохранена!');
         });
 
-        document.getElementById('admin-cancel-edit').addEventListener('click', function() {
-            editingId = null;
-            document.getElementById('admin-location-name').value = '';
-            document.getElementById('admin-location-desc').value = '';
-            document.getElementById('admin-photos-grid').innerHTML = '';
-        });
-
         document.getElementById('admin-delete-location').addEventListener('click', function() {
             if (editingId !== null) deleteLocation(editingId);
         });
@@ -2045,6 +2055,7 @@
             console.log('📱 На телефонах: свайп влево/вправо для переключения фото');
             console.log('⌨️ На ПК: стрелки ← → на клавиатуре');
             console.log('🗺️ Для построения маршрута: админ-панель → Добавить маршрут → кликай по маркерам');
+            console.log('🔒 Маршрут НЕ сбрасывается при закрытии админ-панели!');
         }
 
         startApp();
