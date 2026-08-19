@@ -1180,7 +1180,7 @@
         }
 
         // ============================================================
-        //  ⭐ РЕДАКТИРОВАНИЕ ПОЗИЦИИ ПОДПИСИ (в реальном времени)
+        //  ⭐ РЕДАКТИРОВАНИЕ ПОЗИЦИИ ПОДПИСИ (labelposition)
         // ============================================================
         async function editLabelPosition(routeId) {
             const route = routes.find(r => r.id === routeId);
@@ -1195,9 +1195,8 @@
                 return;
             }
 
-            const currentPos = route.labelPosition !== undefined ? route.labelPosition : Math.floor(pointsCount / 2);
+            const currentPos = route.labelposition !== undefined ? route.labelposition : Math.floor(pointsCount / 2);
             
-            // Показываем список точек с номерами и координатами
             const pointsList = route.points.map((p, i) => 
                 `${i + 1}. (${p.lat.toFixed(2)}, ${p.lng.toFixed(2)})${i === currentPos ? ' ← текущая' : ''}`
             ).join('\n');
@@ -1207,7 +1206,7 @@
                 String(currentPos + 1)
             );
 
-            if (input === null) return; // отмена
+            if (input === null) return;
 
             const parsed = parseInt(input);
             if (isNaN(parsed) || parsed < 1 || parsed > pointsCount) {
@@ -1217,19 +1216,16 @@
 
             const newPosition = parsed - 1;
             
-            // Обновляем в базе
             try {
                 const { error } = await supabaseClient
                     .from('routes')
-                    .update({ labelPosition: newPosition })
+                    .update({ labelposition: newPosition })
                     .eq('id', routeId);
 
                 if (error) throw error;
 
-                // Обновляем локально
-                route.labelPosition = newPosition;
+                route.labelposition = newPosition;
                 
-                // Перерисовываем маршруты
                 renderRoutes();
                 renderRoutesLegend();
                 renderAdminRoutesList();
@@ -1298,8 +1294,8 @@
                 let label = null;
                 if (route.name && latlngs.length > 1) {
                     let labelIdx;
-                    if (route.labelPosition !== undefined && route.labelPosition < latlngs.length) {
-                        labelIdx = route.labelPosition;
+                    if (route.labelposition !== undefined && route.labelposition < latlngs.length) {
+                        labelIdx = route.labelposition;
                     } else {
                         labelIdx = Math.floor(latlngs.length / 2);
                     }
@@ -1421,7 +1417,7 @@
         }
 
         // ============================================================
-        //  ⭐ СПИСОК МАРШРУТОВ В АДМИНКЕ С КНОПКОЙ РЕДАКТИРОВАНИЯ ПОДПИСИ
+        //  ⭐ СПИСОК МАРШРУТОВ В АДМИНКЕ
         // ============================================================
         function renderAdminRoutesList() {
             const container = document.getElementById('admin-routes-list');
@@ -1438,7 +1434,7 @@
                 const pointsCount = route.points ? route.points.length : 0;
                 const eyeIcon = isHidden ? '👁️‍🗨️' : '👁️';
                 const eyeColor = isHidden ? '#666' : '#d4c08a';
-                const labelPos = route.labelPosition !== undefined ? route.labelPosition + 1 : '—';
+                const labelPos = route.labelposition !== undefined ? route.labelposition + 1 : '—';
                 
                 html += `
                     <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px;border-bottom:1px solid #1a1a2a;font-size:12px;">
@@ -1509,7 +1505,7 @@
                 return;
             }
 
-            const name = prompt('Введите название маршрута (например, "Путь героя"):', 'Маршрут');
+            const name = prompt('Введите название маршрута:', 'Маршрут');
             if (name === null) {
                 cancelRouteBuilding();
                 return;
@@ -1517,8 +1513,7 @@
 
             let labelPosition = Math.floor(tempRoutePoints.length / 2);
             const labelInput = prompt(
-                `Введите номер точки для подписи (от 1 до ${tempRoutePoints.length}, текущая: ${labelPosition + 1}):\n\n` +
-                tempRoutePoints.map((p, i) => `${i + 1}. (${p.lat.toFixed(2)}, ${p.lng.toFixed(2)})`).join('\n'),
+                `Введите номер точки для подписи (от 1 до ${tempRoutePoints.length}, текущая: ${labelPosition + 1}):`,
                 String(labelPosition + 1)
             );
             
@@ -1526,8 +1521,6 @@
                 const parsed = parseInt(labelInput);
                 if (!isNaN(parsed) && parsed >= 1 && parsed <= tempRoutePoints.length) {
                     labelPosition = parsed - 1;
-                } else {
-                    alert(`Некорректный номер. Используется точка ${labelPosition + 1}`);
                 }
             }
 
@@ -1538,7 +1531,7 @@
                 name: name.trim() || 'Маршрут',
                 color: color,
                 points: tempRoutePoints,
-                labelPosition: labelPosition,
+                labelposition: labelPosition,
                 created_at: new Date().toISOString()
             };
 
