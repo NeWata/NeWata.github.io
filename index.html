@@ -1,1155 +1,2898 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Провальный сюжет этого злодея / The Antagonist's Miserable Plot</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
-        body { background: #0a0a12; color: #e0dcc8; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-        #header {
-            background: rgba(13, 13, 26, 0.95);
-            padding: 10px 24px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #2a2a3e;
-            flex-shrink: 0;
-            z-index: 100;
-            backdrop-filter: blur(8px);
-        }
-        #header h1 {
-            font-size: 18px;
-            font-weight: 300;
-            letter-spacing: 1px;
-            color: #f0e8c8;
-            line-height: 1.3;
-        }
-        #header h1 .title-ru { color: #f0e8c8; }
-        #header h1 .title-en {
-            font-size: 13px;
-            color: #888;
-            font-weight: 300;
-            letter-spacing: 1px;
-        }
-        #header h1 .separator { color: #d4c08a; margin: 0 8px; font-weight: 300; }
-        #header-actions { display: flex; gap: 10px; align-items: center; }
-        #header-actions span { font-size: 11px; color: #555; }
+<script>
+/* ============================================================
+   CONFIG
+============================================================ */
 
-        .admin-toggle {
-            color: #d4c08a;
-            text-decoration: none;
-            font-size: 12px;
-            padding: 4px 12px;
-            border: 1px solid #d4c08a40;
-            border-radius: 16px;
-            transition: 0.3s;
-            cursor: pointer;
-            background: none;
-        }
-        .admin-toggle:hover {
-            background: #d4c08a20;
-            border-color: #d4c08a;
-        }
+const SUPABASE_URL = 'https://ufekhgjpxnnoutiikkjk.supabase.co';
 
-        #main { display: flex; flex: 1; overflow: hidden; }
+const SUPABASE_KEY =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmZWtoZ2pweG5ub3V0aWlra2prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNzIwNTYsImV4cCI6MjEwMjY0ODA1Nn0.Wc5_W5sD6VAVZVCg5hBlj2zvQCE72gTdX5KUXo0mqvs';
 
-        #sidebar {
-            width: 260px;
-            min-width: 260px;
-            background: rgba(16, 16, 28, 0.95);
-            border-right: 1px solid #1e1e30;
-            padding: 14px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            backdrop-filter: blur(4px);
-        }
-        #sidebar::-webkit-scrollbar { width: 4px; }
-        #sidebar::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
-        #sidebar h2 {
-            font-size: 12px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            color: #666;
-            margin-bottom: 12px;
-            border-bottom: 1px solid #1e1e30;
-            padding-bottom: 10px;
-        }
-        #location-list { list-style: none; flex: 1; }
-        #location-list li {
-            background: rgba(22, 22, 34, 0.8);
-            margin-bottom: 4px;
-            padding: 8px 12px;
-            border-radius: 6px;
-            border-left: 3px solid #d4c08a;
-            cursor: pointer;
-            transition: 0.2s;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 8px;
-            font-size: 13px;
-        }
-        #location-list li:hover { background: #1e1e32; transform: translateX(4px); }
-        #location-list li .loc-name { font-weight: 500; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-        #location-list li .loc-photos-count { font-size: 11px; color: #666; background: #0a0a12; padding: 1px 10px; border-radius: 10px; }
-        .empty-msg { color: #444; text-align: center; font-style: italic; padding: 30px 0; font-size: 13px; }
+const MAP_IMAGE_URL = 'image.png';
+const STORAGE_BUCKET = 'photos';
 
-        #map-container { flex: 1; position: relative; background: #0a0a12; }
-        #map { width: 100%; height: 100%; background: #0a0a12; }
+const supabaseClient =
+    window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(8px);
-            z-index: 9999;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            animation: fadeIn 0.25s ease;
-        }
-        .modal-overlay.active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
 
-        .modal-content {
-            background: #161624;
-            border-radius: 16px;
-            max-width: 750px;
-            width: 92%;
-            max-height: 85vh;
-            overflow-y: auto;
-            padding: 24px 28px;
-            border: 1px solid #2e2e48;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.9);
-            position: relative;
-        }
-        .modal-content::-webkit-scrollbar { width: 4px; }
-        .modal-content::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
+/* ============================================================
+   STATE
+============================================================ */
 
-        .modal-close {
-            position: absolute;
-            top: 12px;
-            right: 16px;
-            font-size: 24px;
-            color: #666;
-            cursor: pointer;
-            transition: 0.2s;
-            background: none;
-            border: none;
-        }
-        .modal-close:hover { color: #fff; transform: rotate(90deg); }
+let locations = [];
+let mapInstance = null;
+let imageOverlay = null;
+let markerMap = new Map();
 
-        .modal-header { margin-bottom: 16px; padding-right: 40px; }
-        .modal-header h2 { font-size: 22px; color: #f0e8c8; }
-        .modal-header .modal-desc { color: #aaa; font-size: 14px; margin-top: 4px; }
+let currentModalId = null;
+let editingId = null;
+let isAdmin = false;
 
-        .photo-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 12px;
-            margin: 12px 0;
-        }
-        .photo-gallery .photo-item {
-            position: relative;
-            border-radius: 10px;
-            overflow: hidden;
-            background: #0a0a12;
-            border: 1px solid #2a2a40;
-            cursor: pointer;
-            transition: 0.2s;
-            aspect-ratio: 1;
-        }
-        .photo-gallery .photo-item:hover { border-color: #d4c08a; transform: scale(1.02); }
-        .photo-gallery .photo-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
-        }
-        .photo-gallery .photo-item .photo-caption {
-            padding: 6px 8px;
-            font-size: 12px;
-            color: #aaa;
-            background: rgba(15, 15, 26, 0.9);
-            border-top: 1px solid #1e1e30;
-            min-height: 30px;
-            word-wrap: break-word;
-            line-height: 1.3;
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-        }
-        .photo-gallery .photo-item .photo-caption .caption-empty { color: #444; font-style: italic; font-size: 11px; }
-        .no-photos { color: #444; font-style: italic; text-align: center; padding: 20px; }
+let viewerData = {
+    photos: [],
+    index: 0
+};
 
-        .custom-popup .leaflet-popup-content-wrapper {
-            background: #161624;
-            color: #eee;
-            border-radius: 10px;
-            border-left: 3px solid #d4c08a;
-        }
-        .custom-popup .leaflet-popup-tip { background: #161624; }
-        .custom-popup .leaflet-popup-content {
-            font-size: 13px;
-            padding: 6px 12px;
-            min-width: 140px;
-            cursor: pointer;
-        }
-        .custom-popup .leaflet-popup-content b { color: #f0e8c8; }
-        .popup-view-link {
-            color: #d4c08a;
-            font-size: 11px;
-            display: block;
-            text-align: center;
-            margin-top: 4px;
-            text-decoration: underline;
-            cursor: pointer;
-        }
 
-        @media (max-width: 768px) {
-            #sidebar { width: 200px; min-width: 200px; }
-            #header h1 { font-size: 15px; }
-            #header h1 .title-en { font-size: 11px; }
-            .modal-content { padding: 18px; }
-            .photo-gallery { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
-        }
-        @media (max-width: 500px) {
-            #sidebar { display: none; }
-            #header h1 .title-en { display: none; }
-            #header h1 .separator { display: none; }
-        }
+/* ============================================================
+   HELPERS
+============================================================ */
 
-        .admin-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.92);
-            backdrop-filter: blur(12px);
-            z-index: 10000;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-        }
-        .admin-overlay.active { display: flex; }
+/*
+ * Приводит photos к нормальному массиву.
+ *
+ * Поддерживает:
+ * [] 
+ * "[...]"
+ * { ... }
+ * null
+ */
+function normalizePhotos(photos) {
 
-        .admin-box {
-            background: #161624;
-            padding: 30px;
-            border-radius: 16px;
-            border: 1px solid #2e2e48;
-            width: 500px;
-            max-width: 94%;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.9);
-            max-height: 90vh;
-            overflow-y: auto;
-            position: relative;
-        }
-        .admin-box::-webkit-scrollbar { width: 4px; }
-        .admin-box::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
+    if (!photos) {
+        return [];
+    }
 
-        .admin-box h2 {
-            color: #f0e8c8;
-            font-size: 20px;
-            font-weight: 300;
-            text-align: center;
-            margin-bottom: 4px;
-        }
-        .admin-box .subtitle {
-            color: #666;
-            font-size: 13px;
-            text-align: center;
-            margin-bottom: 16px;
-        }
-        .admin-close {
-            position: absolute;
-            top: 10px;
-            right: 16px;
-            font-size: 24px;
-            color: #666;
-            cursor: pointer;
-            background: none;
-            border: none;
-        }
-        .admin-close:hover { color: #fff; transform: rotate(90deg); }
+    if (Array.isArray(photos)) {
+        return photos;
+    }
 
-        .admin-box .form-group { margin-bottom: 12px; }
-        .admin-box .form-group label {
-            display: block;
-            font-size: 11px;
-            color: #888;
-            margin-bottom: 3px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .admin-box .form-group input,
-        .admin-box .form-group textarea {
-            width: 100%;
-            padding: 8px 12px;
-            border-radius: 6px;
-            border: 1px solid #2a2a40;
-            background: #0a0a12;
-            color: #eee;
-            font-size: 14px;
-            outline: none;
-        }
-        .admin-box .form-group input:focus,
-        .admin-box .form-group textarea:focus { border-color: #d4c08a; }
-        .admin-box .form-group textarea { resize: vertical; min-height: 50px; font-family: inherit; }
+    if (typeof photos === 'string') {
+        try {
+            const parsed = JSON.parse(photos);
 
-        .admin-box .btn {
-            padding: 8px 18px;
-            border-radius: 16px;
-            border: none;
-            cursor: pointer;
-            font-size: 13px;
-            transition: 0.2s;
-        }
-        .admin-box .btn-primary { background: #d4c08a; color: #0a0a12; }
-        .admin-box .btn-primary:hover { background: #e8d4a0; }
-        .admin-box .btn-danger { background: #ff5555; color: #fff; }
-        .admin-box .btn-danger:hover { background: #ff7777; }
-        .admin-box .btn-secondary { background: rgba(255,255,255,0.06); color: #ccc; border: 1px solid #3a3a50; }
-        .admin-box .btn-secondary:hover { background: rgba(255,255,255,0.12); }
-        .admin-box .btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-
-        .admin-box .photo-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
-            gap: 8px;
-            margin: 8px 0;
-        }
-        .admin-box .photo-grid .photo-item {
-            position: relative;
-            border-radius: 6px;
-            overflow: hidden;
-            background: #0a0a12;
-            border: 1px solid #2a2a40;
-            aspect-ratio: 1;
-        }
-        .admin-box .photo-grid .photo-item img { width: 100%; height: 100%; object-fit: cover; }
-        .admin-box .photo-grid .photo-item .photo-caption {
-            padding: 3px 6px;
-            font-size: 10px;
-            color: #aaa;
-            background: rgba(15,15,26,0.9);
-            border-top: 1px solid #1e1e30;
-            min-height: 20px;
-            position: absolute;
-            bottom: 0; left: 0; right: 0;
-        }
-        .admin-box .photo-grid .photo-item .photo-del {
-            position: absolute; top: 2px; right: 2px;
-            background: rgba(0,0,0,0.7); border: none;
-            color: #ff5555; border-radius: 50%;
-            width: 20px; height: 20px; font-size: 11px;
-            cursor: pointer; display: none; z-index: 2;
-            align-items: center;
-            justify-content: center;
-        }
-        .admin-box .photo-grid .photo-item:hover .photo-del { display: flex; }
-
-        .admin-box .file-upload-area {
-            border: 2px dashed #3a3a50;
-            border-radius: 6px;
-            padding: 14px;
-            text-align: center;
-            color: #666;
-            cursor: pointer;
-            transition: 0.2s;
-            margin: 8px 0;
-            font-size: 13px;
-        }
-        .admin-box .file-upload-area:hover { border-color: #d4c08a; color: #aaa; }
-        .admin-box .file-upload-area input[type="file"] { display: none; }
-
-        .admin-box .admin-list {
-            list-style: none;
-            max-height: 150px;
-            overflow-y: auto;
-            margin: 6px 0;
-        }
-        .admin-box .admin-list li {
-            background: rgba(22,22,34,0.8);
-            padding: 5px 10px;
-            border-radius: 4px;
-            border-left: 2px solid #d4c08a;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
-            margin-bottom: 3px;
-        }
-        .admin-box .admin-list li .loc-actions button {
-            background: none; border: none; color: #666; cursor: pointer; font-size: 13px; padding: 0 4px;
-        }
-        .admin-box .admin-list li .loc-actions .del:hover { color: #ff5555; }
-        .admin-box .admin-list li .loc-actions .edit:hover { color: #d4c08a; }
-
-        .admin-box .status-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 6px;
-            margin-bottom: 10px;
-            font-size: 12px;
-            color: #555;
-        }
-        .admin-box .status-bar .status-ok { color: #4caf50; }
-        .admin-box .status-bar .status-error { color: #ff5555; }
-        .admin-box .status-bar .status-syncing { color: #ffa726; }
-    </style>
-</head>
-<body>
-    <div id="header">
-        <h1>
-            <span class="title-ru">Провальный сюжет этого злодея</span>
-            <span class="separator">/</span>
-            <span class="title-en">The Antagonist's Miserable Plot</span>
-        </h1>
-        <div id="header-actions">
-            <span id="sync-status">⏳ Загрузка...</span>
-            <button class="admin-toggle" id="admin-toggle-btn">Админ-панель</button>
-        </div>
-    </div>
-
-    <div id="main">
-        <div id="sidebar">
-            <h2>Локации</h2>
-            <ul id="location-list"><li class="empty-msg">Загрузка...</li></ul>
-        </div>
-        <div id="map-container">
-            <div id="map"></div>
-        </div>
-    </div>
-
-    <div class="modal-overlay" id="location-modal">
-        <div class="modal-content">
-            <button class="modal-close" id="modal-close-btn">✕</button>
-            <div class="modal-header">
-                <h2 id="modal-title">Название</h2>
-                <div class="modal-desc" id="modal-desc">Описание</div>
-            </div>
-            <div id="modal-gallery" class="photo-gallery"></div>
-            <div id="modal-no-photos" class="no-photos">Нет фотографий</div>
-        </div>
-    </div>
-
-    <div class="admin-overlay" id="admin-overlay">
-        <div class="admin-box">
-            <button class="admin-close" id="admin-close-btn">✕</button>
-
-            <div id="admin-login">
-                <h2>Вход в админ-панель</h2>
-                <p class="subtitle">Введите email и пароль администратора</p>
-                <div class="form-group">
-                    <label>Email</label>
-                    <input type="email" id="admin-email" placeholder="tsumimak21@gmail.com">
-                </div>
-                <div class="form-group">
-                    <label>Пароль</label>
-                    <input type="password" id="admin-password" placeholder="Введите пароль">
-                </div>
-                <button class="btn btn-primary" id="admin-login-btn" style="width:100%;">Войти</button>
-                <div class="error-msg" id="admin-login-error" style="color:#ff5555;font-size:13px;text-align:center;margin-top:8px;display:none;">Неверный email или пароль</div>
-            </div>
-
-            <div id="admin-panel-content" style="display:none;">
-                <h2>Админ-панель</h2>
-                <p class="subtitle">Управление локациями</p>
-
-                <div class="status-bar">
-                    <span id="admin-sync-status">⏳ Загрузка...</span>
-                    <div>
-                        <button class="btn btn-primary" id="admin-add-location" style="padding:4px 12px;font-size:12px;">+ Добавить</button>
-                        <button class="btn btn-secondary" id="admin-save-all" style="padding:4px 12px;font-size:12px;">💾 Сохранить</button>
-                        <button class="btn btn-danger" id="admin-logout" style="padding:4px 12px;font-size:12px;">🚪 Выйти</button>
-                    </div>
-                </div>
-
-                <div class="form-group">
-                    <label>Название</label>
-                    <input id="admin-location-name" placeholder="Название локации">
-                </div>
-                <div class="form-group">
-                    <label>Описание</label>
-                    <textarea id="admin-location-desc" placeholder="Описание локации"></textarea>
-                </div>
-
-                <div id="admin-photos-section">
-                    <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Фотографии</label>
-                    <div class="photo-grid" id="admin-photos-grid"></div>
-                    <div class="file-upload-area" id="admin-file-upload">
-                        📁 Нажмите, чтобы добавить фотографии
-                        <input type="file" id="admin-file-input" accept="image/*" multiple>
-                    </div>
-                    <div class="form-group" style="margin-top:6px;">
-                        <label>Подпись для новых фото</label>
-                        <input id="admin-caption-input" placeholder="Общая подпись">
-                    </div>
-                </div>
-
-                <div class="btn-group">
-                    <button class="btn btn-primary" id="admin-save-location">💾 Сохранить</button>
-                    <button class="btn btn-secondary" id="admin-cancel-edit">↩️ Отмена</button>
-                    <button class="btn btn-danger" id="admin-delete-location" style="margin-left:auto;">🗑️ Удалить</button>
-                </div>
-
-                <hr style="border-color:#1e1e30; margin:12px 0;">
-
-                <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Все локации</label>
-                <ul class="admin-list" id="admin-location-list"></ul>
-            </div>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        // ============================================================
-        //  КОНФИГУРАЦИЯ
-        // ============================================================
-        const SUPABASE_URL = 'https://ufekhgjpxnnoutiikkjk.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmZWtoZ2pweG5ub3V0aWlra2prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNzIwNTYsImV4cCI6MjEwMjY0ODA1Nn0.Wc5_W5sD6VAVZVCg5hBlj2zvQCE72gTdX5KUXo0mqvs';
-        const MAP_IMAGE_URL = 'image.png';
-        const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        // ============================================================
-        //  СОСТОЯНИЕ
-        // ============================================================
-        let locations = [];
-        let mapInstance = null;
-        let imageOverlay = null;
-        let markerMap = new Map();
-        let currentModalId = null;
-        let editingId = null;
-        let isAdmin = false;
-
-        // ============================================================
-        //  ЗАГРУЗКА ДАННЫХ
-        // ============================================================
-        async function loadLocations() {
-            try {
-                const { data, error } = await supabaseClient
-                    .from('locations')
-                    .select('*')
-                    .order('id', { ascending: true });
-
-                if (error) throw error;
-                locations = data || [];
-                renderLocations();
-                renderMarkers();
-                document.getElementById('sync-status').textContent = '✅ Синхронизировано';
-                document.getElementById('sync-status').style.color = '#4caf50';
-            } catch (e) {
-                console.error('Ошибка загрузки:', e);
-                document.getElementById('sync-status').textContent = '⚠️ Ошибка загрузки';
-                document.getElementById('sync-status').style.color = '#ff5555';
+            if (Array.isArray(parsed)) {
+                return parsed;
             }
+
+            if (parsed && typeof parsed === 'object') {
+                return Object.values(parsed);
+            }
+
+            return [];
+        } catch (error) {
+            console.warn('Не удалось разобрать photos:', photos);
+            return [];
+        }
+    }
+
+    if (typeof photos === 'object') {
+        return Object.values(photos);
+    }
+
+    return [];
+}
+
+
+/*
+ * Получает URL фотографии независимо от формата.
+ */
+function getPhotoUrl(photo) {
+
+    if (!photo) {
+        return '';
+    }
+
+    if (typeof photo === 'string') {
+        return photo;
+    }
+
+    if (typeof photo === 'object') {
+        return (
+            photo.url ||
+            photo.image ||
+            photo.src ||
+            ''
+        );
+    }
+
+    return '';
+}
+
+
+/*
+ * Получает подпись.
+ */
+function getPhotoCaption(photo) {
+
+    if (!photo || typeof photo !== 'object') {
+        return '';
+    }
+
+    return (
+        photo.caption ||
+        photo.description ||
+        photo.name ||
+        ''
+    );
+}
+
+
+/*
+ * Экранирование текста перед вставкой в HTML.
+ */
+function escapeHtml(value) {
+
+    const div = document.createElement('div');
+    div.textContent = value ?? '';
+
+    return div.innerHTML;
+}
+
+
+/*
+ * Получить объект локации.
+ */
+function getLocation(id) {
+
+    return locations.find(
+        location => Number(location.id) === Number(id)
+    );
+}
+
+
+/*
+ * Сохранить только нормальный массив фотографий.
+ */
+function normalizeLocationPhotos(location) {
+
+    location.photos = normalizePhotos(location.photos);
+
+    return location.photos;
+}
+
+
+/* ============================================================
+   STATUS
+============================================================ */
+
+function setMainStatus(text, color = '#888') {
+
+    const element =
+        document.getElementById('sync-status');
+
+    if (!element) return;
+
+    element.textContent = text;
+    element.style.color = color;
+}
+
+
+function setAdminStatus(text, type = 'syncing') {
+
+    const element =
+        document.getElementById('admin-sync-status');
+
+    if (!element) return;
+
+    element.textContent = text;
+
+    element.className =
+        type === 'ok'
+            ? 'status-ok'
+            : type === 'error'
+                ? 'status-error'
+                : 'status-syncing';
+}
+
+
+/* ============================================================
+   LOAD LOCATIONS
+============================================================ */
+
+async function loadLocations() {
+
+    setMainStatus('⏳ Загрузка...', '#888');
+
+    try {
+
+        const { data, error } =
+            await supabaseClient
+                .from('locations')
+                .select('*')
+                .order('id', { ascending: true });
+
+        if (error) {
+            throw error;
         }
 
-        // ============================================================
-        //  КАРТА
-        // ============================================================
-        function initMap() {
-            mapInstance = L.map('map', {
-                center: [0, 0],
-                zoom: 1.5,
-                zoomControl: true,
-                attributionControl: false,
-                crs: L.CRS.Simple,
-                minZoom: 0.5,
-                maxZoom: 10
-            });
+        locations = (data || []).map(location => {
 
-            const bounds = [[-220, -400], [220, 400]];
-            const img = new Image();
-            img.onload = function() {
-                if (imageOverlay) mapInstance.removeLayer(imageOverlay);
-                imageOverlay = L.imageOverlay(MAP_IMAGE_URL, bounds, {
+            location.photos =
+                normalizePhotos(location.photos);
+
+            return location;
+        });
+
+        renderLocations();
+        renderMarkers();
+
+        setMainStatus(
+            '✅ Синхронизировано',
+            '#4caf50'
+        );
+
+        console.log(
+            'Загружено локаций:',
+            locations.length
+        );
+
+        console.log(
+            'Данные локаций:',
+            locations
+        );
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            'Ошибка загрузки локаций:',
+            error
+        );
+
+        setMainStatus(
+            '⚠️ Ошибка загрузки',
+            '#ff5555'
+        );
+
+        return false;
+    }
+}
+
+
+/* ============================================================
+   MAP
+============================================================ */
+
+function initMap() {
+
+    mapInstance = L.map('map', {
+
+        center: [0, 0],
+
+        zoom: 1.5,
+
+        zoomControl: true,
+
+        attributionControl: false,
+
+        crs: L.CRS.Simple,
+
+        minZoom: 0.5,
+
+        maxZoom: 10
+    });
+
+
+    const bounds = [
+        [-220, -400],
+        [220, 400]
+    ];
+
+
+    const image = new Image();
+
+
+    image.onload = function () {
+
+        if (imageOverlay) {
+
+            mapInstance.removeLayer(
+                imageOverlay
+            );
+        }
+
+
+        imageOverlay =
+            L.imageOverlay(
+                MAP_IMAGE_URL,
+                bounds,
+                {
                     opacity: 1,
                     interactive: false
-                }).addTo(mapInstance);
-                mapInstance.fitBounds(bounds);
-                mapInstance.setMaxBounds(bounds);
-                console.log('Карта загружена');
-            };
-            img.onerror = function() {
-                alert('Файл "image.png" не найден! Положите картинку рядом с index.html');
-            };
-            img.src = MAP_IMAGE_URL;
-            renderMarkers();
-        }
+                }
+            ).addTo(mapInstance);
 
-        // ============================================================
-        //  ОТРИСОВКА
-        // ============================================================
-        function renderLocations() {
-            const list = document.getElementById('location-list');
-            if (!locations || locations.length === 0) {
-                list.innerHTML = '<li class="empty-msg">Нет локаций</li>';
-                return;
-            }
-            let html = '';
-            locations.forEach(loc => {
-                const count = loc.photos ? loc.photos.length : 0;
-                html += `
-                    <li data-id="${loc.id}" onclick="flyToLocation(${loc.id})">
-                        <span class="loc-name">${loc.name}</span>
-                        <span class="loc-photos-count">${count}</span>
-                    </li>
-                `;
-            });
-            list.innerHTML = html;
-        }
 
-        function renderMarkers() {
-            if (!mapInstance) return;
-            markerMap.forEach(m => mapInstance.removeLayer(m));
-            markerMap.clear();
+        mapInstance.fitBounds(bounds);
 
-            const icon = L.divIcon({
-                html: '📍',
-                iconSize: [28, 28],
-                className: 'custom-marker',
-                iconAnchor: [14, 28]
-            });
+        mapInstance.setMaxBounds(bounds);
 
-            locations.forEach(loc => {
-                const marker = L.marker([loc.lat, loc.lng], { icon })
-                    .addTo(mapInstance)
-                    .bindPopup(`
-                        <div style="text-align:center;cursor:pointer;" onclick="openModal(${loc.id})">
-                            <b>${loc.name}</b><br>
-                            <span style="color:#aaa;font-size:12px;">${(loc.description || '').substring(0, 50)}</span>
-                            <span class="popup-view-link">Открыть галерею</span>
-                        </div>
-                    `, { className: 'custom-popup', maxWidth: 200 });
-                markerMap.set(loc.id, marker);
-            });
-        }
+        console.log('Карта загружена');
+    };
 
-        function flyToLocation(id) {
-            const loc = locations.find(l => l.id === id);
-            if (!loc || !mapInstance) return;
-            mapInstance.flyTo([loc.lat, loc.lng], 4, { duration: 1 });
-            const marker = markerMap.get(id);
-            if (marker) setTimeout(() => marker.openPopup(), 400);
-        }
 
-        // ============================================================
-        //  ГАЛЕРЕЯ — ПРОСТО И РАБОТАЕТ
-        // ============================================================
-        function openModal(id) {
-            const loc = locations.find(l => l.id === id);
-            if (!loc) return;
-            currentModalId = id;
+    image.onerror = function () {
 
-            document.getElementById('modal-title').textContent = loc.name;
-            document.getElementById('modal-desc').textContent = loc.description || 'Описание отсутствует';
+        console.error(
+            'Не удалось загрузить карту:',
+            MAP_IMAGE_URL
+        );
 
-            const gallery = document.getElementById('modal-gallery');
-            const noPhotos = document.getElementById('modal-no-photos');
-            gallery.innerHTML = '';
+        alert(
+            'Файл "image.png" не найден. ' +
+            'Положите image.png рядом с index.html.'
+        );
+    };
 
-            // Просто проверяем, есть ли фото
-            if (!loc.photos || !Array.isArray(loc.photos) || loc.photos.length === 0) {
-                noPhotos.style.display = 'block';
-                return;
-            }
 
-            noPhotos.style.display = 'none';
-            
-            // Показываем каждое фото
-            loc.photos.forEach((photo, idx) => {
-                // photo — это строка с URL
-                const url = typeof photo === 'string' ? photo : (photo.url || photo);
-                if (!url) return;
+    image.src = MAP_IMAGE_URL;
 
-                const div = document.createElement('div');
-                div.className = 'photo-item';
-                div.innerHTML = `
-                    <img src="${url}" loading="lazy" onclick="openViewer(${id}, ${idx})">
-                    <div class="photo-caption">
-                        <span class="caption-text">${photo.caption || ''}</span>
-                    </div>
-                `;
-                gallery.appendChild(div);
-            });
-        }
 
-        window.openModal = openModal;
+    renderMarkers();
+}
 
-        document.getElementById('modal-close-btn').addEventListener('click', () => {
-            document.getElementById('location-modal').classList.remove('active');
-            document.body.style.overflow = '';
+
+/* ============================================================
+   LOCATIONS LIST
+============================================================ */
+
+function renderLocations() {
+
+    const list =
+        document.getElementById('location-list');
+
+    if (!locations.length) {
+
+        list.innerHTML =
+            '<li class="empty-msg">Нет локаций</li>';
+
+        return;
+    }
+
+
+    list.innerHTML = '';
+
+
+    locations.forEach(location => {
+
+        const photos =
+            normalizePhotos(location.photos);
+
+
+        const li =
+            document.createElement('li');
+
+
+        li.dataset.id =
+            location.id;
+
+
+        li.onclick = function () {
+
+            flyToLocation(location.id);
+        };
+
+
+        const name =
+            document.createElement('span');
+
+        name.className =
+            'loc-name';
+
+        name.textContent =
+            location.name || 'Без названия';
+
+
+        const count =
+            document.createElement('span');
+
+        count.className =
+            'loc-photos-count';
+
+        count.textContent =
+            photos.length;
+
+
+        li.appendChild(name);
+
+        li.appendChild(count);
+
+        list.appendChild(li);
+    });
+}
+
+
+/* ============================================================
+   MARKERS
+============================================================ */
+
+function renderMarkers() {
+
+    if (!mapInstance) {
+        return;
+    }
+
+
+    markerMap.forEach(marker => {
+
+        mapInstance.removeLayer(marker);
+    });
+
+
+    markerMap.clear();
+
+
+    const icon =
+        L.divIcon({
+
+            html: '📍',
+
+            iconSize: [28, 28],
+
+            className: 'custom-marker',
+
+            iconAnchor: [14, 28]
         });
 
-        document.getElementById('location-modal').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) {
-                document.getElementById('location-modal').classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        });
 
-        // ============================================================
-        //  ПРОСМОТР ФОТО
-        // ============================================================
-        let viewerData = { photos: [], index: 0 };
+    locations.forEach(location => {
 
-        function openViewer(locId, index) {
-            const loc = locations.find(l => l.id === locId);
-            if (!loc || !loc.photos || loc.photos.length === 0) return;
-            viewerData.photos = loc.photos;
-            viewerData.index = index;
-            showViewer();
+        const description =
+            location.description || '';
+
+
+        const shortDescription =
+            description.length > 50
+                ? description.substring(0, 50) + '...'
+                : description;
+
+
+        const popup =
+            document.createElement('div');
+
+
+        popup.style.textAlign =
+            'center';
+
+        popup.style.cursor =
+            'pointer';
+
+
+        const title =
+            document.createElement('b');
+
+        title.style.color =
+            '#f0e8c8';
+
+        title.textContent =
+            location.name || 'Без названия';
+
+
+        const desc =
+            document.createElement('span');
+
+        desc.style.color =
+            '#aaa';
+
+        desc.style.fontSize =
+            '12px';
+
+        desc.textContent =
+            shortDescription;
+
+
+        const galleryLink =
+            document.createElement('span');
+
+        galleryLink.className =
+            'popup-view-link';
+
+        galleryLink.textContent =
+            'Открыть галерею';
+
+
+        popup.appendChild(title);
+
+        popup.appendChild(
+            document.createElement('br')
+        );
+
+        popup.appendChild(desc);
+
+        popup.appendChild(galleryLink);
+
+
+        popup.onclick = function () {
+
+            openModal(location.id);
+        };
+
+
+        const marker =
+            L.marker(
+                [location.lat, location.lng],
+                { icon }
+            )
+            .addTo(mapInstance)
+            .bindPopup(
+                popup,
+                {
+                    className: 'custom-popup',
+                    maxWidth: 200
+                }
+            );
+
+
+        markerMap.set(
+            location.id,
+            marker
+        );
+    });
+}
+
+
+/* ============================================================
+   FLY TO LOCATION
+============================================================ */
+
+function flyToLocation(id) {
+
+    const location =
+        getLocation(id);
+
+
+    if (!location || !mapInstance) {
+        return;
+    }
+
+
+    mapInstance.flyTo(
+        [
+            location.lat,
+            location.lng
+        ],
+        4,
+        {
+            duration: 1
         }
+    );
 
-        function showViewer() {
-            const overlay = document.createElement('div');
-            overlay.id = 'photo-viewer-overlay';
-            overlay.style.cssText = `
-                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                background: rgba(0,0,0,0.95); z-index: 99999;
-                display: flex; justify-content: center; align-items: center;
-                flex-direction: column; cursor: pointer;
-                animation: fadeIn 0.25s ease;
-            `;
-            overlay.innerHTML = `
-                <button style="position:absolute;top:20px;right:30px;font-size:32px;color:#fff;background:none;border:none;cursor:pointer;z-index:2;">✕</button>
-                <button class="nav-btn prev" style="position:absolute;top:50%;left:20px;transform:translateY(-50%);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#fff;width:44px;height:44px;border-radius:50%;font-size:20px;cursor:pointer;transition:0.2s;z-index:2;">‹</button>
-                <button class="nav-btn next" style="position:absolute;top:50%;right:20px;transform:translateY(-50%);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#fff;width:44px;height:44px;border-radius:50%;font-size:20px;cursor:pointer;transition:0.2s;z-index:2;">›</button>
-                <img id="viewer-img" style="max-width:92%;max-height:80%;object-fit:contain;border-radius:8px;box-shadow:0 0 60px rgba(0,0,0,0.9);">
-                <div id="viewer-caption" style="color:#aaa;font-size:15px;margin-top:16px;max-width:80%;text-align:center;line-height:1.5;"></div>
-                <div id="viewer-counter" style="position:absolute;bottom:30px;left:50%;transform:translateX(-50%);color:#888;font-size:13px;background:rgba(0,0,0,0.5);padding:4px 16px;border-radius:16px;"></div>
-            `;
-            document.body.appendChild(overlay);
-            document.body.style.overflow = 'hidden';
 
-            const img = document.getElementById('viewer-img');
-            const caption = document.getElementById('viewer-caption');
-            const counter = document.getElementById('viewer-counter');
+    const marker =
+        markerMap.get(id);
 
-            function updateViewer() {
-                const photo = viewerData.photos[viewerData.index];
-                const url = typeof photo === 'string' ? photo : (photo.url || photo);
-                const cap = photo.caption || '';
-                img.src = url;
-                caption.textContent = cap;
-                caption.style.display = cap ? 'block' : 'none';
-                counter.textContent = `${viewerData.index + 1} / ${viewerData.photos.length}`;
-            }
-            updateViewer();
 
-            overlay.querySelector('.viewer-close')?.addEventListener('click', () => overlay.remove());
-            overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
+    if (marker) {
 
-            overlay.querySelector('.prev')?.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (viewerData.photos.length === 0) return;
-                viewerData.index = (viewerData.index - 1 + viewerData.photos.length) % viewerData.photos.length;
-                updateViewer();
-            });
-            overlay.querySelector('.next')?.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (viewerData.photos.length === 0) return;
-                viewerData.index = (viewerData.index + 1) % viewerData.photos.length;
-                updateViewer();
-            });
+        setTimeout(
+            () => marker.openPopup(),
+            400
+        );
+    }
+}
 
-            document.addEventListener('keydown', function(e) {
-                if (!document.getElementById('photo-viewer-overlay')) return;
-                if (e.key === 'Escape') overlay.remove();
-                else if (e.key === 'ArrowLeft') overlay.querySelector('.prev')?.click();
-                else if (e.key === 'ArrowRight') overlay.querySelector('.next')?.click();
-            }, { once: true });
-        }
 
-        // ============================================================
-        //  АДМИН-ПАНЕЛЬ
-        // ============================================================
-        const adminOverlay = document.getElementById('admin-overlay');
-        const adminToggleBtn = document.getElementById('admin-toggle-btn');
-        const adminCloseBtn = document.getElementById('admin-close-btn');
+/* ============================================================
+   LOCATION MODAL
+============================================================ */
 
-        adminToggleBtn.addEventListener('click', () => {
-            adminOverlay.classList.toggle('active');
-            if (adminOverlay.classList.contains('active')) {
-                document.body.style.overflow = 'hidden';
-                checkAdminAuth();
-            } else {
-                document.body.style.overflow = '';
-            }
-        });
+function openModal(id) {
 
-        adminCloseBtn.addEventListener('click', () => {
-            adminOverlay.classList.remove('active');
-            document.body.style.overflow = '';
-            editingId = null;
-        });
+    const location =
+        getLocation(id);
 
-        adminOverlay.addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) {
-                adminOverlay.classList.remove('active');
-                document.body.style.overflow = '';
-                editingId = null;
-            }
-        });
 
-        async function checkAdminAuth() {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session) {
-                isAdmin = true;
-                document.getElementById('admin-login').style.display = 'none';
-                document.getElementById('admin-panel-content').style.display = 'block';
-                loadAdminLocations();
-            } else {
-                document.getElementById('admin-login').style.display = 'block';
-                document.getElementById('admin-panel-content').style.display = 'none';
-            }
-        }
+    if (!location) {
+        return;
+    }
 
-        document.getElementById('admin-login-btn').addEventListener('click', async function() {
-            const email = document.getElementById('admin-email').value.trim();
-            const password = document.getElementById('admin-password').value;
-            const errorEl = document.getElementById('admin-login-error');
 
-            if (!email || !password) {
-                errorEl.textContent = 'Заполните email и пароль';
-                errorEl.style.display = 'block';
-                return;
-            }
+    currentModalId =
+        id;
 
-            try {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                });
 
-                if (error) {
-                    errorEl.textContent = 'Неверный email или пароль';
-                    errorEl.style.display = 'block';
+    document.getElementById(
+        'modal-title'
+    ).textContent =
+        location.name || 'Без названия';
+
+
+    document.getElementById(
+        'modal-desc'
+    ).textContent =
+        location.description ||
+        'Описание отсутствует';
+
+
+    const gallery =
+        document.getElementById(
+            'modal-gallery'
+        );
+
+
+    const noPhotos =
+        document.getElementById(
+            'modal-no-photos'
+        );
+
+
+    gallery.innerHTML = '';
+
+
+    const photos =
+        normalizePhotos(
+            location.photos
+        );
+
+
+    console.log(
+        'Открываем галерею:',
+        photos
+    );
+
+
+    if (!photos.length) {
+
+        noPhotos.style.display =
+            'block';
+
+    } else {
+
+        noPhotos.style.display =
+            'none';
+
+
+        photos.forEach(
+            (photo, index) => {
+
+                const url =
+                    getPhotoUrl(photo);
+
+
+                const caption =
+                    getPhotoCaption(photo);
+
+
+                if (!url) {
+
+                    console.warn(
+                        'У фотографии отсутствует URL:',
+                        photo
+                    );
+
                     return;
                 }
 
-                errorEl.style.display = 'none';
-                isAdmin = true;
-                document.getElementById('admin-login').style.display = 'none';
-                document.getElementById('admin-panel-content').style.display = 'block';
-                loadAdminLocations();
-            } catch (e) {
-                errorEl.textContent = 'Ошибка входа';
-                errorEl.style.display = 'block';
+
+                const item =
+                    document.createElement('div');
+
+                item.className =
+                    'photo-item';
+
+
+                const image =
+                    document.createElement('img');
+
+
+                image.src =
+                    url;
+
+                image.loading =
+                    'lazy';
+
+
+                image.alt =
+                    caption || 'Фотография';
+
+
+                image.onerror =
+                    function () {
+
+                        console.error(
+                            'Фотография не загрузилась:',
+                            url
+                        );
+
+                        this.style.opacity =
+                            '0.2';
+
+                        this.style.background =
+                            '#330000';
+                    };
+
+
+                image.onclick =
+                    function (event) {
+
+                        event.stopPropagation();
+
+                        openViewer(
+                            id,
+                            index
+                        );
+                    };
+
+
+                const captionElement =
+                    document.createElement('div');
+
+                captionElement.className =
+                    'photo-caption';
+
+
+                if (caption) {
+
+                    captionElement.textContent =
+                        caption;
+
+                } else {
+
+                    const empty =
+                        document.createElement('span');
+
+                    empty.className =
+                        'caption-empty';
+
+                    empty.textContent =
+                        'Нет подписи';
+
+                    captionElement.appendChild(
+                        empty
+                    );
+                }
+
+
+                item.appendChild(image);
+
+                item.appendChild(
+                    captionElement
+                );
+
+                gallery.appendChild(item);
             }
-        });
+        );
+    }
 
-        document.getElementById('admin-password').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') document.getElementById('admin-login-btn').click();
-        });
-        document.getElementById('admin-email').addEventListener('keydown', function(e) {
-            if (e.key === 'Enter') document.getElementById('admin-login-btn').click();
-        });
 
-        document.getElementById('admin-logout').addEventListener('click', async function() {
-            await supabaseClient.auth.signOut();
-            isAdmin = false;
-            document.getElementById('admin-login').style.display = 'block';
-            document.getElementById('admin-panel-content').style.display = 'none';
+    document.getElementById(
+        'location-modal'
+    ).classList.add('active');
+
+
+    document.body.style.overflow =
+        'hidden';
+}
+
+
+window.openModal =
+    openModal;
+
+
+/* ============================================================
+   CLOSE MODAL
+============================================================ */
+
+document
+    .getElementById('modal-close-btn')
+    .addEventListener(
+        'click',
+        closeLocationModal
+    );
+
+
+document
+    .getElementById('location-modal')
+    .addEventListener(
+        'click',
+        function (event) {
+
+            if (
+                event.target ===
+                event.currentTarget
+            ) {
+
+                closeLocationModal();
+            }
+        }
+    );
+
+
+function closeLocationModal() {
+
+    document
+        .getElementById('location-modal')
+        .classList
+        .remove('active');
+
+
+    document.body.style.overflow =
+        '';
+}
+
+
+/* ============================================================
+   PHOTO VIEWER
+============================================================ */
+
+function openViewer(
+    locationId,
+    index
+) {
+
+    const location =
+        getLocation(locationId);
+
+
+    if (!location) {
+        return;
+    }
+
+
+    const photos =
+        normalizePhotos(
+            location.photos
+        );
+
+
+    if (!photos.length) {
+        return;
+    }
+
+
+    viewerData.photos =
+        photos;
+
+    viewerData.index =
+        index;
+
+
+    showViewer();
+}
+
+
+function showViewer() {
+
+    const oldViewer =
+        document.getElementById(
+            'photo-viewer-overlay'
+        );
+
+
+    if (oldViewer) {
+        oldViewer.remove();
+    }
+
+
+    const overlay =
+        document.createElement('div');
+
+
+    overlay.id =
+        'photo-viewer-overlay';
+
+
+    overlay.style.cssText = `
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.95);
+        z-index: 99999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-direction: column;
+    `;
+
+
+    const close =
+        document.createElement('button');
+
+
+    close.textContent =
+        '✕';
+
+
+    close.style.cssText = `
+        position:absolute;
+        top:20px;
+        right:30px;
+        font-size:32px;
+        color:#fff;
+        background:none;
+        border:none;
+        cursor:pointer;
+        z-index:2;
+    `;
+
+
+    const previous =
+        document.createElement('button');
+
+
+    previous.textContent =
+        '‹';
+
+
+    previous.className =
+        'nav-btn prev';
+
+
+    previous.style.cssText = `
+        position:absolute;
+        top:50%;
+        left:20px;
+        transform:translateY(-50%);
+        background:rgba(255,255,255,0.05);
+        border:1px solid rgba(255,255,255,0.1);
+        color:#fff;
+        width:44px;
+        height:44px;
+        border-radius:50%;
+        font-size:20px;
+        cursor:pointer;
+        z-index:2;
+    `;
+
+
+    const next =
+        document.createElement('button');
+
+
+    next.textContent =
+        '›';
+
+
+    next.className =
+        'nav-btn next';
+
+
+    next.style.cssText = `
+        position:absolute;
+        top:50%;
+        right:20px;
+        transform:translateY(-50%);
+        background:rgba(255,255,255,0.05);
+        border:1px solid rgba(255,255,255,0.1);
+        color:#fff;
+        width:44px;
+        height:44px;
+        border-radius:50%;
+        font-size:20px;
+        cursor:pointer;
+        z-index:2;
+    `;
+
+
+    const image =
+        document.createElement('img');
+
+
+    image.id =
+        'viewer-img';
+
+
+    image.style.cssText = `
+        max-width:92%;
+        max-height:80%;
+        object-fit:contain;
+        border-radius:8px;
+    `;
+
+
+    const caption =
+        document.createElement('div');
+
+
+    caption.id =
+        'viewer-caption';
+
+
+    caption.style.cssText = `
+        color:#aaa;
+        font-size:15px;
+        margin-top:16px;
+        max-width:80%;
+        text-align:center;
+    `;
+
+
+    const counter =
+        document.createElement('div');
+
+
+    counter.id =
+        'viewer-counter';
+
+
+    counter.style.cssText = `
+        position:absolute;
+        bottom:30px;
+        left:50%;
+        transform:translateX(-50%);
+        color:#888;
+        font-size:13px;
+        background:rgba(0,0,0,0.5);
+        padding:4px 16px;
+        border-radius:16px;
+    `;
+
+
+    overlay.appendChild(close);
+
+    overlay.appendChild(previous);
+
+    overlay.appendChild(next);
+
+    overlay.appendChild(image);
+
+    overlay.appendChild(caption);
+
+    overlay.appendChild(counter);
+
+
+    document.body.appendChild(
+        overlay
+    );
+
+
+    document.body.style.overflow =
+        'hidden';
+
+
+    function updateViewer() {
+
+        const photo =
+            viewerData.photos[
+                viewerData.index
+            ];
+
+
+        const url =
+            getPhotoUrl(photo);
+
+
+        const text =
+            getPhotoCaption(photo);
+
+
+        image.src =
+            url;
+
+
+        image.alt =
+            text || 'Фотография';
+
+
+        caption.textContent =
+            text;
+
+
+        caption.style.display =
+            text ? 'block' : 'none';
+
+
+        counter.textContent =
+            `${viewerData.index + 1} / ${viewerData.photos.length}`;
+
+
+        image.onerror =
+            function () {
+
+                console.error(
+                    'Viewer не смог загрузить:',
+                    url
+                );
+            };
+    }
+
+
+    function closeViewer() {
+
+        overlay.remove();
+
+        document.body.style.overflow =
+            '';
+    }
+
+
+    close.onclick =
+        closeViewer;
+
+
+    overlay.onclick =
+        function (event) {
+
+            if (
+                event.target ===
+                overlay
+            ) {
+
+                closeViewer();
+            }
+        };
+
+
+    previous.onclick =
+        function (event) {
+
+            event.stopPropagation();
+
+            viewerData.index =
+                (
+                    viewerData.index -
+                    1 +
+                    viewerData.photos.length
+                ) %
+                viewerData.photos.length;
+
+            updateViewer();
+        };
+
+
+    next.onclick =
+        function (event) {
+
+            event.stopPropagation();
+
+            viewerData.index =
+                (
+                    viewerData.index +
+                    1
+                ) %
+                viewerData.photos.length;
+
+            updateViewer();
+        };
+
+
+    updateViewer();
+}
+
+
+/* ============================================================
+   ADMIN PANEL
+============================================================ */
+
+const adminOverlay =
+    document.getElementById(
+        'admin-overlay'
+    );
+
+
+const adminToggleBtn =
+    document.getElementById(
+        'admin-toggle-btn'
+    );
+
+
+const adminCloseBtn =
+    document.getElementById(
+        'admin-close-btn'
+    );
+
+
+adminToggleBtn.addEventListener(
+    'click',
+    function () {
+
+        adminOverlay.classList.toggle(
+            'active'
+        );
+
+
+        if (
+            adminOverlay.classList.contains(
+                'active'
+            )
+        ) {
+
+            document.body.style.overflow =
+                'hidden';
+
+            checkAdminAuth();
+
+        } else {
+
+            document.body.style.overflow =
+                '';
+        }
+    }
+);
+
+
+adminCloseBtn.addEventListener(
+    'click',
+    function () {
+
+        adminOverlay.classList.remove(
+            'active'
+        );
+
+        document.body.style.overflow =
+            '';
+
+        editingId = null;
+    }
+);
+
+
+adminOverlay.addEventListener(
+    'click',
+    function (event) {
+
+        if (
+            event.target ===
+            event.currentTarget
+        ) {
+
+            adminOverlay.classList.remove(
+                'active'
+            );
+
+            document.body.style.overflow =
+                '';
+
             editingId = null;
-        });
+        }
+    }
+);
 
-        async function loadAdminLocations() {
-            try {
-                const { data, error } = await supabaseClient
-                    .from('locations')
-                    .select('*')
-                    .order('id', { ascending: true });
 
-                if (error) throw error;
-                locations = data || [];
-                renderAdminList();
-                renderMarkers();
-                renderLocations();
-                document.getElementById('admin-sync-status').textContent = '✅ Синхронизировано';
-                document.getElementById('admin-sync-status').className = 'status-ok';
-            } catch (e) {
-                console.error(e);
-                document.getElementById('admin-sync-status').textContent = '⚠️ Ошибка загрузки';
-                document.getElementById('admin-sync-status').className = 'status-error';
-            }
+/* ============================================================
+   ADMIN AUTH
+============================================================ */
+
+async function checkAdminAuth() {
+
+    try {
+
+        const {
+            data: { session }
+        } =
+            await supabaseClient.auth.getSession();
+
+
+        if (session) {
+
+            isAdmin = true;
+
+            document.getElementById(
+                'admin-login'
+            ).style.display =
+                'none';
+
+
+            document.getElementById(
+                'admin-panel-content'
+            ).style.display =
+                'block';
+
+
+            document.getElementById(
+                'admin-login-error'
+            ).style.display =
+                'none';
+
+
+            await loadAdminLocations();
+
+        } else {
+
+            isAdmin = false;
+
+            document.getElementById(
+                'admin-login'
+            ).style.display =
+                'block';
+
+
+            document.getElementById(
+                'admin-panel-content'
+            ).style.display =
+                'none';
         }
 
-        function renderAdminList() {
-            const list = document.getElementById('admin-location-list');
-            if (!locations || locations.length === 0) {
-                list.innerHTML = '<li style="color:#444;font-style:italic;padding:10px;border:none;">Нет локаций</li>';
+    } catch (error) {
+
+        console.error(
+            'Ошибка проверки авторизации:',
+            error
+        );
+    }
+}
+
+
+/* ============================================================
+   LOGIN
+============================================================ */
+
+document
+    .getElementById('admin-login-btn')
+    .addEventListener(
+        'click',
+        adminLogin
+    );
+
+
+async function adminLogin() {
+
+    const email =
+        document
+            .getElementById(
+                'admin-email'
+            )
+            .value
+            .trim();
+
+
+    const password =
+        document
+            .getElementById(
+                'admin-password'
+            )
+            .value;
+
+
+    const errorElement =
+        document.getElementById(
+            'admin-login-error'
+        );
+
+
+    if (!email || !password) {
+
+        errorElement.textContent =
+            'Заполните email и пароль';
+
+        errorElement.style.display =
+            'block';
+
+        return;
+    }
+
+
+    try {
+
+        const {
+            error
+        } =
+            await supabaseClient.auth
+                .signInWithPassword({
+                    email,
+                    password
+                });
+
+
+        if (error) {
+
+            console.error(
+                'Ошибка входа:',
+                error
+            );
+
+            errorElement.textContent =
+                'Неверный email или пароль';
+
+            errorElement.style.display =
+                'block';
+
+            return;
+        }
+
+
+        errorElement.style.display =
+            'none';
+
+
+        isAdmin = true;
+
+
+        document.getElementById(
+            'admin-login'
+        ).style.display =
+            'none';
+
+
+        document.getElementById(
+            'admin-panel-content'
+        ).style.display =
+            'block';
+
+
+        await loadAdminLocations();
+
+    } catch (error) {
+
+        console.error(
+            error
+        );
+
+        errorElement.textContent =
+            'Ошибка входа';
+
+        errorElement.style.display =
+            'block';
+    }
+}
+
+
+document
+    .getElementById('admin-password')
+    .addEventListener(
+        'keydown',
+        function (event) {
+
+            if (
+                event.key ===
+                'Enter'
+            ) {
+
+                adminLogin();
+            }
+        }
+    );
+
+
+document
+    .getElementById('admin-email')
+    .addEventListener(
+        'keydown',
+        function (event) {
+
+            if (
+                event.key ===
+                'Enter'
+            ) {
+
+                adminLogin();
+            }
+        }
+    );
+
+
+/* ============================================================
+   LOGOUT
+============================================================ */
+
+document
+    .getElementById('admin-logout')
+    .addEventListener(
+        'click',
+        async function () {
+
+            await supabaseClient.auth.signOut();
+
+            isAdmin = false;
+
+            document.getElementById(
+                'admin-login'
+            ).style.display =
+                'block';
+
+            document.getElementById(
+                'admin-panel-content'
+            ).style.display =
+                'none';
+
+            editingId = null;
+        }
+    );
+
+
+/* ============================================================
+   ADMIN LOCATIONS
+============================================================ */
+
+async function loadAdminLocations() {
+
+    setAdminStatus(
+        '⏳ Загрузка...',
+        'syncing'
+    );
+
+
+    try {
+
+        const {
+            data,
+            error
+        } =
+            await supabaseClient
+                .from('locations')
+                .select('*')
+                .order('id', {
+                    ascending: true
+                });
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        locations =
+            (data || []).map(
+                location => {
+
+                    location.photos =
+                        normalizePhotos(
+                            location.photos
+                        );
+
+                    return location;
+                }
+            );
+
+
+        renderAdminList();
+
+        renderLocations();
+
+        renderMarkers();
+
+
+        setAdminStatus(
+            '✅ Синхронизировано',
+            'ok'
+        );
+
+    } catch (error) {
+
+        console.error(
+            'Ошибка загрузки:',
+            error
+        );
+
+        setAdminStatus(
+            '⚠️ Ошибка загрузки',
+            'error'
+        );
+    }
+}
+
+
+/* ============================================================
+   ADMIN LIST
+============================================================ */
+
+function renderAdminList() {
+
+    const list =
+        document.getElementById(
+            'admin-location-list'
+        );
+
+
+    list.innerHTML = '';
+
+
+    if (!locations.length) {
+
+        list.innerHTML =
+            '<li style="color:#444;font-style:italic;padding:10px;border:none;">Нет локаций</li>';
+
+        return;
+    }
+
+
+    locations.forEach(location => {
+
+        const photos =
+            normalizePhotos(
+                location.photos
+            );
+
+
+        const li =
+            document.createElement('li');
+
+
+        const name =
+            document.createElement('span');
+
+
+        name.textContent =
+            `${location.name || 'Без названия'} (${photos.length})`;
+
+
+        const actions =
+            document.createElement('div');
+
+
+        actions.className =
+            'loc-actions';
+
+
+        const editButton =
+            document.createElement('button');
+
+
+        editButton.className =
+            'edit';
+
+        editButton.textContent =
+            '✎';
+
+        editButton.onclick =
+            () => editLocation(
+                location.id
+            );
+
+
+        const deleteButton =
+            document.createElement('button');
+
+
+        deleteButton.className =
+            'del';
+
+        deleteButton.textContent =
+            '✕';
+
+        deleteButton.onclick =
+            () => deleteLocation(
+                location.id
+            );
+
+
+        actions.appendChild(
+            editButton
+        );
+
+        actions.appendChild(
+            deleteButton
+        );
+
+
+        li.appendChild(name);
+
+        li.appendChild(actions);
+
+        list.appendChild(li);
+    });
+}
+
+
+/* ============================================================
+   EDIT LOCATION
+============================================================ */
+
+function editLocation(id) {
+
+    const location =
+        getLocation(id);
+
+
+    if (!location) {
+        return;
+    }
+
+
+    editingId =
+        id;
+
+
+    document.getElementById(
+        'admin-location-name'
+    ).value =
+        location.name || '';
+
+
+    document.getElementById(
+        'admin-location-desc'
+    ).value =
+        location.description || '';
+
+
+    renderAdminPhotos(
+        location
+    );
+}
+
+
+window.editLocation =
+    editLocation;
+
+
+/* ============================================================
+   ADMIN PHOTO GRID
+============================================================ */
+
+function renderAdminPhotos(location) {
+
+    const grid =
+        document.getElementById(
+            'admin-photos-grid'
+        );
+
+
+    grid.innerHTML = '';
+
+
+    const photos =
+        normalizePhotos(
+            location.photos
+        );
+
+
+    if (!photos.length) {
+
+        grid.innerHTML =
+            '<div style="color:#444;font-style:italic;padding:10px;text-align:center;">Нет фотографий</div>';
+
+        return;
+    }
+
+
+    photos.forEach(
+        (photo, index) => {
+
+            const url =
+                getPhotoUrl(photo);
+
+
+            const caption =
+                getPhotoCaption(photo);
+
+
+            if (!url) {
                 return;
             }
-            let html = '';
-            locations.forEach(loc => {
-                const count = loc.photos ? loc.photos.length : 0;
-                html += `
-                    <li>
-                        <span>${loc.name} <span style="color:#666;font-size:11px;">(${count})</span></span>
-                        <div class="loc-actions">
-                            <button class="edit" onclick="editLocation(${loc.id})">✎</button>
-                            <button class="del" onclick="deleteLocation(${loc.id})">✕</button>
-                        </div>
-                    </li>
-                `;
-            });
-            list.innerHTML = html;
-        }
 
-        document.getElementById('admin-add-location').addEventListener('click', function() {
-            if (!mapInstance) return;
-            mapInstance.setView([0, 0], 1.5);
-            alert('Кликните по карте, чтобы добавить новую локацию.');
-            mapInstance.once('click', async function(e) {
-                const lat = e.latlng.lat.toFixed(3);
-                const lng = e.latlng.lng.toFixed(3);
-                const name = prompt('Название новой локации:');
-                if (!name) return;
-                const desc = prompt('Описание:');
-                const newLoc = {
-                    id: Date.now(),
-                    lat: parseFloat(lat),
-                    lng: parseFloat(lng),
-                    name: name.trim(),
-                    description: desc?.trim() || 'Описание отсутствует',
-                    photos: []
+
+            const item =
+                document.createElement('div');
+
+
+            item.className =
+                'photo-item';
+
+
+            const image =
+                document.createElement('img');
+
+
+            image.src =
+                url;
+
+
+            image.loading =
+                'lazy';
+
+
+            image.alt =
+                caption || 'Фото';
+
+
+            image.onerror =
+                function () {
+
+                    console.error(
+                        'Не загрузилось фото:',
+                        url
+                    );
+
+                    this.style.opacity =
+                        '0.25';
                 };
-                locations.push(newLoc);
-                await saveAll();
-                renderAdminList();
-                renderMarkers();
-                renderLocations();
-                alert('Локация добавлена!');
-            });
-        });
 
-        // ============================================================
-        //  РЕДАКТИРОВАНИЕ — ПРОСТО ПОКАЗЫВАЕТ ФОТО
-        // ============================================================
-        function editLocation(id) {
-            const loc = locations.find(l => l.id === id);
-            if (!loc) return;
-            editingId = id;
 
-            document.getElementById('admin-location-name').value = loc.name || '';
-            document.getElementById('admin-location-desc').value = loc.description || '';
+            const captionElement =
+                document.createElement('div');
 
-            const grid = document.getElementById('admin-photos-grid');
-            grid.innerHTML = '';
 
-            if (!loc.photos || !Array.isArray(loc.photos) || loc.photos.length === 0) {
-                grid.innerHTML = '<div style="color:#444;font-style:italic;padding:10px;text-align:center;">Нет фотографий</div>';
+            captionElement.className =
+                'photo-caption';
+
+
+            captionElement.textContent =
+                caption || 'Без подписи';
+
+
+            const deleteButton =
+                document.createElement('button');
+
+
+            deleteButton.className =
+                'photo-del';
+
+            deleteButton.textContent =
+                '✕';
+
+
+            deleteButton.onclick =
+                function (event) {
+
+                    event.stopPropagation();
+
+                    deletePhoto(
+                        location.id,
+                        index
+                    );
+                };
+
+
+            item.appendChild(image);
+
+            item.appendChild(
+                captionElement
+            );
+
+            item.appendChild(
+                deleteButton
+            );
+
+
+            grid.appendChild(item);
+        }
+    );
+}
+
+
+/* ============================================================
+   DELETE LOCATION
+============================================================ */
+
+async function deleteLocation(id) {
+
+    if (
+        !confirm(
+            'Удалить эту локацию?'
+        )
+    ) {
+        return;
+    }
+
+
+    try {
+
+        const location =
+            getLocation(id);
+
+
+        /*
+         * Сначала удаляем файлы фотографий
+         * из Storage.
+         */
+        if (location) {
+
+            const photos =
+                normalizePhotos(
+                    location.photos
+                );
+
+
+            const paths =
+                photos
+                    .map(
+                        photo =>
+                            getStoragePath(
+                                getPhotoUrl(photo)
+                            )
+                    )
+                    .filter(Boolean);
+
+
+            if (paths.length) {
+
+                const {
+                    error:
+                    storageError
+                } =
+                    await supabaseClient
+                        .storage
+                        .from(
+                            STORAGE_BUCKET
+                        )
+                        .remove(paths);
+
+
+                if (storageError) {
+
+                    console.warn(
+                        'Не удалось удалить некоторые файлы:',
+                        storageError
+                    );
+                }
+            }
+        }
+
+
+        const {
+            error
+        } =
+            await supabaseClient
+                .from('locations')
+                .delete()
+                .eq('id', id);
+
+
+        if (error) {
+            throw error;
+        }
+
+
+        locations =
+            locations.filter(
+                location =>
+                    Number(location.id) !==
+                    Number(id)
+            );
+
+
+        if (
+            Number(editingId) ===
+            Number(id)
+        ) {
+
+            editingId = null;
+
+            clearEditor();
+        }
+
+
+        renderAdminList();
+
+        renderLocations();
+
+        renderMarkers();
+
+
+        setAdminStatus(
+            '✅ Локация удалена',
+            'ok'
+        );
+
+    } catch (error) {
+
+        console.error(
+            'Ошибка удаления:',
+            error
+        );
+
+        alert(
+            'Ошибка удаления: ' +
+            error.message
+        );
+
+
+        setAdminStatus(
+            '⚠️ Ошибка удаления',
+            'error'
+        );
+    }
+}
+
+
+window.deleteLocation =
+    deleteLocation;
+
+
+/* ============================================================
+   GET STORAGE PATH
+============================================================ */
+
+function getStoragePath(url) {
+
+    if (!url) {
+        return null;
+    }
+
+
+    const marker =
+        `/storage/v1/object/public/${STORAGE_BUCKET}/`;
+
+
+    const index =
+        url.indexOf(marker);
+
+
+    if (index === -1) {
+        return null;
+    }
+
+
+    return decodeURIComponent(
+        url.substring(
+            index + marker.length
+        )
+    );
+}
+
+
+/* ============================================================
+   DELETE PHOTO
+============================================================ */
+
+async function deletePhoto(
+    locationId,
+    photoIndex
+) {
+
+    if (
+        !confirm(
+            'Удалить это фото?'
+        )
+    ) {
+        return;
+    }
+
+
+    const location =
+        getLocation(locationId);
+
+
+    if (!location) {
+        return;
+    }
+
+
+    const photos =
+        normalizePhotos(
+            location.photos
+        );
+
+
+    const photo =
+        photos[photoIndex];
+
+
+    if (!photo) {
+        return;
+    }
+
+
+    try {
+
+        const url =
+            getPhotoUrl(photo);
+
+
+        const path =
+            getStoragePath(url);
+
+
+        /*
+         * Удаляем физический файл.
+         */
+        if (path) {
+
+            const {
+                error
+            } =
+                await supabaseClient
+                    .storage
+                    .from(
+                        STORAGE_BUCKET
+                    )
+                    .remove([path]);
+
+
+            if (error) {
+
+                console.warn(
+                    'Ошибка удаления файла:',
+                    error
+                );
+            }
+        }
+
+
+        /*
+         * Удаляем запись из массива.
+         */
+        photos.splice(
+            photoIndex,
+            1
+        );
+
+
+        location.photos =
+            photos;
+
+
+        await saveLocations();
+
+
+        renderAdminList();
+
+        renderLocations();
+
+        renderMarkers();
+
+        renderAdminPhotos(
+            location
+        );
+
+
+        setAdminStatus(
+            '✅ Фото удалено',
+            'ok'
+        );
+
+    } catch (error) {
+
+        console.error(
+            'Ошибка удаления фото:',
+            error
+        );
+
+
+        alert(
+            'Ошибка удаления фото: ' +
+            error.message
+        );
+
+
+        setAdminStatus(
+            '⚠️ Ошибка удаления фото',
+            'error'
+        );
+    }
+}
+
+
+window.deletePhoto =
+    deletePhoto;
+
+
+/* ============================================================
+   SAVE LOCATIONS
+============================================================ */
+
+async function saveLocations() {
+
+    try {
+
+        for (const location of locations) {
+
+            location.photos =
+                normalizePhotos(
+                    location.photos
+                );
+
+
+            const {
+                error
+            } =
+                await supabaseClient
+                    .from('locations')
+                    .upsert(
+                        location,
+                        {
+                            onConflict: 'id'
+                        }
+                    );
+
+
+            if (error) {
+                throw error;
+            }
+        }
+
+
+        setAdminStatus(
+            '✅ Сохранено',
+            'ok'
+        );
+
+
+        return true;
+
+    } catch (error) {
+
+        console.error(
+            'Ошибка сохранения:',
+            error
+        );
+
+
+        setAdminStatus(
+            '⚠️ Ошибка сохранения',
+            'error'
+        );
+
+
+        alert(
+            'Ошибка сохранения: ' +
+            error.message
+        );
+
+
+        return false;
+    }
+}
+
+
+/*
+ * Старое имя оставляем для совместимости.
+ */
+async function saveAll() {
+
+    return await saveLocations();
+}
+
+
+/* ============================================================
+   SAVE ALL BUTTON
+============================================================ */
+
+document
+    .getElementById('admin-save-all')
+    .addEventListener(
+        'click',
+        async function () {
+
+            await saveLocations();
+        }
+    );
+
+
+/* ============================================================
+   SAVE LOCATION
+============================================================ */
+
+document
+    .getElementById('admin-save-location')
+    .addEventListener(
+        'click',
+        async function () {
+
+            if (editingId === null) {
+
+                alert(
+                    'Сначала выберите локацию для редактирования.'
+                );
+
                 return;
             }
 
-            loc.photos.forEach((photo, idx) => {
-                const url = typeof photo === 'string' ? photo : (photo.url || photo);
-                if (!url) return;
 
-                const div = document.createElement('div');
-                div.className = 'photo-item';
-                div.innerHTML = `
-                    <img src="${url}" loading="lazy" onerror="this.parentElement.style.display='none'">
-                    <div class="photo-caption">${photo.caption || 'Без подписи'}</div>
-                    <button class="photo-del" onclick="deletePhoto(${id}, ${idx})">✕</button>
-                `;
-                grid.appendChild(div);
-            });
+            const location =
+                getLocation(
+                    editingId
+                );
+
+
+            if (!location) {
+                return;
+            }
+
+
+            location.name =
+                document
+                    .getElementById(
+                        'admin-location-name'
+                    )
+                    .value
+                    .trim() ||
+                'Без названия';
+
+
+            location.description =
+                document
+                    .getElementById(
+                        'admin-location-desc'
+                    )
+                    .value
+                    .trim() ||
+                'Описание отсутствует';
+
+
+            const success =
+                await saveLocations();
+
+
+            if (!success) {
+                return;
+            }
+
+
+            renderAdminList();
+
+            renderLocations();
+
+            renderMarkers();
+
+
+            alert(
+                'Локация сохранена!'
+            );
         }
+    );
 
-        // ============================================================
-        //  УДАЛЕНИЕ
-        // ============================================================
-        async function deletePhoto(locId, photoIdx) {
-            if (!confirm('Удалить это фото?')) return;
-            const loc = locations.find(l => l.id === locId);
-            if (!loc || !loc.photos) return;
 
-            try {
-                const photo = loc.photos[photoIdx];
-                const url = typeof photo === 'string' ? photo : (photo.url || photo);
-                if (url) {
-                    const urlParts = url.split('/storage/v1/object/public/photos/');
-                    if (urlParts.length > 1) {
-                        const filePath = urlParts[1];
-                        await supabaseClient.storage.from('photos').remove([filePath]);
+/* ============================================================
+   CLEAR EDITOR
+============================================================ */
+
+function clearEditor() {
+
+    document.getElementById(
+        'admin-location-name'
+    ).value = '';
+
+
+    document.getElementById(
+        'admin-location-desc'
+    ).value = '';
+
+
+    document.getElementById(
+        'admin-photos-grid'
+    ).innerHTML = '';
+
+
+    document.getElementById(
+        'admin-caption-input'
+    ).value = '';
+}
+
+
+/* ============================================================
+   CANCEL EDIT
+============================================================ */
+
+document
+    .getElementById('admin-cancel-edit')
+    .addEventListener(
+        'click',
+        function () {
+
+            editingId = null;
+
+            clearEditor();
+        }
+    );
+
+
+/* ============================================================
+   DELETE LOCATION BUTTON
+============================================================ */
+
+document
+    .getElementById('admin-delete-location')
+    .addEventListener(
+        'click',
+        function () {
+
+            if (editingId !== null) {
+
+                deleteLocation(
+                    editingId
+                );
+            }
+        }
+    );
+
+
+/* ============================================================
+   ADD LOCATION
+============================================================ */
+
+document
+    .getElementById('admin-add-location')
+    .addEventListener(
+        'click',
+        function () {
+
+            if (!mapInstance) {
+                return;
+            }
+
+
+            alert(
+                'Кликните по карте в месте новой локации.'
+            );
+
+
+            mapInstance.once(
+                'click',
+                async function (event) {
+
+                    const name =
+                        prompt(
+                            'Название новой локации:'
+                        );
+
+
+                    if (!name) {
+                        return;
+                    }
+
+
+                    const description =
+                        prompt(
+                            'Описание:'
+                        );
+
+
+                    const newLocation = {
+
+                        id:
+                            Date.now(),
+
+                        lat:
+                            Number(
+                                event.latlng.lat.toFixed(3)
+                            ),
+
+                        lng:
+                            Number(
+                                event.latlng.lng.toFixed(3)
+                            ),
+
+                        name:
+                            name.trim(),
+
+                        description:
+                            description
+                                ?.trim() ||
+                            'Описание отсутствует',
+
+                        photos: []
+                    };
+
+
+                    try {
+
+                        const {
+                            error
+                        } =
+                            await supabaseClient
+                                .from('locations')
+                                .insert(
+                                    newLocation
+                                );
+
+
+                        if (error) {
+                            throw error;
+                        }
+
+
+                        locations.push(
+                            newLocation
+                        );
+
+
+                        renderAdminList();
+
+                        renderLocations();
+
+                        renderMarkers();
+
+
+                        setAdminStatus(
+                            '✅ Локация добавлена',
+                            'ok'
+                        );
+
+
+                        alert(
+                            'Локация добавлена!'
+                        );
+
+                    } catch (error) {
+
+                        console.error(
+                            error
+                        );
+
+
+                        alert(
+                            'Ошибка добавления: ' +
+                            error.message
+                        );
                     }
                 }
-
-                loc.photos.splice(photoIdx, 1);
-                await saveAll();
-                renderAdminList();
-                renderMarkers();
-                renderLocations();
-                editLocation(locId);
-                alert('Фото удалено!');
-            } catch (e) {
-                console.error(e);
-                alert('Ошибка удаления фото');
-            }
+            );
         }
+    );
 
-        async function deleteLocation(id) {
-            if (!confirm('Удалить эту локацию?')) return;
-            try {
-                await supabaseClient.from('locations').delete().eq('id', id);
-                locations = locations.filter(l => l.id !== id);
-                renderAdminList();
-                renderMarkers();
-                renderLocations();
-                if (editingId === id) {
-                    editingId = null;
-                    document.getElementById('admin-location-name').value = '';
-                    document.getElementById('admin-location-desc').value = '';
-                    document.getElementById('admin-photos-grid').innerHTML = '';
-                }
-                alert('Локация удалена!');
-            } catch (e) {
-                console.error(e);
-                alert('Ошибка удаления локации');
+
+/* ============================================================
+   PHOTO UPLOAD
+============================================================ */
+
+document
+    .getElementById('admin-file-input')
+    .addEventListener(
+        'change',
+        uploadPhotos
+    );
+
+
+async function uploadPhotos(event) {
+
+    if (editingId === null) {
+
+        alert(
+            'Сначала выберите локацию для редактирования.'
+        );
+
+        event.target.value = '';
+
+        return;
+    }
+
+
+    const files =
+        Array.from(
+            event.target.files || []
+        );
+
+
+    if (!files.length) {
+        return;
+    }
+
+
+    const location =
+        getLocation(
+            editingId
+        );
+
+
+    if (!location) {
+        return;
+    }
+
+
+    const caption =
+        document
+            .getElementById(
+                'admin-caption-input'
+            )
+            .value
+            .trim();
+
+
+    const photos =
+        normalizePhotos(
+            location.photos
+        );
+
+
+    setAdminStatus(
+        '⏳ Загрузка фотографий...',
+        'syncing'
+    );
+
+
+    let uploaded =
+        0;
+
+
+    for (const file of files) {
+
+        try {
+
+            /*
+             * Проверяем, что это изображение.
+             */
+            if (
+                !file.type.startsWith(
+                    'image/'
+                )
+            ) {
+
+                console.warn(
+                    'Пропущен не графический файл:',
+                    file.name
+                );
+
+                continue;
             }
+
+
+            /*
+             * Уникальное имя.
+             */
+            const extension =
+                getFileExtension(
+                    file.name
+                );
+
+
+            const fileName =
+                `${Date.now()}_${Math.random()
+                    .toString(36)
+                    .substring(2, 10)}.${extension}`;
+
+
+            const filePath =
+                `locations/${editingId}/${fileName}`;
+
+
+            console.log(
+                'Загрузка:',
+                filePath
+            );
+
+
+            /*
+             * Загружаем в Storage.
+             */
+            const {
+                error:
+                uploadError
+            } =
+                await supabaseClient
+                    .storage
+                    .from(
+                        STORAGE_BUCKET
+                    )
+                    .upload(
+                        filePath,
+                        file,
+                        {
+                            cacheControl:
+                                '3600',
+
+                            upsert:
+                                false,
+
+                            contentType:
+                                file.type
+                        }
+                    );
+
+
+            if (uploadError) {
+
+                throw uploadError;
+            }
+
+
+            /*
+             * Получаем публичный URL.
+             */
+            const {
+                data:
+                publicUrlData
+            } =
+                supabaseClient
+                    .storage
+                    .from(
+                        STORAGE_BUCKET
+                    )
+                    .getPublicUrl(
+                        filePath
+                    );
+
+
+            if (
+                !publicUrlData ||
+                !publicUrlData.publicUrl
+            ) {
+
+                throw new Error(
+                    'Supabase не вернул URL фотографии.'
+                );
+            }
+
+
+            const photoObject = {
+
+                url:
+                    publicUrlData.publicUrl,
+
+                caption:
+                    caption
+            };
+
+
+            /*
+             * Добавляем URL в locations.photos.
+             */
+            photos.push(
+                photoObject
+            );
+
+
+            uploaded++;
+
+
+            console.log(
+                'Файл загружен:',
+                publicUrlData.publicUrl
+            );
+
+        } catch (error) {
+
+            console.error(
+                'Ошибка загрузки:',
+                error
+            );
+
+
+            alert(
+                `Не удалось загрузить "${file.name}":\n${error.message}`
+            );
         }
+    }
 
-        // ============================================================
-        //  СОХРАНЕНИЕ
-        // ============================================================
-        async function saveAll() {
-            try {
-                for (const loc of locations) {
-                    await supabaseClient.from('locations').upsert(loc, { onConflict: 'id' });
-                }
-                document.getElementById('admin-sync-status').textContent = '✅ Сохранено';
-                document.getElementById('admin-sync-status').className = 'status-ok';
-                return true;
-            } catch (e) {
-                console.error(e);
-                document.getElementById('admin-sync-status').textContent = '⚠️ Ошибка сохранения';
-                document.getElementById('admin-sync-status').className = 'status-error';
-                alert('Ошибка сохранения');
-                return false;
-            }
-        }
 
-        document.getElementById('admin-save-all').addEventListener('click', async function() {
-            await saveAll();
-        });
+    /*
+     * Сохраняем массив фотографий в БД.
+     */
+    location.photos =
+        photos;
 
-        document.getElementById('admin-save-location').addEventListener('click', async function() {
-            if (editingId === null) {
-                alert('Сначала выберите локацию для редактирования.');
-                return;
-            }
-            const loc = locations.find(l => l.id === editingId);
-            if (!loc) return;
 
-            loc.name = document.getElementById('admin-location-name').value.trim() || 'Без названия';
-            loc.description = document.getElementById('admin-location-desc').value.trim() || 'Описание отсутствует';
+    if (uploaded > 0) {
 
-            await saveAll();
+        const success =
+            await saveLocations();
+
+
+        if (success) {
+
             renderAdminList();
-            renderMarkers();
+
             renderLocations();
-            alert('Локация сохранена!');
-        });
 
-        document.getElementById('admin-cancel-edit').addEventListener('click', function() {
-            editingId = null;
-            document.getElementById('admin-location-name').value = '';
-            document.getElementById('admin-location-desc').value = '';
-            document.getElementById('admin-photos-grid').innerHTML = '';
-            document.getElementById('admin-caption-input').value = '';
-        });
-
-        document.getElementById('admin-delete-location').addEventListener('click', function() {
-            if (editingId !== null) deleteLocation(editingId);
-        });
-
-        // ============================================================
-        //  ЗАГРУЗКА ФОТО
-        // ============================================================
-        document.getElementById('admin-file-input').addEventListener('change', async function(e) {
-            if (editingId === null) {
-                alert('Сначала выберите локацию для редактирования.');
-                return;
-            }
-            const files = e.target.files;
-            if (!files.length) return;
-
-            const loc = locations.find(l => l.id === editingId);
-            if (!loc) return;
-
-            if (!Array.isArray(loc.photos)) {
-                loc.photos = [];
-            }
-
-            for (const file of files) {
-                try {
-                    const fileExt = file.name.split('.').pop();
-                    const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
-                    const filePath = `locations/${editingId}/${fileName}`;
-
-                    const { error: uploadError } = await supabaseClient.storage
-                        .from('photos')
-                        .upload(filePath, file);
-
-                    if (uploadError) throw uploadError;
-
-                    const { data: urlData } = supabaseClient.storage
-                        .from('photos')
-                        .getPublicUrl(filePath);
-
-                    // Сохраняем как простую строку
-                    loc.photos.push(urlData.publicUrl);
-                } catch (err) {
-                    console.error('Ошибка загрузки фото:', err);
-                    alert('Ошибка загрузки фото: ' + err.message);
-                }
-            }
-
-            await saveAll();
-            renderAdminList();
             renderMarkers();
-            renderLocations();
-            editLocation(editingId);
-            document.getElementById('admin-file-input').value = '';
-            document.getElementById('admin-caption-input').value = '';
-            alert('Фото загружены!');
-        });
 
-        document.getElementById('admin-file-upload').addEventListener('click', function() {
-            if (editingId === null) {
-                alert('Сначала выберите локацию для редактирования.');
-                return;
-            }
-            document.getElementById('admin-file-input').click();
-        });
+            renderAdminPhotos(
+                location
+            );
 
-        // ============================================================
-        //  ЗАПУСК
-        // ============================================================
-        async function startApp() {
-            await loadLocations();
-            initMap();
-            console.log('Атлас загружен');
+
+            setAdminStatus(
+                `✅ Загружено: ${uploaded}`,
+                'ok'
+            );
         }
+    }
 
-        startApp();
-    </script>
-</body>
-</html>
+
+    event.target.value = '';
+
+
+    document.getElementById(
+        'admin-caption-input'
+    ).value = '';
+}
+
+
+/* ============================================================
+   FILE EXTENSION
+============================================================ */
+
+function getFileExtension(
+    filename
+) {
+
+    const parts =
+        filename.split('.');
+
+
+    if (parts.length < 2) {
+        return 'jpg';
+    }
+
+
+    return parts
+        .pop()
+        .toLowerCase()
+        .replace(
+            /[^a-z0-9]/g,
+            ''
+        ) || 'jpg';
+}
+
+
+/* ============================================================
+   UPLOAD AREA
+============================================================ */
+
+document
+    .getElementById('admin-file-upload')
+    .addEventListener(
+        'click',
+        function () {
+
+            if (editingId === null) {
+
+                alert(
+                    'Сначала выберите локацию для редактирования.'
+                );
+
+                return;
+            }
+
+
+            document
+                .getElementById(
+                    'admin-file-input'
+                )
+                .click();
+        }
+    );
+
+
+/* ============================================================
+   KEYBOARD SHORTCUTS
+============================================================ */
+
+document.addEventListener(
+    'keydown',
+    function (event) {
+
+        /*
+         * ESC закрывает обычную модалку.
+         */
+        if (
+            event.key ===
+            'Escape'
+        ) {
+
+            const viewer =
+                document.getElementById(
+                    'photo-viewer-overlay'
+                );
+
+
+            if (viewer) {
+
+                viewer.remove();
+
+                document.body.style.overflow =
+                    '';
+
+                return;
+            }
+
+
+            closeLocationModal();
+        }
+    }
+);
+
+
+/* ============================================================
+   START
+============================================================ */
+
+async function startApp() {
+
+    console.log(
+        'Запуск атласа...'
+    );
+
+
+    const loaded =
+        await loadLocations();
+
+
+    initMap();
+
+
+    console.log(
+        'Атлас загружен.',
+        loaded
+            ? 'Данные получены.'
+            : 'Данные не загружены.'
+    );
+}
+
+
+startApp();
+
+</script>
