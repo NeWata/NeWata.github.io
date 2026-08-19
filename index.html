@@ -12,7 +12,7 @@
 
         #header {
             background: rgba(13, 13, 26, 0.95);
-            padding: 10px 24px;
+            padding: 8px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -36,7 +36,7 @@
             letter-spacing: 1px;
         }
         #header h1 .separator { color: #d4c08a; margin: 0 8px; font-weight: 300; }
-        #header-actions { display: flex; gap: 10px; align-items: center; }
+        #header-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
         #header-actions span { font-size: 11px; color: #555; }
 
         .admin-toggle {
@@ -62,7 +62,7 @@
             min-width: 260px;
             background: rgba(16, 16, 28, 0.95);
             border-right: 1px solid #1e1e30;
-            padding: 14px;
+            padding: 12px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
@@ -75,9 +75,9 @@
             text-transform: uppercase;
             letter-spacing: 2px;
             color: #666;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             border-bottom: 1px solid #1e1e30;
-            padding-bottom: 10px;
+            padding-bottom: 8px;
         }
         #location-list { list-style: none; flex: 1; }
         #location-list li {
@@ -97,7 +97,7 @@
         #location-list li:hover { background: #1e1e32; transform: translateX(4px); }
         #location-list li .loc-name { font-weight: 500; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         #location-list li .loc-photos-count { font-size: 11px; color: #666; background: #0a0a12; padding: 1px 10px; border-radius: 10px; }
-        .empty-msg { color: #444; text-align: center; font-style: italic; padding: 30px 0; font-size: 13px; }
+        .empty-msg { color: #444; text-align: center; font-style: italic; padding: 20px 0; font-size: 13px; }
 
         #map-container { flex: 1; position: relative; background: #0a0a12; }
         #map { width: 100%; height: 100%; background: #0a0a12; }
@@ -124,13 +124,13 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #666;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
         #routes-legend .route-item {
             display: flex;
             align-items: center;
             gap: 8px;
-            padding: 4px 0;
+            padding: 3px 0;
             font-size: 12px;
             color: #ccc;
             cursor: pointer;
@@ -500,6 +500,76 @@
         .admin-box .status-bar .status-ok { color: #4caf50; }
         .admin-box .status-bar .status-error { color: #ff5555; }
         .admin-box .status-bar .status-syncing { color: #ffa726; }
+
+        /* ===== КАСТОМНЫЕ НАДПИСИ НА КАРТЕ ===== */
+        .custom-label {
+            background: rgba(16, 16, 28, 0.85);
+            backdrop-filter: blur(4px);
+            padding: 4px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(212, 192, 138, 0.2);
+            color: #f0e8c8;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+            white-space: nowrap;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+            cursor: default;
+            user-select: none;
+            transition: all 0.2s ease;
+            pointer-events: all;
+        }
+        .custom-label:hover {
+            transform: scale(1.05);
+            border-color: #d4c08a;
+            box-shadow: 0 4px 30px rgba(212, 192, 138, 0.15);
+        }
+        .custom-label.dragging {
+            opacity: 0.6;
+            transform: scale(0.95);
+        }
+        .custom-label .label-text {
+            display: inline-block;
+        }
+        .custom-label .label-del {
+            display: none;
+            margin-left: 8px;
+            color: #ff5555;
+            font-size: 14px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0 2px;
+        }
+        .custom-label .label-del:hover {
+            color: #ff7777;
+            transform: scale(1.2);
+        }
+        .custom-label.admin-mode .label-del {
+            display: inline-block;
+        }
+        .custom-label .label-drag-handle {
+            display: none;
+            margin-left: 6px;
+            color: #666;
+            font-size: 12px;
+            cursor: grab;
+            user-select: none;
+        }
+        .custom-label.admin-mode .label-drag-handle {
+            display: inline-block;
+        }
+        .custom-label .label-drag-handle:hover {
+            color: #d4c08a;
+        }
+
+        .custom-label.hidden-label {
+            opacity: 0.2;
+            filter: blur(1px);
+            pointer-events: none;
+        }
 
         /* ===== МАРКЕРЫ ===== */
         .custom-marker {
@@ -908,6 +978,19 @@
                     <div id="admin-routes-list" style="max-height:120px;overflow-y:auto;border:1px solid #1a1a2a;border-radius:6px;padding:4px;"></div>
                 </div>
 
+                <!-- ===== НАДПИСИ ===== -->
+                <hr style="border-color:#1e1e30; margin:12px 0;">
+                <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">🏷️ Надписи на карте</label>
+                <div id="admin-labels-section" style="margin: 8px 0;">
+                    <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;">
+                        <button class="btn btn-secondary" id="admin-add-label" style="padding:4px 12px;font-size:12px;">➕ Добавить надпись</button>
+                        <button class="btn btn-secondary" id="admin-toggle-labels" style="padding:4px 12px;font-size:12px;">👁️ Скрыть все</button>
+                        <button class="btn btn-danger" id="admin-clear-labels" style="padding:4px 12px;font-size:12px;">🗑️ Удалить все</button>
+                        <span id="admin-label-status" style="font-size:11px;color:#555;align-self:center;">Кликни по карте и введи текст</span>
+                    </div>
+                    <div id="admin-labels-list" style="max-height:120px;overflow-y:auto;border:1px solid #1a1a2a;border-radius:6px;padding:4px;"></div>
+                </div>
+
                 <div class="btn-group">
                     <button class="btn btn-primary" id="admin-save-location">💾 Сохранить</button>
                     <button class="btn btn-secondary" id="admin-cancel-edit">↩️ Отмена</button>
@@ -937,10 +1020,12 @@
         // ============================================================
         let locations = [];
         let routes = [];
+        let labels = [];
         let mapInstance = null;
         let imageOverlay = null;
         let markerMap = new Map();
         let routeLayers = {};
+        let labelLayers = {};
         let currentModalId = null;
         let editingId = null;
         let isAdmin = false;
@@ -951,6 +1036,10 @@
         let tempRouteMarkers = [];
         let tempRouteLine = null;
         let hiddenRoutes = new Set();
+        let labelsHidden = false;
+        let isDraggingLabel = false;
+        let dragStartPos = null;
+        let dragLabelId = null;
 
         // ============================================================
         //  ЗАГРУЗКА ДАННЫХ
@@ -1011,57 +1100,18 @@
 
             renderMarkers();
             renderRoutes();
+            renderLabels();
 
+            // Клик по карте для маршрутов
             mapInstance.on('click', function(e) {
-                if (!routeBuilding) return;
-                if (!isAdmin) {
-                    alert('Войдите в админ-панель');
-                    return;
+                if (routeBuilding) {
+                    if (!isAdmin) {
+                        alert('Войдите в админ-панель');
+                        return;
+                    }
+                    addRoutePoint(e.latlng.lat, e.latlng.lng);
                 }
-                addRoutePoint(e.latlng.lat, e.latlng.lng);
             });
-        }
-
-        // ============================================================
-        //  ДОБАВЛЕНИЕ ТОЧКИ
-        // ============================================================
-        function addRoutePoint(lat, lng) {
-            tempRoutePoints.push({ lat, lng });
-
-            const marker = L.circleMarker([lat, lng], {
-                radius: 6,
-                color: '#d4c08a',
-                fillColor: '#d4c08a',
-                fillOpacity: 0.8,
-                weight: 2
-            }).addTo(mapInstance);
-            tempRouteMarkers.push(marker);
-
-            if (tempRouteLine) {
-                mapInstance.removeLayer(tempRouteLine);
-            }
-            if (tempRoutePoints.length >= 2) {
-                const latlngs = tempRoutePoints.map(p => [p.lat, p.lng]);
-                tempRouteLine = L.polyline(latlngs, {
-                    color: '#d4c08a',
-                    weight: 3,
-                    opacity: 0.8,
-                    dashArray: '5, 10'
-                }).addTo(mapInstance);
-            }
-
-            document.getElementById('admin-route-status').textContent =
-                `📍 Точка ${tempRoutePoints.length} добавлена. Кликай дальше или нажми "Добавить маршрут" для завершения.`;
-        }
-
-        function addRoutePointFromMarker(lat, lng, name) {
-            if (!routeBuilding) {
-                alert('Сначала нажмите "Добавить маршрут" в админ-панели');
-                return;
-            }
-            addRoutePoint(lat, lng);
-            document.getElementById('admin-route-status').textContent =
-                `✅ Добавлена точка "${name}". Кликай дальше или заверши маршрут.`;
         }
 
         // ============================================================
@@ -1179,78 +1229,45 @@
             }
         }
 
-        // ============================================================
-        //  ⭐ РЕДАКТИРОВАНИЕ ПОЗИЦИИ ПОДПИСИ (labelposition)
-        // ============================================================
-        async function editLabelPosition(routeId) {
-            const route = routes.find(r => r.id === routeId);
-            if (!route) {
-                alert('Маршрут не найден');
-                return;
+        function addRoutePoint(lat, lng) {
+            tempRoutePoints.push({ lat, lng });
+
+            const marker = L.circleMarker([lat, lng], {
+                radius: 6,
+                color: '#d4c08a',
+                fillColor: '#d4c08a',
+                fillOpacity: 0.8,
+                weight: 2
+            }).addTo(mapInstance);
+            tempRouteMarkers.push(marker);
+
+            if (tempRouteLine) {
+                mapInstance.removeLayer(tempRouteLine);
+            }
+            if (tempRoutePoints.length >= 2) {
+                const latlngs = tempRoutePoints.map(p => [p.lat, p.lng]);
+                tempRouteLine = L.polyline(latlngs, {
+                    color: '#d4c08a',
+                    weight: 3,
+                    opacity: 0.8,
+                    dashArray: '5, 10'
+                }).addTo(mapInstance);
             }
 
-            const pointsCount = route.points ? route.points.length : 0;
-            if (pointsCount < 2) {
-                alert('Нужно минимум 2 точки для подписи');
-                return;
-            }
-
-            const currentPos = route.labelposition !== undefined ? route.labelposition : Math.floor(pointsCount / 2);
-            
-            const pointsList = route.points.map((p, i) => 
-                `${i + 1}. (${p.lat.toFixed(2)}, ${p.lng.toFixed(2)})${i === currentPos ? ' ← текущая' : ''}`
-            ).join('\n');
-
-            const input = prompt(
-                `Выберите номер точки для подписи (от 1 до ${pointsCount}):\n\n${pointsList}`,
-                String(currentPos + 1)
-            );
-
-            if (input === null) return;
-
-            const parsed = parseInt(input);
-            if (isNaN(parsed) || parsed < 1 || parsed > pointsCount) {
-                alert(`❌ Некорректный номер. Введите число от 1 до ${pointsCount}`);
-                return;
-            }
-
-            const newPosition = parsed - 1;
-            
-            try {
-                const { error } = await supabaseClient
-                    .from('routes')
-                    .update({ labelposition: newPosition })
-                    .eq('id', routeId);
-
-                if (error) throw error;
-
-                route.labelposition = newPosition;
-                
-                renderRoutes();
-                renderRoutesLegend();
-                renderAdminRoutesList();
-                
-                alert(`✅ Подпись перемещена на точку ${parsed}`);
-            } catch (e) {
-                console.error('Ошибка обновления:', e);
-                alert('❌ Ошибка обновления: ' + e.message);
-            }
+            document.getElementById('admin-route-status').textContent =
+                `📍 Точка ${tempRoutePoints.length} добавлена. Кликай дальше или нажми "Добавить маршрут" для завершения.`;
         }
 
-        // ============================================================
-        //  ⭐ ПОКАЗАТЬ ВСЕ МАРШРУТЫ
-        // ============================================================
-        function showAllRoutes() {
-            hiddenRoutes.clear();
-            renderRoutes();
-            renderRoutesLegend();
-            renderAdminRoutesList();
-            console.log('👁️ Все маршруты показаны');
+        function addRoutePointFromMarker(lat, lng, name) {
+            if (!routeBuilding) {
+                alert('Сначала нажмите "Добавить маршрут" в админ-панели');
+                return;
+            }
+            addRoutePoint(lat, lng);
+            document.getElementById('admin-route-status').textContent =
+                `✅ Добавлена точка "${name}". Кликай дальше или заверши маршрут.`;
         }
 
-        // ============================================================
-        //  ⭐ ОТРИСОВКА МАРШРУТОВ
-        // ============================================================
         function renderRoutes() {
             Object.values(routeLayers).forEach(layer => {
                 if (layer.polyline) mapInstance.removeLayer(layer.polyline);
@@ -1326,9 +1343,6 @@
             renderRoutesLegend();
         }
 
-        // ============================================================
-        //  ⭐ ЛЕГЕНДА
-        // ============================================================
         function renderRoutesLegend() {
             const container = document.getElementById('routes-legend');
             const list = document.getElementById('routes-list');
@@ -1388,37 +1402,32 @@
             }
         }
 
-        // ============================================================
-        //  ⭐ ПЕРЕКЛЮЧЕНИЕ ВИДИМОСТИ МАРШРУТА
-        // ============================================================
         function toggleRouteVisibility(routeId) {
             const layer = routeLayers[routeId];
-            if (!layer) {
-                console.warn('Маршрут не найден на карте:', routeId);
-                return;
-            }
+            if (!layer) return;
 
             if (hiddenRoutes.has(routeId)) {
                 hiddenRoutes.delete(routeId);
                 if (layer.polyline) mapInstance.addLayer(layer.polyline);
                 if (layer.markers) layer.markers.forEach(m => mapInstance.addLayer(m));
                 if (layer.label) mapInstance.addLayer(layer.label);
-                console.log('👁️ Маршрут показан:', routeId);
             } else {
                 hiddenRoutes.add(routeId);
                 if (layer.polyline) mapInstance.removeLayer(layer.polyline);
                 if (layer.markers) layer.markers.forEach(m => mapInstance.removeLayer(m));
                 if (layer.label) mapInstance.removeLayer(layer.label);
-                console.log('👁️‍🗨️ Маршрут скрыт:', routeId);
             }
-            
             renderRoutesLegend();
             renderAdminRoutesList();
         }
 
-        // ============================================================
-        //  ⭐ СПИСОК МАРШРУТОВ В АДМИНКЕ
-        // ============================================================
+        function showAllRoutes() {
+            hiddenRoutes.clear();
+            renderRoutes();
+            renderRoutesLegend();
+            renderAdminRoutesList();
+        }
+
         function renderAdminRoutesList() {
             const container = document.getElementById('admin-routes-list');
             if (!container) return;
@@ -1445,36 +1454,9 @@
                             ${isHidden ? ' 🔒' : ''}
                         </span>
                         <div style="display:flex;gap:2px;">
-                            <button onclick="editLabelPosition('${route.id}')" style="
-                                background:none;
-                                border:none;
-                                color:#4ecdc4;
-                                cursor:pointer;
-                                font-size:13px;
-                                padding:2px 4px;
-                                transition:0.2s;
-                            " title="Изменить позицию подписи">
-                                📌
-                            </button>
-                            <button onclick="toggleRouteVisibility('${route.id}')" style="
-                                background:none;
-                                border:none;
-                                color:${eyeColor};
-                                cursor:pointer;
-                                font-size:14px;
-                                padding:2px 4px;
-                                transition:0.2s;
-                            " title="${isHidden ? 'Показать' : 'Скрыть'}">
-                                ${eyeIcon}
-                            </button>
-                            <button onclick="deleteRouteFromDB('${route.id}')" style="
-                                background:none;
-                                border:none;
-                                color:#ff5555;
-                                cursor:pointer;
-                                font-size:12px;
-                                padding:2px 4px;
-                            ">✕</button>
+                            <button onclick="editLabelPosition('${route.id}')" style="background:none;border:none;color:#4ecdc4;cursor:pointer;font-size:13px;padding:2px 4px;">📌</button>
+                            <button onclick="toggleRouteVisibility('${route.id}')" style="background:none;border:none;color:${eyeColor};cursor:pointer;font-size:14px;padding:2px 4px;">${eyeIcon}</button>
+                            <button onclick="deleteRouteFromDB('${route.id}')" style="background:none;border:none;color:#ff5555;cursor:pointer;font-size:12px;padding:2px 4px;">✕</button>
                         </div>
                     </div>
                 `;
@@ -1482,22 +1464,86 @@
             container.innerHTML = html;
         }
 
-        // ============================================================
-        //  ПОСТРОЕНИЕ МАРШРУТА
-        // ============================================================
-        function cancelRouteBuilding() {
-            routeBuilding = false;
+        async function editLabelPosition(routeId) {
+            const route = routes.find(r => r.id === routeId);
+            if (!route) return;
+
+            const pointsCount = route.points ? route.points.length : 0;
+            if (pointsCount < 2) return;
+
+            const currentPos = route.labelposition !== undefined ? route.labelposition : Math.floor(pointsCount / 2);
+            const input = prompt(`Выберите номер точки для подписи (от 1 до ${pointsCount}, текущая: ${currentPos + 1}):`);
+            if (input === null) return;
+
+            const parsed = parseInt(input);
+            if (isNaN(parsed) || parsed < 1 || parsed > pointsCount) {
+                alert(`❌ Некорректный номер. Введите число от 1 до ${pointsCount}`);
+                return;
+            }
+
+            const newPosition = parsed - 1;
+            
+            try {
+                const { error } = await supabaseClient
+                    .from('routes')
+                    .update({ labelposition: newPosition })
+                    .eq('id', routeId);
+
+                if (error) throw error;
+
+                route.labelposition = newPosition;
+                renderRoutes();
+                renderRoutesLegend();
+                renderAdminRoutesList();
+                alert(`✅ Подпись перемещена на точку ${parsed}`);
+            } catch (e) {
+                console.error('Ошибка обновления:', e);
+                alert('❌ Ошибка обновления: ' + e.message);
+            }
+        }
+
+        document.getElementById('admin-add-route').addEventListener('click', function() {
+            if (!isAdmin) {
+                alert('Войдите в админ-панель');
+                return;
+            }
+
+            if (routeBuilding) {
+                if (tempRoutePoints.length < 2) {
+                    alert('Нужно минимум 2 точки для маршрута');
+                    return;
+                }
+                finishRoute();
+                return;
+            }
+
+            routeBuilding = true;
             tempRoutePoints = [];
-            tempRouteMarkers.forEach(m => mapInstance.removeLayer(m));
             tempRouteMarkers = [];
             if (tempRouteLine) {
                 mapInstance.removeLayer(tempRouteLine);
                 tempRouteLine = null;
             }
-            document.getElementById('admin-route-status').textContent = 'Нажми "Добавить маршрут" и кликай по точкам';
-            document.getElementById('admin-route-status').style.color = '#555';
+
+            document.getElementById('admin-route-status').textContent = '🔵 Кликай по маркерам на карте или по пустому месту. Нажми "Добавить маршрут" снова для завершения.';
+            document.getElementById('admin-route-status').style.color = '#4ecdc4';
             renderMarkers();
-        }
+            alert('🟢 Режим построения маршрута включен! Кликайте по маркерам на карте или по пустому месту.');
+        });
+
+        document.getElementById('admin-show-all-routes').addEventListener('click', showAllRoutes);
+
+        document.getElementById('admin-clear-routes').addEventListener('click', async function() {
+            if (!isAdmin) return;
+            if (!confirm('Удалить все маршруты?')) return;
+            for (const route of routes) {
+                await deleteRouteFromDB(route.id);
+            }
+            routes = [];
+            renderRoutes();
+            renderRoutesLegend();
+            renderAdminRoutesList();
+        });
 
         async function finishRoute() {
             if (tempRoutePoints.length < 2) {
@@ -1547,51 +1593,309 @@
             }
         }
 
-        document.getElementById('admin-add-route').addEventListener('click', function() {
-            if (!isAdmin) {
-                alert('Войдите в админ-панель');
-                return;
-            }
-
-            if (routeBuilding) {
-                if (tempRoutePoints.length < 2) {
-                    alert('Нужно минимум 2 точки для маршрута');
-                    return;
-                }
-                finishRoute();
-                return;
-            }
-
-            routeBuilding = true;
+        function cancelRouteBuilding() {
+            routeBuilding = false;
             tempRoutePoints = [];
+            tempRouteMarkers.forEach(m => mapInstance.removeLayer(m));
             tempRouteMarkers = [];
             if (tempRouteLine) {
                 mapInstance.removeLayer(tempRouteLine);
                 tempRouteLine = null;
             }
-
-            document.getElementById('admin-route-status').textContent = '🔵 Кликай по маркерам на карте или по пустому месту. Нажми "Добавить маршрут" снова для завершения.';
-            document.getElementById('admin-route-status').style.color = '#4ecdc4';
+            document.getElementById('admin-route-status').textContent = 'Нажми "Добавить маршрут" и кликай по точкам';
+            document.getElementById('admin-route-status').style.color = '#555';
             renderMarkers();
-            alert('🟢 Режим построения маршрута включен! Кликайте по маркерам на карте или по пустому месту.');
-        });
-
-        document.getElementById('admin-show-all-routes').addEventListener('click', showAllRoutes);
-
-        document.getElementById('admin-clear-routes').addEventListener('click', async function() {
-            if (!isAdmin) return;
-            if (!confirm('Удалить все маршруты?')) return;
-            for (const route of routes) {
-                await deleteRouteFromDB(route.id);
-            }
-            routes = [];
-            renderRoutes();
-            renderRoutesLegend();
-            renderAdminRoutesList();
-        });
+        }
 
         // ============================================================
-        //  АДМИН-ПАНЕЛЬ (остальное)
+        //  ⭐ НАДПИСИ НА КАРТЕ
+        // ============================================================
+        async function loadLabels() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('labels')
+                    .select('*')
+                    .order('created_at', { ascending: true });
+
+                if (error) throw error;
+                labels = data || [];
+                renderLabels();
+                renderAdminLabelsList();
+                console.log('✅ Надписи загружены:', labels.length);
+                return true;
+            } catch (e) {
+                console.error('Ошибка загрузки надписей:', e);
+                return false;
+            }
+        }
+
+        async function saveLabelToDB(labelData) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('labels')
+                    .insert(labelData)
+                    .select()
+                    .single();
+
+                if (error) throw error;
+                labels.push(data);
+                renderLabels();
+                renderAdminLabelsList();
+                return data;
+            } catch (e) {
+                console.error('Ошибка сохранения надписи:', e);
+                alert('Ошибка сохранения надписи: ' + e.message);
+                return null;
+            }
+        }
+
+        async function updateLabelInDB(labelId, updates) {
+            try {
+                const { error } = await supabaseClient
+                    .from('labels')
+                    .update(updates)
+                    .eq('id', labelId);
+
+                if (error) throw error;
+                const label = labels.find(l => l.id === labelId);
+                if (label) Object.assign(label, updates);
+                renderLabels();
+                renderAdminLabelsList();
+                return true;
+            } catch (e) {
+                console.error('Ошибка обновления надписи:', e);
+                alert('Ошибка обновления надписи: ' + e.message);
+                return false;
+            }
+        }
+
+        async function deleteLabelFromDB(labelId) {
+            try {
+                const { error } = await supabaseClient
+                    .from('labels')
+                    .delete()
+                    .eq('id', labelId);
+
+                if (error) throw error;
+                labels = labels.filter(l => l.id !== labelId);
+                renderLabels();
+                renderAdminLabelsList();
+                return true;
+            } catch (e) {
+                console.error('Ошибка удаления надписи:', e);
+                alert('Ошибка удаления надписи: ' + e.message);
+                return false;
+            }
+        }
+
+        function renderLabels() {
+            // Удаляем старые надписи
+            Object.values(labelLayers).forEach(layer => {
+                if (layer.marker) mapInstance.removeLayer(layer.marker);
+                if (layer.dragHandler) {
+                    mapInstance.off('mousemove', layer.dragHandler);
+                    mapInstance.off('mouseup', layer.dragHandler);
+                }
+            });
+            labelLayers = {};
+
+            if (!isAdmin) {
+                // Обычным пользователям показываем надписи, но без управления
+                labels.forEach(label => {
+                    if (labelsHidden) return;
+                    const marker = L.marker([label.lat, label.lng], {
+                        icon: L.divIcon({
+                            className: 'custom-label',
+                            html: `
+                                <span class="label-text">${label.text}</span>
+                            `,
+                            iconSize: [0, 0],
+                            iconAnchor: [0, 0]
+                        }),
+                        interactive: false,
+                        keyboard: false
+                    }).addTo(mapInstance);
+                    labelLayers[label.id] = { marker };
+                });
+                return;
+            }
+
+            // Админ — с управлением
+            labels.forEach(label => {
+                if (labelsHidden) {
+                    // Скрытые надписи — показываем полупрозрачными
+                    const marker = L.marker([label.lat, label.lng], {
+                        icon: L.divIcon({
+                            className: 'custom-label hidden-label',
+                            html: `
+                                <span class="label-text">${label.text}</span>
+                                <span class="label-del" onclick="deleteLabel('${label.id}')">✕</span>
+                                <span class="label-drag-handle">⠿</span>
+                            `,
+                            iconSize: [0, 0],
+                            iconAnchor: [0, 0]
+                        }),
+                        interactive: true,
+                        keyboard: false
+                    }).addTo(mapInstance);
+                    labelLayers[label.id] = { marker };
+                    return;
+                }
+
+                // Видимые надписи
+                const marker = L.marker([label.lat, label.lng], {
+                    icon: L.divIcon({
+                        className: 'custom-label admin-mode',
+                        html: `
+                            <span class="label-text">${label.text}</span>
+                            <span class="label-del" onclick="deleteLabel('${label.id}')">✕</span>
+                            <span class="label-drag-handle">⠿</span>
+                        `,
+                        iconSize: [0, 0],
+                        iconAnchor: [0, 0]
+                    }),
+                    interactive: true,
+                    keyboard: false,
+                    draggable: true
+                }).addTo(mapInstance);
+
+                // Обработчик перетаскивания
+                marker.on('dragstart', function(e) {
+                    const el = e.target._icon;
+                    if (el) el.classList.add('dragging');
+                });
+
+                marker.on('drag', function(e) {
+                    const pos = e.target.getLatLng();
+                    const label = labels.find(l => l.id === label.id);
+                    if (label) {
+                        // Визуально обновляем позицию
+                    }
+                });
+
+                marker.on('dragend', function(e) {
+                    const pos = e.target.getLatLng();
+                    const el = e.target._icon;
+                    if (el) el.classList.remove('dragging');
+                    
+                    const label = labels.find(l => l.id === label.id);
+                    if (label) {
+                        updateLabelInDB(label.id, {
+                            lat: pos.lat,
+                            lng: pos.lng
+                        });
+                    }
+                });
+
+                labelLayers[label.id] = { marker };
+            });
+        }
+
+        function renderAdminLabelsList() {
+            const container = document.getElementById('admin-labels-list');
+            if (!container) return;
+
+            if (!labels || labels.length === 0) {
+                container.innerHTML = '<div style="color:#444;font-style:italic;padding:6px;font-size:12px;">Нет надписей</div>';
+                return;
+            }
+
+            let html = '';
+            labels.forEach(label => {
+                const isHidden = labelsHidden;
+                html += `
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px;border-bottom:1px solid #1a1a2a;font-size:12px;">
+                        <span style="display:flex;align-items:center;gap:6px;">
+                            <span style="color:#d4c08a;font-size:14px;">🏷️</span>
+                            ${label.text}
+                            <span style="color:#555;font-size:10px;">(${label.lat.toFixed(2)}, ${label.lng.toFixed(2)})</span>
+                        </span>
+                        <button onclick="deleteLabel('${label.id}')" style="background:none;border:none;color:#ff5555;cursor:pointer;font-size:12px;padding:2px 4px;">✕</button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // ⭐ ДОБАВЛЕНИЕ НАДПИСИ
+        document.getElementById('admin-add-label').addEventListener('click', function() {
+            if (!isAdmin) {
+                alert('Войдите в админ-панель');
+                return;
+            }
+
+            document.getElementById('admin-label-status').textContent = '🔵 Кликни по карте, чтобы поставить надпись';
+            document.getElementById('admin-label-status').style.color = '#4ecdc4';
+
+            // Ждём клик по карте
+            const clickHandler = function(e) {
+                const lat = e.latlng.lat;
+                const lng = e.latlng.lng;
+
+                const text = prompt('Введите текст надписи:', 'Новая надпись');
+                if (text !== null && text.trim() !== '') {
+                    saveLabelToDB({
+                        text: text.trim(),
+                        lat: lat,
+                        lng: lng,
+                        created_at: new Date().toISOString()
+                    });
+                    document.getElementById('admin-label-status').textContent = '✅ Надпись добавлена!';
+                    document.getElementById('admin-label-status').style.color = '#4caf50';
+                    setTimeout(() => {
+                        document.getElementById('admin-label-status').textContent = 'Кликни по карте и введи текст';
+                        document.getElementById('admin-label-status').style.color = '#555';
+                    }, 3000);
+                } else {
+                    document.getElementById('admin-label-status').textContent = '❌ Отменено';
+                    document.getElementById('admin-label-status').style.color = '#ff5555';
+                    setTimeout(() => {
+                        document.getElementById('admin-label-status').textContent = 'Кликни по карте и введи текст';
+                        document.getElementById('admin-label-status').style.color = '#555';
+                    }, 2000);
+                }
+
+                mapInstance.off('click', clickHandler);
+            };
+
+            mapInstance.on('click', clickHandler);
+        });
+
+        // ⭐ СКРЫТЬ/ПОКАЗАТЬ ВСЕ НАДПИСИ
+        document.getElementById('admin-toggle-labels').addEventListener('click', function() {
+            labelsHidden = !labelsHidden;
+            this.textContent = labelsHidden ? '👁️ Показать все' : '👁️ Скрыть все';
+            renderLabels();
+            renderAdminLabelsList();
+        });
+
+        // ⭐ УДАЛИТЬ ВСЕ НАДПИСИ
+        document.getElementById('admin-clear-labels').addEventListener('click', async function() {
+            if (!isAdmin) return;
+            if (!confirm('Удалить все надписи?')) return;
+            for (const label of labels) {
+                await deleteLabelFromDB(label.id);
+            }
+            labels = [];
+            renderLabels();
+            renderAdminLabelsList();
+            document.getElementById('admin-label-status').textContent = '🗑️ Все надписи удалены';
+            document.getElementById('admin-label-status').style.color = '#ff5555';
+            setTimeout(() => {
+                document.getElementById('admin-label-status').textContent = 'Кликни по карте и введи текст';
+                document.getElementById('admin-label-status').style.color = '#555';
+            }, 2000);
+        });
+
+        // ⭐ УДАЛЕНИЕ ОДНОЙ НАДПИСИ
+        async function deleteLabel(labelId) {
+            if (!isAdmin) return;
+            if (!confirm('Удалить эту надпись?')) return;
+            await deleteLabelFromDB(labelId);
+        }
+
+        // ============================================================
+        //  АДМИН-ПАНЕЛЬ (основная)
         // ============================================================
         const adminOverlay = document.getElementById('admin-overlay');
         const adminToggleBtn = document.getElementById('admin-toggle-btn');
@@ -1629,6 +1933,9 @@
             if (routeBuilding) cancelRouteBuilding();
         });
 
+        // ============================================================
+        //  АВТОРИЗАЦИЯ
+        // ============================================================
         async function checkAdminAuth() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
@@ -1638,12 +1945,15 @@
                 document.getElementById('admin-login-error').style.display = 'none';
                 loadAdminLocations();
                 loadRoutes();
+                loadLabels();
                 renderRoutes();
+                renderLabels();
             } else {
                 isAdmin = false;
                 document.getElementById('admin-login').style.display = 'block';
                 document.getElementById('admin-panel-content').style.display = 'none';
                 renderRoutes();
+                renderLabels();
             }
         }
 
@@ -1676,7 +1986,9 @@
                 document.getElementById('admin-panel-content').style.display = 'block';
                 loadAdminLocations();
                 loadRoutes();
+                loadLabels();
                 renderRoutes();
+                renderLabels();
             } catch (e) {
                 errorEl.textContent = 'Ошибка входа';
                 errorEl.style.display = 'block';
@@ -1697,8 +2009,12 @@
             document.getElementById('admin-panel-content').style.display = 'none';
             editingId = null;
             renderRoutes();
+            renderLabels();
         });
 
+        // ============================================================
+        //  АДМИН-УПРАВЛЕНИЕ ЛОКАЦИЯМИ
+        // ============================================================
         async function loadAdminLocations() {
             try {
                 const { data, error } = await supabaseClient
@@ -2243,11 +2559,11 @@
             await loadLocations();
             initMap();
             await loadRoutes();
+            await loadLabels();
             console.log('Атлас загружен');
             console.log('📱 На телефонах: свайп влево/вправо для переключения фото');
             console.log('⌨️ На ПК: стрелки ← → на клавиатуре');
-            console.log('🗺️ Маршруты видны только админу!');
-            console.log('📌 Кнопка 📌 в админке меняет позицию подписи маршрута в реальном времени');
+            console.log('🏷️ Надписи можно перемещать перетаскиванием в админ-режиме');
         }
 
         startApp();
