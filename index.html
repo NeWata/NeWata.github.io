@@ -102,6 +102,7 @@
         #map-container { flex: 1; position: relative; background: #0a0a12; }
         #map { width: 100%; height: 100%; background: #0a0a12; }
 
+        /* Модалка просмотра локации (галерея) */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -177,7 +178,7 @@
         .photo-gallery .photo-item .photo-caption {
             padding: 6px 8px;
             font-size: 12px;
-            color: #aaa;
+            color: #ccc;
             background: rgba(15, 15, 26, 0.9);
             border-top: 1px solid #1e1e30;
             min-height: 30px;
@@ -343,7 +344,7 @@
         .admin-box .photo-grid .photo-item .photo-caption {
             padding: 3px 6px;
             font-size: 10px;
-            color: #aaa;
+            color: #ccc;
             background: rgba(15,15,26,0.9);
             border-top: 1px solid #1e1e30;
             min-height: 20px;
@@ -412,7 +413,7 @@
         .admin-box .status-bar .status-error { color: #ff5555; }
         .admin-box .status-bar .status-syncing { color: #ffa726; }
 
-        /* ===== КРАСИВЫЕ МАРКЕРЫ НА КАРТЕ ===== */
+        /* ===== КРАСИВЫЕ МАРКЕРЫ ===== */
         .custom-marker {
             background: none;
             border: none;
@@ -455,6 +456,172 @@
             transform: scale(1.15);
             box-shadow: 0 0 30px rgba(212, 192, 138, 0.6);
         }
+
+        /* ===== ПОЛНОЭКРАННЫЙ ПРОСМОТР С ОПИСАНИЕМ СПРАВА ===== */
+        #photo-viewer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.95);
+            z-index: 99999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.25s ease;
+        }
+        #photo-viewer-overlay.active { display: flex; }
+
+        .viewer-container {
+            display: flex;
+            width: 94%;
+            height: 92%;
+            max-width: 1400px;
+            background: #0f0f1a;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 1px solid #2a2a40;
+            position: relative;
+        }
+
+        .viewer-image-area {
+            flex: 2;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0a0a12;
+            padding: 20px;
+            min-height: 300px;
+        }
+        .viewer-image-area img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+        }
+
+        .viewer-info {
+            width: 320px;
+            min-width: 280px;
+            background: #141420;
+            padding: 24px 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            border-left: 1px solid #22223a;
+        }
+        .viewer-info::-webkit-scrollbar { width: 4px; }
+        .viewer-info::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
+
+        .viewer-info .viewer-counter {
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 12px;
+        }
+        .viewer-info .viewer-title {
+            font-size: 20px;
+            color: #f0e8c8;
+            margin-bottom: 4px;
+        }
+        .viewer-info .viewer-location {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 16px;
+        }
+        .viewer-info .viewer-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #555;
+            margin-bottom: 6px;
+        }
+        .viewer-info .viewer-caption {
+            font-size: 15px;
+            color: #ddd;
+            line-height: 1.6;
+            flex: 1;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            min-height: 60px;
+            padding: 8px 12px;
+            background: #0a0a12;
+            border-radius: 8px;
+            border: 1px solid #1a1a2a;
+        }
+        .viewer-info .viewer-caption-empty {
+            color: #444;
+            font-style: italic;
+            font-size: 14px;
+        }
+
+        .viewer-nav-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #fff;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            font-size: 20px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+        .viewer-nav-btn:hover {
+            background: rgba(255,255,255,0.15);
+            border-color: #d4c08a;
+        }
+        .viewer-nav-btn.prev { left: 10px; }
+        .viewer-nav-btn.next { right: 10px; }
+
+        .viewer-close-btn {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 28px;
+            color: #888;
+            cursor: pointer;
+            transition: 0.2s;
+            background: none;
+            border: none;
+            z-index: 2;
+        }
+        .viewer-close-btn:hover { color: #fff; transform: rotate(90deg); }
+
+        @media (max-width: 768px) {
+            .viewer-container {
+                flex-direction: column;
+                width: 98%;
+                height: 96%;
+            }
+            .viewer-info {
+                width: 100%;
+                min-width: unset;
+                max-height: 200px;
+                border-left: none;
+                border-top: 1px solid #22223a;
+                padding: 16px;
+            }
+            .viewer-image-area {
+                flex: 1;
+                padding: 10px;
+                min-height: 200px;
+            }
+            .viewer-info .viewer-caption {
+                min-height: 40px;
+                font-size: 14px;
+            }
+            .viewer-nav-btn { width: 36px; height: 36px; font-size: 16px; }
+            .viewer-nav-btn.prev { left: 4px; }
+            .viewer-nav-btn.next { right: 4px; }
+        }
     </style>
 </head>
 <body>
@@ -480,7 +647,7 @@
         </div>
     </div>
 
-    <!-- Модалка просмотра -->
+    <!-- Модалка просмотра локации -->
     <div class="modal-overlay" id="location-modal">
         <div class="modal-content">
             <button class="modal-close" id="modal-close-btn">✕</button>
@@ -490,6 +657,27 @@
             </div>
             <div class="photo-gallery" id="modal-gallery"></div>
             <div id="modal-no-photos" class="no-photos">Нет фотографий</div>
+        </div>
+    </div>
+
+    <!-- ===== ПОЛНОЭКРАННЫЙ ПРОСМОТР ФОТО С ОПИСАНИЕМ ===== -->
+    <div id="photo-viewer-overlay">
+        <div class="viewer-container">
+            <button class="viewer-close-btn" id="viewer-close-btn">✕</button>
+            <button class="viewer-nav-btn prev" id="viewer-prev">‹</button>
+            <button class="viewer-nav-btn next" id="viewer-next">›</button>
+
+            <div class="viewer-image-area">
+                <img id="viewer-img" src="" alt="Просмотр фото">
+            </div>
+
+            <div class="viewer-info">
+                <div class="viewer-counter" id="viewer-counter">1 / 1</div>
+                <div class="viewer-title" id="viewer-title">Название локации</div>
+                <div class="viewer-location" id="viewer-location">📍 Локация</div>
+                <div class="viewer-label">📝 Описание фото</div>
+                <div class="viewer-caption" id="viewer-caption">Подпись к фото</div>
+            </div>
         </div>
     </div>
 
@@ -538,8 +726,7 @@
                 <div id="admin-photos-section">
                     <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Фотографии</label>
                     <div class="photo-grid" id="admin-photos-grid"></div>
-                    
-                    <!-- ===== ПОНЯТНЫЙ ИНТЕРФЕЙС ДЛЯ ДОБАВЛЕНИЯ ФОТО ===== -->
+
                     <div style="background: #0f0f1a; border-radius: 8px; padding: 14px; margin: 8px 0; border: 1px solid #1e1e30;">
                         <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
                             <label style="font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px;">Добавить фото:</label>
@@ -548,7 +735,7 @@
                             <span id="admin-file-count" style="font-size: 12px; color: #555;">0 файлов</span>
                         </div>
                         <div class="form-group" style="margin: 0;">
-                            <label style="font-size: 10px; color: #666;">Подпись для новых фото (будет применена ко всем загружаемым фото)</label>
+                            <label style="font-size: 10px; color: #666;">Подпись для новых фото</label>
                             <input id="admin-caption-input" placeholder="Например: Вид с высоты, 2024 г." style="font-size: 13px; padding: 6px 10px;">
                         </div>
                         <button class="btn btn-primary" id="admin-upload-btn" style="padding: 4px 18px; font-size: 12px; margin-top: 6px;">⬆ Загрузить фото</button>
@@ -590,6 +777,9 @@
         let editingId = null;
         let isAdmin = false;
         let selectedFiles = [];
+
+        // Для просмотрщика
+        let viewerData = { photos: [], index: 0, locId: null };
 
         // ============================================================
         //  ЗАГРУЗКА ДАННЫХ
@@ -673,15 +863,11 @@
             list.innerHTML = html;
         }
 
-        // ============================================================
-        //  ⭐ КРАСИВЫЕ МАРКЕРЫ (ТОЧКИ)
-        // ============================================================
         function renderMarkers() {
             if (!mapInstance) return;
             markerMap.forEach(m => mapInstance.removeLayer(m));
             markerMap.clear();
 
-            // Создаём DIV-иконку с красивой точкой
             const icon = L.divIcon({
                 className: 'custom-marker',
                 html: '<div class="marker-dot"></div>',
@@ -712,7 +898,7 @@
         }
 
         // ============================================================
-        //  МОДАЛКА ПРОСМОТРА
+        //  МОДАЛКА ПРОСМОТРА ЛОКАЦИИ
         // ============================================================
         function openModal(id) {
             const loc = locations.find(l => l.id === id);
@@ -763,80 +949,78 @@
         });
 
         // ============================================================
-        //  ПРОСМОТР ФОТО
+        //  ⭐ ПОЛНОЭКРАННЫЙ ПРОСМОТР ФОТО С ОПИСАНИЕМ СПРАВА
         // ============================================================
-        let viewerData = { photos: [], index: 0 };
-
         function openViewer(locId, index) {
             const loc = locations.find(l => l.id === locId);
             if (!loc || !loc.photos || loc.photos.length === 0) return;
+
             viewerData.photos = loc.photos;
             viewerData.index = index;
-            showViewer();
-        }
+            viewerData.locId = locId;
+            viewerData.locName = loc.name;
+            viewerData.locDesc = loc.description || '';
 
-        function showViewer() {
-            const overlay = document.createElement('div');
-            overlay.id = 'photo-viewer-overlay';
-            overlay.style.cssText = `
-                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-                background: rgba(0,0,0,0.95); z-index: 99999;
-                display: flex; justify-content: center; align-items: center;
-                flex-direction: column; cursor: pointer;
-                animation: fadeIn 0.25s ease;
-            `;
-            overlay.innerHTML = `
-                <button style="position:absolute;top:20px;right:30px;font-size:32px;color:#fff;background:none;border:none;cursor:pointer;z-index:2;">✕</button>
-                <button class="nav-btn prev" style="position:absolute;top:50%;left:20px;transform:translateY(-50%);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#fff;width:44px;height:44px;border-radius:50%;font-size:20px;cursor:pointer;transition:0.2s;z-index:2;">‹</button>
-                <button class="nav-btn next" style="position:absolute;top:50%;right:20px;transform:translateY(-50%);background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);color:#fff;width:44px;height:44px;border-radius:50%;font-size:20px;cursor:pointer;transition:0.2s;z-index:2;">›</button>
-                <img id="viewer-img" style="max-width:92%;max-height:80%;object-fit:contain;border-radius:8px;box-shadow:0 0 60px rgba(0,0,0,0.9);">
-                <div id="viewer-caption" style="color:#aaa;font-size:15px;margin-top:16px;max-width:80%;text-align:center;line-height:1.5;"></div>
-                <div id="viewer-counter" style="position:absolute;bottom:30px;left:50%;transform:translateX(-50%);color:#888;font-size:13px;background:rgba(0,0,0,0.5);padding:4px 16px;border-radius:16px;"></div>
-            `;
-            document.body.appendChild(overlay);
-            document.body.style.overflow = 'hidden';
-
-            const img = document.getElementById('viewer-img');
-            const caption = document.getElementById('viewer-caption');
-            const counter = document.getElementById('viewer-counter');
-
-            function updateViewer() {
-                const photo = viewerData.photos[viewerData.index];
-                const url = typeof photo === 'object' && photo.url ? photo.url : photo;
-                const cap = typeof photo === 'object' && photo.caption ? photo.caption : '';
-                img.src = url;
-                caption.textContent = cap;
-                caption.style.display = cap ? 'block' : 'none';
-                counter.textContent = `${viewerData.index + 1} / ${viewerData.photos.length}`;
-            }
             updateViewer();
-
-            overlay.querySelector('.viewer-close')?.addEventListener('click', () => overlay.remove());
-            overlay.addEventListener('click', (e) => { if (e.target === overlay) overlay.remove(); });
-
-            overlay.querySelector('.prev')?.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (viewerData.photos.length === 0) return;
-                viewerData.index = (viewerData.index - 1 + viewerData.photos.length) % viewerData.photos.length;
-                updateViewer();
-            });
-            overlay.querySelector('.next')?.addEventListener('click', (e) => {
-                e.stopPropagation();
-                if (viewerData.photos.length === 0) return;
-                viewerData.index = (viewerData.index + 1) % viewerData.photos.length;
-                updateViewer();
-            });
-
-            document.addEventListener('keydown', function(e) {
-                if (!document.getElementById('photo-viewer-overlay')) return;
-                if (e.key === 'Escape') overlay.remove();
-                else if (e.key === 'ArrowLeft') overlay.querySelector('.prev')?.click();
-                else if (e.key === 'ArrowRight') overlay.querySelector('.next')?.click();
-            }, { once: true });
+            document.getElementById('photo-viewer-overlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
         }
+
+        function updateViewer() {
+            const photo = viewerData.photos[viewerData.index];
+            const url = typeof photo === 'object' && photo.url ? photo.url : photo;
+            const cap = typeof photo === 'object' && photo.caption ? photo.caption : '';
+
+            document.getElementById('viewer-img').src = url;
+            document.getElementById('viewer-counter').textContent = 
+                `${viewerData.index + 1} / ${viewerData.photos.length}`;
+            document.getElementById('viewer-title').textContent = viewerData.locName || 'Название локации';
+            document.getElementById('viewer-location').textContent = `📍 ${viewerData.locDesc || 'Локация'}`;
+            
+            const captionEl = document.getElementById('viewer-caption');
+            if (cap) {
+                captionEl.textContent = cap;
+                captionEl.className = 'viewer-caption';
+            } else {
+                captionEl.textContent = 'Нет описания к этому фото';
+                captionEl.className = 'viewer-caption viewer-caption-empty';
+            }
+        }
+
+        function closeViewer() {
+            document.getElementById('photo-viewer-overlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('viewer-close-btn').addEventListener('click', closeViewer);
+        document.getElementById('photo-viewer-overlay').addEventListener('click', function(e) {
+            if (e.target === this) closeViewer();
+        });
+
+        document.getElementById('viewer-prev').addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (viewerData.photos.length === 0) return;
+            viewerData.index = (viewerData.index - 1 + viewerData.photos.length) % viewerData.photos.length;
+            updateViewer();
+        });
+
+        document.getElementById('viewer-next').addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (viewerData.photos.length === 0) return;
+            viewerData.index = (viewerData.index + 1) % viewerData.photos.length;
+            updateViewer();
+        });
+
+        document.addEventListener('keydown', function(e) {
+            const viewer = document.getElementById('photo-viewer-overlay');
+            if (!viewer.classList.contains('active')) return;
+            if (e.key === 'Escape') closeViewer();
+            else if (e.key === 'ArrowLeft') document.getElementById('viewer-prev').click();
+            else if (e.key === 'ArrowRight') document.getElementById('viewer-next').click();
+        });
 
         // ============================================================
-        //  АДМИН-ПАНЕЛЬ
+        //  АДМИН-ПАНЕЛЬ (такая же, как была, с небольшими правками)
         // ============================================================
         const adminOverlay = document.getElementById('admin-overlay');
         const adminToggleBtn = document.getElementById('admin-toggle-btn');
@@ -866,9 +1050,6 @@
             }
         });
 
-        // ============================================================
-        //  АДМИН-АВТОРИЗАЦИЯ
-        // ============================================================
         async function checkAdminAuth() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
@@ -932,9 +1113,6 @@
             editingId = null;
         });
 
-        // ============================================================
-        //  АДМИН-УПРАВЛЕНИЕ ЛОКАЦИЯМИ
-        // ============================================================
         async function loadAdminLocations() {
             try {
                 const { data, error } = await supabaseClient
@@ -1009,9 +1187,6 @@
             });
         });
 
-        // ============================================================
-        //  РЕДАКТИРОВАНИЕ
-        // ============================================================
         function editLocation(id) {
             const loc = locations.find(l => l.id === id);
             if (!loc) return;
@@ -1044,9 +1219,6 @@
             });
         }
 
-        // ============================================================
-        //  УДАЛЕНИЕ
-        // ============================================================
         async function deleteLocation(id) {
             if (!confirm('Удалить эту локацию?')) return;
             try {
@@ -1105,9 +1277,6 @@
             }
         }
 
-        // ============================================================
-        //  СОХРАНЕНИЕ
-        // ============================================================
         async function saveAll() {
             try {
                 for (const loc of locations) {
@@ -1161,7 +1330,7 @@
         });
 
         // ============================================================
-        //  ⭐ ЗАГРУЗКА ФОТО (ПОНЯТНЫЙ ИНТЕРФЕЙС)
+        //  ЗАГРУЗКА ФОТО (с подписями)
         // ============================================================
         document.getElementById('admin-file-upload').addEventListener('click', function() {
             if (editingId === null) {
