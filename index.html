@@ -55,7 +55,6 @@
             border-color: #d4c08a;
         }
 
-        /* Кнопка для пользователей - скрыть/показать надписи */
         .toggle-labels-btn {
             color: #888;
             text-decoration: none;
@@ -125,7 +124,6 @@
         #map-container { flex: 1; position: relative; background: #0a0a12; }
         #map { width: 100%; height: 100%; background: #0a0a12; }
 
-        /* ===== ЛЕГЕНДА ===== */
         #routes-legend {
             position: absolute;
             bottom: 20px;
@@ -282,7 +280,6 @@
         .photo-gallery .photo-item .photo-caption .caption-empty { color: #444; font-style: italic; font-size: 11px; }
         .no-photos { color: #444; font-style: italic; text-align: center; padding: 20px; }
 
-        /* ===== КАСТОМНЫЙ ПОПАП С ВЫБОРОМ ЦВЕТА ===== */
         .custom-popup .leaflet-popup-content-wrapper {
             background: #161624;
             color: #eee;
@@ -307,8 +304,8 @@
             justify-content: center;
         }
         .popup-color-picker .color-option {
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             border-radius: 50%;
             border: 2px solid transparent;
             cursor: pointer;
@@ -346,7 +343,6 @@
             #header h1 .separator { display: none; }
         }
 
-        /* ===== АДМИН-ПАНЕЛЬ ===== */
         .admin-overlay {
             position: fixed;
             top: 0;
@@ -550,7 +546,7 @@
         .admin-box .status-bar .status-error { color: #ff5555; }
         .admin-box .status-bar .status-syncing { color: #ffa726; }
 
-        /* ===== КАСТОМНЫЕ НАДПИСИ НА КАРТЕ - БЕЗ ФОНА! ===== */
+        /* ===== НАДПИСИ - БЕЗ ФОНА ===== */
         .custom-label {
             background: none !important;
             backdrop-filter: none !important;
@@ -617,26 +613,25 @@
             transform: scale(1.2);
         }
         .custom-label.hidden-label {
-            opacity: 0.15;
-            pointer-events: none;
+            display: none !important;
         }
         .custom-label.dragging {
             opacity: 0.6;
             transform: scale(0.95);
         }
 
-        /* ===== МАРКЕРЫ ===== */
+        /* ===== МАРКЕРЫ С ЦВЕТОМ ===== */
         .custom-marker {
             background: none;
             border: none;
             filter: drop-shadow(0 0 10px rgba(212, 192, 138, 0.3));
+            transition: filter 0.3s ease;
         }
         .marker-dot {
             width: 28px;
             height: 28px;
-            background: radial-gradient(circle at 30% 30%, #f0e8c8, #d4c08a);
             border-radius: 50%;
-            border: 3px solid #f0e8c8;
+            border: 3px solid #fff;
             box-shadow: 0 0 20px rgba(212, 192, 138, 0.4), inset 0 -2px 4px rgba(0,0,0,0.3);
             transition: all 0.3s ease;
             cursor: pointer;
@@ -647,6 +642,7 @@
             font-weight: bold;
             color: #0a0a12;
             position: relative;
+            background: radial-gradient(circle at 30% 30%, #f0e8c8, #d4c08a);
         }
         .marker-dot::after {
             content: '';
@@ -669,7 +665,6 @@
             box-shadow: 0 0 30px rgba(212, 192, 138, 0.6);
         }
 
-        /* ===== ПОЛНОЭКРАННЫЙ ПРОСМОТР ===== */
         #photo-viewer-overlay {
             position: fixed;
             top: 0;
@@ -921,13 +916,11 @@
         </div>
     </div>
 
-    <!-- ЛЕГЕНДА -->
     <div id="routes-legend">
         <h4>🗺️ Маршруты</h4>
         <div id="routes-list"></div>
     </div>
 
-    <!-- МОДАЛКА -->
     <div class="modal-overlay" id="location-modal">
         <div class="modal-content">
             <button class="modal-close" id="modal-close-btn">✕</button>
@@ -940,7 +933,6 @@
         </div>
     </div>
 
-    <!-- ПРОСМОТР ФОТО -->
     <div id="photo-viewer-overlay">
         <div class="viewer-container">
             <button class="viewer-close-btn" id="viewer-close-btn">✕</button>
@@ -963,7 +955,6 @@
         </div>
     </div>
 
-    <!-- ===== АДМИН-ПАНЕЛЬ ===== -->
     <div class="admin-overlay" id="admin-overlay">
         <div class="admin-box">
             <button class="admin-close" id="admin-close-btn">✕</button>
@@ -1020,7 +1011,6 @@
                     </div>
                 </div>
 
-                <!-- ===== МАРШРУТЫ ===== -->
                 <hr style="border-color:#1e1e30; margin:12px 0;">
                 <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">🗺️ Маршруты</label>
                 <div id="admin-routes-section" style="margin: 8px 0;">
@@ -1033,7 +1023,6 @@
                     <div id="admin-routes-list" style="max-height:120px;overflow-y:auto;border:1px solid #1a1a2a;border-radius:6px;padding:4px;"></div>
                 </div>
 
-                <!-- ===== НАДПИСИ ===== -->
                 <hr style="border-color:#1e1e30; margin:12px 0;">
                 <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">🏷️ Надписи на карте</label>
                 <div id="admin-labels-section" style="margin: 8px 0;">
@@ -1092,7 +1081,7 @@
         let tempRouteLine = null;
         let hiddenRoutes = new Set();
         let labelsHidden = false;
-        let userLabelsHidden = false; // для пользователей
+        let userLabelsHidden = false;
 
         // ============================================================
         //  ЗАГРУЗКА ДАННЫХ
@@ -1167,19 +1156,12 @@
         }
 
         // ============================================================
-        //  МАРКЕРЫ С ВЫБОРОМ ЦВЕТА ПОПАПА
+        //  МАРКЕРЫ С ВЫБОРОМ ЦВЕТА (ТОЛЬКО ДЛЯ АДМИНА)
         // ============================================================
         function renderMarkers() {
             if (!mapInstance) return;
             markerMap.forEach(m => mapInstance.removeLayer(m));
             markerMap.clear();
-
-            const icon = L.divIcon({
-                className: 'custom-marker',
-                html: '<div class="marker-dot"></div>',
-                iconSize: [28, 28],
-                iconAnchor: [14, 14]
-            });
 
             const popupColors = [
                 { name: 'Золотой', value: '#d4c08a' },
@@ -1195,33 +1177,42 @@
             ];
 
             locations.forEach(loc => {
-                const popupColor = loc.popupColor || '#d4c08a';
+                const markerColor = loc.markerColor || '#d4c08a';
                 
-                let colorPickerHtml = '';
-                popupColors.forEach(c => {
-                    const isActive = c.value === popupColor;
-                    colorPickerHtml += `
-                        <div class="color-option ${isActive ? 'active' : ''}" 
-                             style="background: ${c.value};"
-                             onclick="changePopupColor(${loc.id}, '${c.value}')"
-                             title="${c.name}">
-                        </div>
-                    `;
+                // Создаём иконку с цветом маркера
+                const icon = L.divIcon({
+                    className: 'custom-marker',
+                    html: `<div class="marker-dot" style="background: radial-gradient(circle at 30% 30%, ${lightenColor(markerColor, 30)}, ${markerColor}); border-color: ${markerColor};"></div>`,
+                    iconSize: [28, 28],
+                    iconAnchor: [14, 14]
                 });
+                
+                // 🟢 Палитра цветов ПОКАЗЫВАЕТСЯ ТОЛЬКО АДМИНУ
+                let colorPickerHtml = '';
+                if (isAdmin) {
+                    popupColors.forEach(c => {
+                        const isActive = c.value === markerColor;
+                        colorPickerHtml += `
+                            <div class="color-option ${isActive ? 'active' : ''}" 
+                                 style="background: ${c.value};"
+                                 onclick="changeMarkerColor(${loc.id}, '${c.value}')"
+                                 title="${c.name}">
+                            </div>
+                        `;
+                    });
+                }
 
                 const popupContent = `
                     <div style="text-align:center;">
                         <b>${loc.name}</b><br>
                         <span style="color:#aaa;font-size:12px;">${(loc.description || '').substring(0, 50)}</span>
                         <br>
-                        <div class="popup-color-picker">
-                            ${colorPickerHtml}
-                        </div>
+                        ${isAdmin ? `<div style="margin-top:6px;font-size:11px;color:#888;">🎨 Цвет маркера:</div><div class="popup-color-picker">${colorPickerHtml}</div>` : ''}
                         <button onclick="openModal(${loc.id})" style="
                             margin-top: 6px;
                             padding: 4px 12px;
-                            background: ${popupColor};
-                            color: #0a0a12;
+                            background: ${markerColor};
+                            color: ${isColorDark(markerColor) ? '#fff' : '#0a0a12'};
                             border: none;
                             border-radius: 12px;
                             cursor: pointer;
@@ -1248,12 +1239,13 @@
                         maxWidth: 220 
                     });
 
+                // Меняем цвет рамки попапа на цвет маркера
                 marker.on('popupopen', function() {
                     const popupElement = this._popup._wrapper;
                     if (popupElement) {
                         const contentWrapper = popupElement.querySelector('.leaflet-popup-content-wrapper');
                         if (contentWrapper) {
-                            contentWrapper.style.borderLeftColor = popupColor;
+                            contentWrapper.style.borderLeftColor = markerColor;
                             contentWrapper.style.borderLeftWidth = '4px';
                         }
                     }
@@ -1263,12 +1255,41 @@
             });
         }
 
-        async function changePopupColor(locId, color) {
+        // ============================================================
+        //  ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ ЦВЕТОВ
+        // ============================================================
+        function lightenColor(hex, percent) {
+            const num = parseInt(hex.replace('#', ''), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = Math.min(255, (num >> 16) + amt);
+            const G = Math.min(255, ((num >> 8) & 0x00FF) + amt);
+            const B = Math.min(255, (num & 0x0000FF) + amt);
+            return `#${(1 << 24 | R << 16 | G << 8 | B).toString(16).slice(1)}`;
+        }
+
+        function isColorDark(hex) {
+            const num = parseInt(hex.replace('#', ''), 16);
+            const R = num >> 16;
+            const G = (num >> 8) & 0x00FF;
+            const B = num & 0x0000FF;
+            const brightness = (R * 299 + G * 587 + B * 114) / 1000;
+            return brightness < 128;
+        }
+
+        // ============================================================
+        //  СМЕНА ЦВЕТА МАРКЕРА (ТОЛЬКО ДЛЯ АДМИНА)
+        // ============================================================
+        async function changeMarkerColor(locId, color) {
+            if (!isAdmin) {
+                alert('⛔ Только админ может менять цвет');
+                return;
+            }
+            
             const loc = locations.find(l => l.id === locId);
             if (!loc) return;
 
             try {
-                loc.popupColor = color;
+                loc.markerColor = color;
                 await saveAll();
                 renderMarkers();
                 
@@ -1277,7 +1298,7 @@
                     marker.openPopup();
                 }
                 
-                console.log(`✅ Цвет попапа для "${loc.name}" изменён на ${color}`);
+                console.log(`✅ Цвет маркера для "${loc.name}" изменён на ${color}`);
             } catch (e) {
                 console.error('Ошибка смены цвета:', e);
                 alert('❌ Ошибка смены цвета: ' + e.message);
@@ -1769,7 +1790,7 @@
         }
 
         // ============================================================
-        //  ⭐ НАДПИСИ НА КАРТЕ - БЕЗ ФОНА!
+        //  ⭐ НАДПИСИ НА КАРТЕ
         // ============================================================
 
         async function loadLabels() {
@@ -1870,6 +1891,9 @@
             }
         }
 
+        // ============================================================
+        //  РЕНДЕР НАДПИСЕЙ (ПОЛНОЕ СКРЫТИЕ)
+        // ============================================================
         function renderLabels() {
             Object.values(labelLayers).forEach(layer => {
                 if (layer.marker) {
@@ -1883,7 +1907,6 @@
                 return;
             }
 
-            // Проверяем, скрыты ли надписи для пользователя
             const shouldHide = userLabelsHidden && !isAdmin;
 
             labels.forEach(label => {
@@ -1893,6 +1916,11 @@
                 }
 
                 const isHidden = labelsHidden || shouldHide;
+                
+                if (isHidden) {
+                    return;
+                }
+
                 const fontSize = label.font_size || 18;
                 
                 let labelHtml = `<span class="label-text" style="font-size: ${fontSize}px;">${label.text}</span>`;
@@ -1907,9 +1935,10 @@
                             color: #4ecdc4;
                             font-size: 14px;
                             cursor: pointer;
-                            background: none;
+                            background: rgba(0,0,0,0.5);
                             border: none;
-                            padding: 0 2px;
+                            padding: 0 4px;
+                            border-radius: 4px;
                         ">✎</span>
                         <span class="label-del" onclick="deleteLabel('${label.id}')" style="
                             display: inline-block;
@@ -1917,9 +1946,10 @@
                             color: #ff5555;
                             font-size: 14px;
                             cursor: pointer;
-                            background: none;
+                            background: rgba(0,0,0,0.5);
                             border: none;
-                            padding: 0 2px;
+                            padding: 0 4px;
+                            border-radius: 4px;
                         ">✕</span>
                         <span class="label-drag-handle" style="
                             display: inline-block;
@@ -1928,13 +1958,16 @@
                             font-size: 12px;
                             cursor: grab;
                             user-select: none;
+                            background: rgba(0,0,0,0.5);
+                            padding: 0 4px;
+                            border-radius: 4px;
                         ">⠿</span>
                     `;
                 }
 
                 const marker = L.marker([label.lat, label.lng], {
                     icon: L.divIcon({
-                        className: isHidden ? 'custom-label hidden-label' : (isAdmin ? 'custom-label admin-mode' : 'custom-label'),
+                        className: isAdmin ? 'custom-label admin-mode' : 'custom-label',
                         html: labelHtml,
                         iconSize: [0, 0],
                         iconAnchor: [0, 0]
@@ -2280,7 +2313,7 @@
             let html = '';
             locations.forEach(loc => {
                 const count = loc.photos ? loc.photos.length : 0;
-                const color = loc.popupColor || '#d4c08a';
+                const color = loc.markerColor || '#d4c08a';
                 html += `
                     <li>
                         <span>${loc.name} <span style="color:#666;font-size:11px;">(${count})</span>
@@ -2313,7 +2346,7 @@
                     name: name.trim(),
                     description: desc?.trim() || 'Описание отсутствует',
                     photos: [],
-                    popupColor: '#d4c08a'
+                    markerColor: '#d4c08a'
                 };
                 locations.push(newLoc);
                 await saveAll();
@@ -2790,7 +2823,7 @@
         // ============================================================
         //  ГЛОБАЛЬНЫЕ ФУНКЦИИ
         // ============================================================
-        window.changePopupColor = changePopupColor;
+        window.changeMarkerColor = changeMarkerColor;
         window.editLabelPosition = editLabelPosition;
         window.editLabelSize = editLabelSize;
         window.deleteLabel = deleteLabel;
@@ -2820,8 +2853,8 @@
             console.log('⌨️ На ПК: стрелки ← → на клавиатуре');
             console.log('🏷️ Надписи можно перетаскивать в админ-режиме');
             console.log('👁️ Пользователи могут скрыть/показать надписи кнопкой в хедере');
-            console.log('🎨 Цвет попапа меняется кликом по кружочкам');
-            console.log('🔤 Размер надписи меняется кнопками A+ / A-');
+            console.log('🎨 Цвет маркера меняется кликом по кружочкам (только админ)');
+            console.log('🔤 Размер надписи меняется кнопками A+ / A- (только админ)');
         }
 
         startApp();
