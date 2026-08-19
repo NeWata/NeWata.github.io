@@ -476,7 +476,7 @@
             box-shadow: 0 0 30px rgba(212, 192, 138, 0.6);
         }
 
-        /* ===== ПОЛНОЭКРАННЫЙ ПРОСМОТР ===== */
+        /* ===== ПОЛНОЭКРАННЫЙ ПРОСМОТР С РЕДАКТИРОВАНИЕМ ===== */
         #photo-viewer-overlay {
             position: fixed;
             top: 0;
@@ -512,6 +512,7 @@
             background: #0a0a12;
             padding: 20px;
             min-height: 300px;
+            position: relative;
         }
         .viewer-image-area img {
             max-width: 100%;
@@ -556,23 +557,50 @@
             color: #555;
             margin-bottom: 6px;
         }
-        .viewer-info .viewer-caption {
-            font-size: 15px;
-            color: #ddd;
-            line-height: 1.6;
+        .viewer-info .viewer-caption-wrapper {
             flex: 1;
-            word-wrap: break-word;
-            white-space: pre-wrap;
-            min-height: 60px;
-            padding: 8px 12px;
+            position: relative;
+        }
+        .viewer-info .viewer-caption {
+            width: 100%;
+            min-height: 80px;
+            padding: 10px 14px;
             background: #0a0a12;
-            border-radius: 8px;
             border: 1px solid #1a1a2a;
+            border-radius: 8px;
+            color: #ddd;
+            font-size: 15px;
+            line-height: 1.6;
+            resize: vertical;
+            outline: none;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        .viewer-info .viewer-caption:focus {
+            border-color: #d4c08a;
         }
         .viewer-info .viewer-caption-empty {
             color: #444;
             font-style: italic;
-            font-size: 14px;
+        }
+        .viewer-info .viewer-caption-save {
+            margin-top: 8px;
+            padding: 6px 16px;
+            background: #d4c08a;
+            color: #0a0a12;
+            border: none;
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.2s;
+            align-self: flex-start;
+        }
+        .viewer-info .viewer-caption-save:hover {
+            background: #e8d4a0;
+        }
+        .viewer-info .viewer-caption-save.hidden {
+            display: none;
         }
 
         .viewer-nav-btn {
@@ -623,7 +651,7 @@
             .viewer-info {
                 width: 100%;
                 min-width: unset;
-                max-height: 200px;
+                max-height: 250px;
                 border-left: none;
                 border-top: 1px solid #22223a;
                 padding: 16px;
@@ -634,7 +662,7 @@
                 min-height: 200px;
             }
             .viewer-info .viewer-caption {
-                min-height: 40px;
+                min-height: 50px;
                 font-size: 14px;
             }
             .viewer-nav-btn { width: 36px; height: 36px; font-size: 16px; }
@@ -679,7 +707,7 @@
         </div>
     </div>
 
-    <!-- Полноэкранный просмотр -->
+    <!-- Полноэкранный просмотр с редактированием -->
     <div id="photo-viewer-overlay">
         <div class="viewer-container">
             <button class="viewer-close-btn" id="viewer-close-btn">✕</button>
@@ -695,7 +723,10 @@
                 <div class="viewer-title" id="viewer-title">Название локации</div>
                 <div class="viewer-location" id="viewer-location">📍 Локация</div>
                 <div class="viewer-label">📝 Описание фото</div>
-                <div class="viewer-caption" id="viewer-caption">Подпись к фото</div>
+                <div class="viewer-caption-wrapper">
+                    <textarea class="viewer-caption" id="viewer-caption" placeholder="Введите описание к фото..."></textarea>
+                    <button class="viewer-caption-save hidden" id="viewer-caption-save">💾 Сохранить</button>
+                </div>
             </div>
         </div>
     </div>
@@ -710,7 +741,7 @@
                 <p class="subtitle">Введите email и пароль администратора</p>
                 <div class="form-group">
                     <label>Email</label>
-                    <input type="email" id="admin-email" placeholder="tsumimak21@gmail.com">
+                    <input type="email" id="admin-email" placeholder="Email">
                 </div>
                 <div class="form-group">
                     <label>Пароль</label>
@@ -962,7 +993,7 @@
         });
 
         // ============================================================
-        //  ПОЛНОЭКРАННЫЙ ПРОСМОТР
+        //  ⭐ ПОЛНОЭКРАННЫЙ ПРОСМОТР С РЕДАКТИРОВАНИЕМ
         // ============================================================
         function openViewer(locId, index) {
             const loc = locations.find(l => l.id === locId);
@@ -991,14 +1022,51 @@
             document.getElementById('viewer-location').textContent = `📍 ${viewerData.locDesc || 'Локация'}`;
             
             const captionEl = document.getElementById('viewer-caption');
-            if (cap) {
-                captionEl.textContent = cap;
-                captionEl.className = 'viewer-caption';
+            captionEl.value = cap || '';
+            captionEl.placeholder = 'Введите описание к фото...';
+            
+            // Показываем кнопку сохранения только админу
+            const saveBtn = document.getElementById('viewer-caption-save');
+            if (isAdmin) {
+                saveBtn.classList.remove('hidden');
             } else {
-                captionEl.textContent = 'Нет описания к этому фото';
-                captionEl.className = 'viewer-caption viewer-caption-empty';
+                saveBtn.classList.add('hidden');
             }
         }
+
+        // ⭐ СОХРАНЕНИЕ ПОДПИСИ ИЗ ПРОСМОТРЩИКА
+        document.getElementById('viewer-caption-save').addEventListener('click', async function() {
+            if (viewerData.locId === null || viewerData.index === null) return;
+            
+            const loc = locations.find(l => l.id === viewerData.locId);
+            if (!loc || !loc.photos || !loc.photos[viewerData.index]) return;
+
+            const newCaption = document.getElementById('viewer-caption').value.trim();
+            const photo = loc.photos[viewerData.index];
+            
+            if (typeof photo === 'object') {
+                photo.caption = newCaption;
+            } else {
+                loc.photos[viewerData.index] = {
+                    url: photo,
+                    caption: newCaption
+                };
+            }
+
+            await saveAll();
+            
+            // Обновляем интерфейс
+            renderAdminList();
+            renderMarkers();
+            renderLocations();
+            if (editingId !== null) editLocation(editingId);
+            
+            setAdminStatus('✅ Подпись сохранена', 'ok');
+            this.textContent = '✅ Сохранено!';
+            setTimeout(() => {
+                this.textContent = '💾 Сохранить';
+            }, 2000);
+        });
 
         function closeViewer() {
             document.getElementById('photo-viewer-overlay').classList.remove('active');
@@ -1030,6 +1098,9 @@
             if (e.key === 'Escape') closeViewer();
             else if (e.key === 'ArrowLeft') document.getElementById('viewer-prev').click();
             else if (e.key === 'ArrowRight') document.getElementById('viewer-next').click();
+            else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                document.getElementById('viewer-caption-save').click();
+            }
         });
 
         // ============================================================
@@ -1072,6 +1143,7 @@
                 document.getElementById('admin-login-error').style.display = 'none';
                 loadAdminLocations();
             } else {
+                isAdmin = false;
                 document.getElementById('admin-login').style.display = 'block';
                 document.getElementById('admin-panel-content').style.display = 'none';
             }
@@ -1201,7 +1273,7 @@
         });
 
         // ============================================================
-        //  ⭐ РЕДАКТИРОВАНИЕ ЛОКАЦИИ (С РЕДАКТИРОВАНИЕМ ПОДПИСЕЙ)
+        //  РЕДАКТИРОВАНИЕ ЛОКАЦИИ
         // ============================================================
         function editLocation(id) {
             const loc = locations.find(l => l.id === id);
@@ -1241,7 +1313,7 @@
         }
 
         // ============================================================
-        //  ⭐ РЕДАКТИРОВАНИЕ ПОДПИСИ К ФОТО
+        //  РЕДАКТИРОВАНИЕ ПОДПИСИ (из админки)
         // ============================================================
         function editPhotoCaption(locId, photoIdx) {
             const loc = locations.find(l => l.id === locId);
@@ -1251,20 +1323,17 @@
             const currentCaption = typeof photo === 'object' && photo.caption ? photo.caption : '';
             
             const newCaption = prompt('Введите подпись к фото:', currentCaption);
-            if (newCaption === null) return; // пользователь нажал "Отмена"
+            if (newCaption === null) return;
 
-            // Обновляем подпись
             if (typeof photo === 'object') {
                 photo.caption = newCaption.trim() || '';
             } else {
-                // Если фото было строкой, преобразуем в объект
                 loc.photos[photoIdx] = {
                     url: photo,
                     caption: newCaption.trim() || ''
                 };
             }
 
-            // Сохраняем и обновляем интерфейс
             saveAll();
             renderAdminList();
             renderMarkers();
@@ -1441,7 +1510,7 @@
 
                     loc.photos.push({
                         url: urlData.publicUrl,
-                        caption: '' // подпись пустая, можно будет отредактировать потом
+                        caption: ''
                     });
                 } catch (err) {
                     console.error('Ошибка загрузки фото:', err);
@@ -1460,7 +1529,7 @@
             document.getElementById('admin-file-count').textContent = '0 файлов';
             
             setAdminStatus('✅ Фото загружены', 'ok');
-            alert('Фото загружены! Теперь вы можете отредактировать подписи, нажав ✎ под каждым фото.');
+            alert('Фото загружены! Теперь вы можете отредактировать подписи, нажав ✎ под каждым фото или в полноэкранном режиме.');
         });
 
         // ============================================================
