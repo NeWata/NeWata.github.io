@@ -102,7 +102,7 @@
         #map-container { flex: 1; position: relative; background: #0a0a12; }
         #map { width: 100%; height: 100%; background: #0a0a12; }
 
-        /* ===== ЛЕГЕНДА МАРШРУТОВ (только для админа) ===== */
+        /* ===== ЛЕГЕНДА МАРШРУТОВ ===== */
         #routes-legend {
             position: absolute;
             bottom: 20px;
@@ -778,7 +778,7 @@
         </div>
     </div>
 
-    <!-- ЛЕГЕНДА (только для админа) -->
+    <!-- ЛЕГЕНДА -->
     <div id="routes-legend">
         <h4>🗺️ Маршруты</h4>
         <div id="routes-list"></div>
@@ -877,7 +877,7 @@
                     </div>
                 </div>
 
-                <!-- ===== МАРШРУТЫ С ГЛАЗИКАМИ ===== -->
+                <!-- ===== МАРШРУТЫ ===== -->
                 <hr style="border-color:#1e1e30; margin:12px 0;">
                 <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">🗺️ Маршруты</label>
                 <div id="admin-routes-section" style="margin: 8px 0;">
@@ -886,7 +886,6 @@
                         <button class="btn btn-danger" id="admin-clear-routes" style="padding:4px 12px;font-size:12px;">🗑️ Очистить все</button>
                         <span id="admin-route-status" style="font-size:11px;color:#555;align-self:center;">Нажми "Добавить маршрут" и кликай по точкам</span>
                     </div>
-                    <!-- ⭐ СПИСОК МАРШРУТОВ С ГЛАЗИКАМИ -->
                     <div id="admin-routes-list" style="max-height:120px;overflow-y:auto;border:1px solid #1a1a2a;border-radius:6px;padding:4px;"></div>
                 </div>
 
@@ -1235,7 +1234,7 @@
         }
 
         // ============================================================
-        //  ⭐ ЛЕГЕНДА (ТОЛЬКО ДЛЯ АДМИНА)
+        //  ⭐ ЛЕГЕНДА
         // ============================================================
         function renderRoutesLegend() {
             const container = document.getElementById('routes-legend');
@@ -1281,51 +1280,79 @@
         }
 
         // ============================================================
-        //  ⭐ ПЕРЕКЛЮЧЕНИЕ ВИДИМОСТИ МАРШРУТА
+        //  ⭐ ПЕРЕКЛЮЧЕНИЕ ВИДИМОСТИ МАРШРУТА (ИСПРАВЛЕНО)
         // ============================================================
         function toggleRouteVisibility(routeId) {
             const layer = routeLayers[routeId];
-            if (!layer) return;
+            if (!layer) {
+                console.warn('Маршрут не найден на карте:', routeId);
+                return;
+            }
 
             if (hiddenRoutes.has(routeId)) {
                 hiddenRoutes.delete(routeId);
                 if (layer.polyline) mapInstance.addLayer(layer.polyline);
                 if (layer.markers) layer.markers.forEach(m => mapInstance.addLayer(m));
                 if (layer.label) mapInstance.addLayer(layer.label);
+                console.log('👁️ Маршрут показан:', routeId);
             } else {
                 hiddenRoutes.add(routeId);
                 if (layer.polyline) mapInstance.removeLayer(layer.polyline);
                 if (layer.markers) layer.markers.forEach(m => mapInstance.removeLayer(m));
                 if (layer.label) mapInstance.removeLayer(layer.label);
+                console.log('👁️‍🗨️ Маршрут скрыт:', routeId);
             }
+            
             renderRoutesLegend();
-            renderAdminRoutesList();
+            renderAdminRoutesList(); // ⭐ ОБНОВЛЯЕМ СПИСОК В АДМИНКЕ!
         }
 
         // ============================================================
-        //  ⭐ СПИСОК МАРШРУТОВ В АДМИНКЕ С ГЛАЗИКАМИ
+        //  ⭐ СПИСОК МАРШРУТОВ В АДМИНКЕ (ИСПРАВЛЕНО)
         // ============================================================
         function renderAdminRoutesList() {
             const container = document.getElementById('admin-routes-list');
+            if (!container) return;
+            
             if (!routes || routes.length === 0) {
                 container.innerHTML = '<div style="color:#444;font-style:italic;padding:6px;font-size:12px;">Нет маршрутов</div>';
                 return;
             }
+            
             let html = '';
             routes.forEach(route => {
                 const isHidden = hiddenRoutes.has(route.id);
                 const pointsCount = route.points ? route.points.length : 0;
+                const eyeIcon = isHidden ? '👁️‍🗨️' : '👁️';
+                const eyeColor = isHidden ? '#666' : '#d4c08a';
+                
                 html += `
                     <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px;border-bottom:1px solid #1a1a2a;font-size:12px;">
                         <span style="display:flex;align-items:center;gap:6px;">
                             <span style="display:inline-block;width:16px;height:3px;border-radius:2px;background:${route.color || '#d4c08a'}"></span>
                             ${route.name || 'Маршрут'} (${pointsCount} точек)
+                            ${isHidden ? ' 🔒' : ''}
                         </span>
                         <div style="display:flex;gap:4px;">
-                            <button onclick="toggleRouteVisibility('${route.id}')" style="background:none;border:none;color:#${isHidden ? '666' : 'd4c08a'};cursor:pointer;font-size:14px;" title="${isHidden ? 'Показать' : 'Скрыть'}">
-                                ${isHidden ? '👁️‍🗨️' : '👁️'}
+                            <button onclick="toggleRouteVisibility('${route.id}')" style="
+                                background:none;
+                                border:none;
+                                color:${eyeColor};
+                                cursor:pointer;
+                                font-size:14px;
+                                padding:2px 4px;
+                                transition:0.2s;
+                            " title="${isHidden ? 'Показать' : 'Скрыть'}">
+                                ${eyeIcon}
                             </button>
-                            <button onclick="deleteRouteFromDB('${route.id}')" style="background:none;border:none;color:#ff5555;cursor:pointer;font-size:12px;">✕</button>
+                            <button onclick="deleteRouteFromDB('${route.id}')" style="
+                                background:none;
+                                border:none;
+                                color:#ff5555;
+                                cursor:pointer;
+                                font-size:12px;
+                                padding:2px 4px;
+                            ">✕</button>
                         </div>
                     </div>
                 `;
