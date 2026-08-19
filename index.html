@@ -259,11 +259,13 @@
         .photo-gallery .photo-item .photo-caption .caption-empty { color: #444; font-style: italic; font-size: 11px; }
         .no-photos { color: #444; font-style: italic; text-align: center; padding: 20px; }
 
+        /* ===== КАСТОМНЫЙ ПОПАП С ВЫБОРОМ ЦВЕТА ===== */
         .custom-popup .leaflet-popup-content-wrapper {
             background: #161624;
             color: #eee;
             border-radius: 10px;
             border-left: 3px solid #d4c08a;
+            transition: border-color 0.3s ease;
         }
         .custom-popup .leaflet-popup-tip { background: #161624; }
         .custom-popup .leaflet-popup-content {
@@ -273,6 +275,31 @@
             cursor: pointer;
         }
         .custom-popup .leaflet-popup-content b { color: #f0e8c8; }
+        
+        /* Кнопки выбора цвета в попапе */
+        .popup-color-picker {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .popup-color-picker .color-option {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .popup-color-picker .color-option:hover {
+            transform: scale(1.2);
+            border-color: #fff;
+        }
+        .popup-color-picker .color-option.active {
+            border-color: #fff;
+            box-shadow: 0 0 12px rgba(255,255,255,0.3);
+        }
         .popup-view-link {
             color: #d4c08a;
             font-size: 11px;
@@ -532,13 +559,33 @@
         }
         .custom-label .label-edit,
         .custom-label .label-del,
-        .custom-label .label-drag-handle {
+        .custom-label .label-drag-handle,
+        .custom-label .label-size-up,
+        .custom-label .label-size-down {
             display: none;
         }
         .custom-label.admin-mode .label-edit,
         .custom-label.admin-mode .label-del,
-        .custom-label.admin-mode .label-drag-handle {
+        .custom-label.admin-mode .label-drag-handle,
+        .custom-label.admin-mode .label-size-up,
+        .custom-label.admin-mode .label-size-down {
             display: inline-block;
+        }
+        .custom-label .label-size-up,
+        .custom-label .label-size-down {
+            margin-left: 4px;
+            color: #f9ca24;
+            font-size: 14px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0 2px;
+            font-weight: bold;
+        }
+        .custom-label .label-size-up:hover,
+        .custom-label .label-size-down:hover {
+            color: #ffd93d;
+            transform: scale(1.2);
         }
         .custom-label.hidden-label {
             opacity: 0.2;
@@ -1078,7 +1125,6 @@
             renderRoutes();
             renderLabels();
 
-            // Клик по карте для маршрутов
             mapInstance.on('click', function(e) {
                 if (routeBuilding) {
                     if (!isAdmin) {
@@ -1091,7 +1137,7 @@
         }
 
         // ============================================================
-        //  МАРКЕРЫ
+        //  МАРКЕРЫ С ВЫБОРОМ ЦВЕТА ПОПАПА
         // ============================================================
         function renderMarkers() {
             if (!mapInstance) return;
@@ -1105,21 +1151,55 @@
                 iconAnchor: [14, 14]
             });
 
+            // Цвета для попапов
+            const popupColors = [
+                { name: 'Золотой', value: '#d4c08a' },
+                { name: 'Красный', value: '#ff6b6b' },
+                { name: 'Бирюзовый', value: '#4ecdc4' },
+                { name: 'Синий', value: '#45b7d1' },
+                { name: 'Жёлтый', value: '#f9ca24' },
+                { name: 'Розовый', value: '#ff9ff3' },
+                { name: 'Фиолетовый', value: '#a29bfe' },
+                { name: 'Оранжевый', value: '#ff9f43' },
+                { name: 'Зелёный', value: '#00b894' },
+                { name: 'Белый', value: '#ffffff' }
+            ];
+
             locations.forEach(loc => {
+                // Получаем цвет попапа из данных или дефолтный
+                const popupColor = loc.popupColor || '#d4c08a';
+                
+                // Создаём палитру цветов для выбора
+                let colorPickerHtml = '';
+                popupColors.forEach(c => {
+                    const isActive = c.value === popupColor;
+                    colorPickerHtml += `
+                        <div class="color-option ${isActive ? 'active' : ''}" 
+                             style="background: ${c.value};"
+                             onclick="changePopupColor(${loc.id}, '${c.value}')"
+                             title="${c.name}">
+                        </div>
+                    `;
+                });
+
                 const popupContent = `
                     <div style="text-align:center;">
                         <b>${loc.name}</b><br>
                         <span style="color:#aaa;font-size:12px;">${(loc.description || '').substring(0, 50)}</span>
                         <br>
+                        <div class="popup-color-picker">
+                            ${colorPickerHtml}
+                        </div>
                         <button onclick="openModal(${loc.id})" style="
                             margin-top: 6px;
                             padding: 4px 12px;
-                            background: #d4c08a;
+                            background: ${popupColor};
                             color: #0a0a12;
                             border: none;
                             border-radius: 12px;
                             cursor: pointer;
                             font-size: 12px;
+                            transition: background 0.3s;
                         ">📖 Открыть</button>
                         ${isAdmin && routeBuilding ? `<br><button onclick="addRoutePointFromMarker(${loc.lat}, ${loc.lng}, '${loc.name}')" style="
                             margin-top: 4px;
@@ -1136,9 +1216,50 @@
 
                 const marker = L.marker([loc.lat, loc.lng], { icon })
                     .addTo(mapInstance)
-                    .bindPopup(popupContent, { className: 'custom-popup', maxWidth: 220 });
+                    .bindPopup(popupContent, { 
+                        className: 'custom-popup', 
+                        maxWidth: 220 
+                    });
+
+                // Меняем цвет рамки попапа
+                marker.on('popupopen', function() {
+                    const popupElement = this._popup._wrapper;
+                    if (popupElement) {
+                        const contentWrapper = popupElement.querySelector('.leaflet-popup-content-wrapper');
+                        if (contentWrapper) {
+                            contentWrapper.style.borderLeftColor = popupColor;
+                            contentWrapper.style.borderLeftWidth = '4px';
+                        }
+                    }
+                });
+
                 markerMap.set(loc.id, marker);
             });
+        }
+
+        // ============================================================
+        //  ФУНКЦИЯ СМЕНЫ ЦВЕТА ПОПАПА
+        // ============================================================
+        async function changePopupColor(locId, color) {
+            const loc = locations.find(l => l.id === locId);
+            if (!loc) return;
+
+            try {
+                loc.popupColor = color;
+                await saveAll();
+                renderMarkers();
+                
+                // Открываем попап заново
+                const marker = markerMap.get(locId);
+                if (marker) {
+                    marker.openPopup();
+                }
+                
+                console.log(`✅ Цвет попапа для "${loc.name}" изменён на ${color}`);
+            } catch (e) {
+                console.error('Ошибка смены цвета:', e);
+                alert('❌ Ошибка смены цвета: ' + e.message);
+            }
         }
 
         // ============================================================
@@ -1626,10 +1747,9 @@
         }
 
         // ============================================================
-        //  ⭐ НАДПИСИ НА КАРТЕ (исправленная версия)
+        //  ⭐ НАДПИСИ НА КАРТЕ С ИЗМЕНЕНИЕМ РАЗМЕРА
         // ============================================================
 
-        // Загрузка надписей
         async function loadLabels() {
             try {
                 const { data, error } = await supabaseClient
@@ -1649,7 +1769,6 @@
             }
         }
 
-        // Сохранение надписи
         async function saveLabelToDB(labelData) {
             try {
                 const { data, error } = await supabaseClient
@@ -1658,6 +1777,7 @@
                         text: labelData.text,
                         lat: labelData.lat,
                         lng: labelData.lng,
+                        font_size: labelData.font_size || 16,
                         created_at: new Date().toISOString()
                     })
                     .select()
@@ -1678,7 +1798,6 @@
             }
         }
 
-        // Обновление надписи
         async function updateLabelInDB(labelId, updates) {
             try {
                 const { error } = await supabaseClient
@@ -1705,7 +1824,6 @@
             }
         }
 
-        // Удаление надписи
         async function deleteLabelFromDB(labelId) {
             if (!confirm('🗑️ Удалить эту надпись?')) return false;
             
@@ -1730,7 +1848,6 @@
             }
         }
 
-        // Рендер надписей на карте
         function renderLabels() {
             Object.values(labelLayers).forEach(layer => {
                 if (layer.marker) {
@@ -1753,14 +1870,17 @@
                 }
 
                 const isHidden = labelsHidden;
+                const fontSize = label.font_size || 16;
                 
-                let labelHtml = `<span class="label-text">${label.text}</span>`;
+                let labelHtml = `<span class="label-text" style="font-size: ${fontSize}px;">${label.text}</span>`;
                 
                 if (isAdmin) {
                     labelHtml += `
+                        <button class="label-size-down" onclick="changeLabelSize('${label.id}', -2)" title="Уменьшить размер">A-</button>
+                        <button class="label-size-up" onclick="changeLabelSize('${label.id}', 2)" title="Увеличить размер">A+</button>
                         <span class="label-edit" onclick="editLabelText('${label.id}')" style="
                             display: inline-block;
-                            margin-left: 6px;
+                            margin-left: 4px;
                             color: #4ecdc4;
                             font-size: 14px;
                             cursor: pointer;
@@ -1770,7 +1890,7 @@
                         ">✎</span>
                         <span class="label-del" onclick="deleteLabel('${label.id}')" style="
                             display: inline-block;
-                            margin-left: 4px;
+                            margin-left: 2px;
                             color: #ff5555;
                             font-size: 14px;
                             cursor: pointer;
@@ -1823,7 +1943,29 @@
             });
         }
 
-        // Рендер списка надписей в админ-панели
+        // ============================================================
+        //  ИЗМЕНЕНИЕ РАЗМЕРА НАДПИСИ
+        // ============================================================
+        async function changeLabelSize(labelId, delta) {
+            if (!isAdmin) return;
+            
+            const label = labels.find(l => l.id === labelId);
+            if (!label) {
+                alert('❌ Надпись не найдена');
+                return;
+            }
+
+            const currentSize = label.font_size || 16;
+            const newSize = Math.min(Math.max(currentSize + delta, 10), 48);
+            
+            if (newSize === currentSize) {
+                alert(`❌ Размер уже ${currentSize}px (мин: 10, макс: 48)`);
+                return;
+            }
+
+            await updateLabelInDB(labelId, { font_size: newSize });
+        }
+
         function renderAdminLabelsList() {
             const container = document.getElementById('admin-labels-list');
             if (!container) return;
@@ -1835,16 +1977,20 @@
 
             let html = '';
             labels.forEach(label => {
+                const fontSize = label.font_size || 16;
                 html += `
                     <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px;border-bottom:1px solid #1a1a2a;font-size:12px;">
                         <span style="display:flex;align-items:center;gap:6px;">
                             <span style="color:#d4c08a;font-size:14px;">🏷️</span>
-                            <strong>${label.text}</strong>
+                            <strong style="font-size:${fontSize}px;">${label.text}</strong>
                             <span style="color:#555;font-size:10px;">
                                 (${Number(label.lat).toFixed(3)}, ${Number(label.lng).toFixed(3)})
                             </span>
+                            <span style="color:#f9ca24;font-size:10px;">🔤${fontSize}px</span>
                         </span>
                         <div style="display:flex;gap:2px;">
+                            <button onclick="changeLabelSize('${label.id}', -2)" style="background:none;border:none;color:#f9ca24;cursor:pointer;font-size:13px;padding:2px 4px;" title="Уменьшить">A-</button>
+                            <button onclick="changeLabelSize('${label.id}', 2)" style="background:none;border:none;color:#f9ca24;cursor:pointer;font-size:13px;padding:2px 4px;" title="Увеличить">A+</button>
                             <button onclick="editLabelText('${label.id}')" style="background:none;border:none;color:#4ecdc4;cursor:pointer;font-size:13px;padding:2px 4px;" title="Редактировать текст">✎</button>
                             <button onclick="deleteLabel('${label.id}')" style="background:none;border:none;color:#ff5555;cursor:pointer;font-size:13px;padding:2px 4px;" title="Удалить">✕</button>
                         </div>
@@ -1854,7 +2000,6 @@
             container.innerHTML = html;
         }
 
-        // Добавление надписи кликом по карте
         function startAddingLabel() {
             if (!isAdmin) {
                 alert('⛔ Войдите в админ-панель');
@@ -1873,7 +2018,8 @@
                     saveLabelToDB({
                         text: text.trim(),
                         lat: lat,
-                        lng: lng
+                        lng: lng,
+                        font_size: 16
                     }).then(() => {
                         document.getElementById('admin-label-status').textContent = '✅ Надпись добавлена!';
                         document.getElementById('admin-label-status').style.color = '#4caf50';
@@ -1897,7 +2043,6 @@
             mapInstance.on('click', clickHandler);
         }
 
-        // Редактирование текста надписи
         function editLabelText(labelId) {
             if (!isAdmin) return;
             
@@ -1918,15 +2063,12 @@
             updateLabelInDB(labelId, { text: newText.trim() });
         }
 
-        // Удаление надписи (глобальная)
         async function deleteLabel(labelId) {
             await deleteLabelFromDB(labelId);
         }
 
-        // Кнопка "Добавить надпись"
         document.getElementById('admin-add-label').addEventListener('click', startAddingLabel);
 
-        // Кнопка "Скрыть/Показать надписи"
         document.getElementById('admin-toggle-labels').addEventListener('click', function() {
             labelsHidden = !labelsHidden;
             this.textContent = labelsHidden ? '👁️ Показать все' : '👁️ Скрыть все';
@@ -1934,7 +2076,6 @@
             renderAdminLabelsList();
         });
 
-        // Очистка всех надписей
         document.getElementById('admin-clear-labels').addEventListener('click', async function() {
             if (!isAdmin) return;
             if (!confirm('🗑️ Удалить ВСЕ надписи?')) return;
@@ -2106,9 +2247,12 @@
             let html = '';
             locations.forEach(loc => {
                 const count = loc.photos ? loc.photos.length : 0;
+                const color = loc.popupColor || '#d4c08a';
                 html += `
                     <li>
-                        <span>${loc.name} <span style="color:#666;font-size:11px;">(${count})</span></span>
+                        <span>${loc.name} <span style="color:#666;font-size:11px;">(${count})</span>
+                            <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${color};vertical-align:middle;margin-left:4px;"></span>
+                        </span>
                         <div class="loc-actions">
                             <button class="edit" onclick="editLocation(${loc.id})">✎</button>
                             <button class="del" onclick="deleteLocation(${loc.id})">✕</button>
@@ -2135,7 +2279,8 @@
                     lng: parseFloat(lng),
                     name: name.trim(),
                     description: desc?.trim() || 'Описание отсутствует',
-                    photos: []
+                    photos: [],
+                    popupColor: '#d4c08a'
                 };
                 locations.push(newLoc);
                 await saveAll();
@@ -2612,11 +2757,13 @@
         // ============================================================
         //  ГЛОБАЛЬНЫЕ ФУНКЦИИ
         // ============================================================
+        window.changePopupColor = changePopupColor;
         window.editLabelPosition = editLabelPosition;
         window.editLabelSize = editLabelSize;
         window.deleteLabel = deleteLabel;
         window.editLabelText = editLabelText;
         window.startAddingLabel = startAddingLabel;
+        window.changeLabelSize = changeLabelSize;
         window.toggleRouteVisibility = toggleRouteVisibility;
         window.deleteRouteFromDB = deleteRouteFromDB;
         window.openViewer = openViewer;
@@ -2639,6 +2786,8 @@
             console.log('📱 На телефонах: свайп влево/вправо для переключения фото');
             console.log('⌨️ На ПК: стрелки ← → на клавиатуре');
             console.log('🏷️ Надписи можно перемещать перетаскиванием в админ-режиме');
+            console.log('🎨 Цвет попапа меняется кликом по кружочкам');
+            console.log('🔤 Размер надписи меняется кнопками A+ / A-');
         }
 
         startApp();
