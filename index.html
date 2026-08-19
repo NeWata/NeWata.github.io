@@ -102,7 +102,7 @@
         #map-container { flex: 1; position: relative; background: #0a0a12; }
         #map { width: 100%; height: 100%; background: #0a0a12; }
 
-        /* Легенда маршрутов */
+        /* ===== ЛЕГЕНДА МАРШРУТОВ ===== */
         #routes-legend {
             position: absolute;
             bottom: 20px;
@@ -756,6 +756,7 @@
     </style>
 </head>
 <body>
+    <!-- ===== ХЕДЕР ===== -->
     <div id="header">
         <h1>
             <span class="title-ru">Провальный сюжет этого злодея</span>
@@ -768,6 +769,7 @@
         </div>
     </div>
 
+    <!-- ===== ОСНОВНОЙ КОНТЕЙНЕР ===== -->
     <div id="main">
         <div id="sidebar">
             <h2>Локации</h2>
@@ -778,13 +780,13 @@
         </div>
     </div>
 
-    <!-- Легенда маршрутов -->
+    <!-- ===== ЛЕГЕНДА МАРШРУТОВ ===== -->
     <div id="routes-legend">
         <h4>🗺️ Маршруты</h4>
         <div id="routes-list"></div>
     </div>
 
-    <!-- Модалка просмотра локации -->
+    <!-- ===== МОДАЛКА ПРОСМОТРА ЛОКАЦИИ ===== -->
     <div class="modal-overlay" id="location-modal">
         <div class="modal-content">
             <button class="modal-close" id="modal-close-btn">✕</button>
@@ -797,7 +799,7 @@
         </div>
     </div>
 
-    <!-- Полноэкранный просмотр -->
+    <!-- ===== ПОЛНОЭКРАННЫЙ ПРОСМОТР ===== -->
     <div id="photo-viewer-overlay">
         <div class="viewer-container">
             <button class="viewer-close-btn" id="viewer-close-btn">✕</button>
@@ -879,13 +881,13 @@
                     </div>
                 </div>
 
-                <!-- ===== РАЗДЕЛ МАРШРУТОВ ===== -->
+                <!-- ===== МАРШРУТЫ ===== -->
                 <hr style="border-color:#1e1e30; margin:12px 0;">
                 <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">🗺️ Маршруты</label>
                 <div id="admin-routes-section" style="margin: 8px 0;">
                     <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;">
                         <button class="btn btn-secondary" id="admin-add-route" style="padding:4px 12px;font-size:12px;">➕ Добавить маршрут</button>
-                        <button class="btn btn-secondary" id="admin-clear-routes" style="padding:4px 12px;font-size:12px;">🗑️ Очистить все</button>
+                        <button class="btn btn-danger" id="admin-clear-routes" style="padding:4px 12px;font-size:12px;">🗑️ Очистить все</button>
                         <span id="admin-route-status" style="font-size:11px;color:#555;align-self:center;">Нажми "Добавить маршрут" и кликай по точкам</span>
                     </div>
                     <div id="admin-routes-list" style="max-height:120px;overflow-y:auto;border:1px solid #1a1a2a;border-radius:6px;padding:4px;"></div>
@@ -919,19 +921,21 @@
         //  СОСТОЯНИЕ
         // ============================================================
         let locations = [];
-        let routes = []; // { id, name, color, points: [{lat, lng}, ...] }
+        let routes = [];
         let mapInstance = null;
         let imageOverlay = null;
         let markerMap = new Map();
-        let routeLayers = {}; // id -> { polyline, markers, label }
+        let routeLayers = {};
         let currentModalId = null;
         let editingId = null;
         let isAdmin = false;
         let selectedFiles = [];
         let viewerData = { photos: [], index: 0, locId: null };
         let routeBuilding = false;
-        let routePoints = [];
-        let routeColor = '#d4c08a';
+        let tempRoutePoints = [];
+        let tempRouteMarkers = [];
+        let tempRouteLine = null;
+        let hiddenRoutes = new Set();
 
         // ============================================================
         //  ЗАГРУЗКА ДАННЫХ
@@ -992,30 +996,66 @@
 
             renderMarkers();
             renderRoutes();
+
+            // ⭐ ОБРАБОТЧИК КЛИКА ПО КАРТЕ (для добавления точек маршрута)
+            mapInstance.on('click', function(e) {
+                if (!routeBuilding) return;
+                if (!isAdmin) {
+                    alert('Войдите в админ-панель');
+                    return;
+                }
+                addRoutePoint(e.latlng.lat, e.latlng.lng);
+            });
         }
 
         // ============================================================
-        //  ОТРИСОВКА ЛОКАЦИЙ
+        //  ⭐ ДОБАВЛЕНИЕ ТОЧКИ В МАРШРУТ
         // ============================================================
-        function renderLocations() {
-            const list = document.getElementById('location-list');
-            if (!locations || locations.length === 0) {
-                list.innerHTML = '<li class="empty-msg">Нет локаций</li>';
+        function addRoutePoint(lat, lng) {
+            tempRoutePoints.push({ lat, lng });
+
+            const marker = L.circleMarker([lat, lng], {
+                radius: 6,
+                color: '#d4c08a',
+                fillColor: '#d4c08a',
+                fillOpacity: 0.8,
+                weight: 2
+            }).addTo(mapInstance);
+            tempRouteMarkers.push(marker);
+
+            if (tempRouteLine) {
+                mapInstance.removeLayer(tempRouteLine);
+            }
+            if (tempRoutePoints.length >= 2) {
+                const latlngs = tempRoutePoints.map(p => [p.lat, p.lng]);
+                tempRouteLine = L.polyline(latlngs, {
+                    color: '#d4c08a',
+                    weight: 3,
+                    opacity: 0.8,
+                    dashArray: '5, 10'
+                }).addTo(mapInstance);
+            }
+
+            document.getElementById('admin-route-status').textContent = 
+                `📍 Точка ${tempRoutePoints.length} добавлена. Кликай дальше или нажми "Добавить маршрут" для завершения.`;
+        }
+
+        // ============================================================
+        //  ⭐ ДОБАВЛЕНИЕ ТОЧКИ ИЗ ПОПАПА
+        // ============================================================
+        function addRoutePointFromMarker(lat, lng, name) {
+            if (!routeBuilding) {
+                alert('Сначала нажмите "Добавить маршрут" в админ-панели');
                 return;
             }
-            let html = '';
-            locations.forEach(loc => {
-                const count = loc.photos ? loc.photos.length : 0;
-                html += `
-                    <li data-id="${loc.id}" onclick="flyToLocation(${loc.id})">
-                        <span class="loc-name">${loc.name}</span>
-                        <span class="loc-photos-count">${count}</span>
-                    </li>
-                `;
-            });
-            list.innerHTML = html;
+            addRoutePoint(lat, lng);
+            document.getElementById('admin-route-status').textContent = 
+                `✅ Добавлена точка "${name}". Кликай дальше или заверши маршрут.`;
         }
 
+        // ============================================================
+        //  ОТРИСОВКА МАРКЕРОВ
+        // ============================================================
         function renderMarkers() {
             if (!mapInstance) return;
             markerMap.forEach(m => mapInstance.removeLayer(m));
@@ -1029,29 +1069,43 @@
             });
 
             locations.forEach(loc => {
+                const popupContent = `
+                    <div style="text-align:center;">
+                        <b>${loc.name}</b><br>
+                        <span style="color:#aaa;font-size:12px;">${(loc.description || '').substring(0, 50)}</span>
+                        <br>
+                        <button onclick="openModal(${loc.id})" style="
+                            margin-top: 6px;
+                            padding: 4px 12px;
+                            background: #d4c08a;
+                            color: #0a0a12;
+                            border: none;
+                            border-radius: 12px;
+                            cursor: pointer;
+                            font-size: 12px;
+                        ">📖 Открыть</button>
+                        ${isAdmin && routeBuilding ? `<br><button onclick="addRoutePointFromMarker(${loc.lat}, ${loc.lng}, '${loc.name}')" style="
+                            margin-top: 4px;
+                            padding: 2px 10px;
+                            background: #4ecdc4;
+                            color: #0a0a12;
+                            border: none;
+                            border-radius: 12px;
+                            cursor: pointer;
+                            font-size: 11px;
+                        ">➕ Добавить в маршрут</button>` : ''}
+                    </div>
+                `;
+
                 const marker = L.marker([loc.lat, loc.lng], { icon })
                     .addTo(mapInstance)
-                    .bindPopup(`
-                        <div style="text-align:center;cursor:pointer;" onclick="openModal(${loc.id})">
-                            <b>${loc.name}</b><br>
-                            <span style="color:#aaa;font-size:12px;">${(loc.description || '').substring(0, 50)}${(loc.description || '').length > 50 ? '...' : ''}</span>
-                            <span class="popup-view-link">Открыть галерею</span>
-                        </div>
-                    `, { className: 'custom-popup', maxWidth: 200 });
+                    .bindPopup(popupContent, { className: 'custom-popup', maxWidth: 220 });
                 markerMap.set(loc.id, marker);
             });
         }
 
-        function flyToLocation(id) {
-            const loc = locations.find(l => l.id === id);
-            if (!loc || !mapInstance) return;
-            mapInstance.flyTo([loc.lat, loc.lng], 4, { duration: 1 });
-            const marker = markerMap.get(id);
-            if (marker) setTimeout(() => marker.openPopup(), 400);
-        }
-
         // ============================================================
-        //  МАРШРУТЫ — СОХРАНЕНИЕ И ЗАГРУЗКА
+        //  МАРШРУТЫ
         // ============================================================
         async function loadRoutes() {
             try {
@@ -1065,6 +1119,7 @@
                 renderRoutes();
                 renderRoutesLegend();
                 renderAdminRoutesList();
+                console.log('✅ Маршруты загружены:', routes.length);
                 return true;
             } catch (e) {
                 console.error('Ошибка загрузки маршрутов:', e);
@@ -1113,11 +1168,7 @@
             }
         }
 
-        // ============================================================
-        //  ОТРИСОВКА МАРШРУТОВ НА КАРТЕ
-        // ============================================================
         function renderRoutes() {
-            // Удаляем старые маршруты
             Object.values(routeLayers).forEach(layer => {
                 if (layer.polyline) mapInstance.removeLayer(layer.polyline);
                 if (layer.markers) layer.markers.forEach(m => mapInstance.removeLayer(m));
@@ -1126,25 +1177,22 @@
             routeLayers = {};
 
             routes.forEach(route => {
+                if (hiddenRoutes.has(route.id)) return;
                 const points = route.points || [];
                 if (points.length < 2) return;
 
                 const latlngs = points.map(p => [p.lat, p.lng]);
                 const color = route.color || '#d4c08a';
 
-                // Линия маршрута
                 const polyline = L.polyline(latlngs, {
                     color: color,
                     weight: 3,
                     opacity: 0.8,
-                    dashArray: null,
-                    smoothFactor: 1,
-                    className: 'route-line'
+                    smoothFactor: 1
                 }).addTo(mapInstance);
 
-                // Маркеры на точках маршрута (маленькие)
                 const markers = [];
-                points.forEach((p, idx) => {
+                points.forEach((p) => {
                     const marker = L.circleMarker([p.lat, p.lng], {
                         radius: 4,
                         color: color,
@@ -1155,11 +1203,11 @@
                     markers.push(marker);
                 });
 
-                // Подпись маршрута (в середине)
+                let label = null;
                 if (route.name && latlngs.length > 1) {
                     const midIdx = Math.floor(latlngs.length / 2);
                     const midPoint = latlngs[midIdx];
-                    const label = L.marker(midPoint, {
+                    label = L.marker(midPoint, {
                         icon: L.divIcon({
                             className: 'route-label',
                             html: `<div style="
@@ -1177,10 +1225,9 @@
                             iconAnchor: [0, 0]
                         })
                     }).addTo(mapInstance);
-                    routeLayers[route.id] = { polyline, markers, label };
-                } else {
-                    routeLayers[route.id] = { polyline, markers, label: null };
                 }
+
+                routeLayers[route.id] = { polyline, markers, label };
             });
         }
 
@@ -1189,13 +1236,14 @@
             const list = document.getElementById('routes-list');
             list.innerHTML = '';
 
-            if (routes.length === 0) {
+            const visibleRoutes = routes.filter(r => !hiddenRoutes.has(r.id));
+            if (visibleRoutes.length === 0) {
                 container.classList.remove('visible');
                 return;
             }
 
             container.classList.add('visible');
-            routes.forEach(route => {
+            visibleRoutes.forEach(route => {
                 const div = document.createElement('div');
                 div.className = 'route-item';
                 div.innerHTML = `
@@ -1208,11 +1256,6 @@
                 list.appendChild(div);
             });
         }
-
-        // ============================================================
-        //  ВИДИМОСТЬ МАРШРУТОВ (скрывать/показывать)
-        // ============================================================
-        let hiddenRoutes = new Set();
 
         function toggleRouteVisibility(routeId) {
             const layer = routeLayers[routeId];
@@ -1231,6 +1274,342 @@
             }
             renderRoutesLegend();
         }
+
+        function renderAdminRoutesList() {
+            const container = document.getElementById('admin-routes-list');
+            if (!routes || routes.length === 0) {
+                container.innerHTML = '<div style="color:#444;font-style:italic;padding:6px;font-size:12px;">Нет маршрутов</div>';
+                return;
+            }
+            let html = '';
+            routes.forEach(route => {
+                const pointsCount = route.points ? route.points.length : 0;
+                html += `
+                    <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px;border-bottom:1px solid #1a1a2a;font-size:12px;">
+                        <span style="display:flex;align-items:center;gap:6px;">
+                            <span style="display:inline-block;width:16px;height:3px;border-radius:2px;background:${route.color || '#d4c08a'}"></span>
+                            ${route.name || 'Маршрут'} (${pointsCount} точек)
+                        </span>
+                        <button onclick="deleteRouteFromDB('${route.id}')" style="background:none;border:none;color:#ff5555;cursor:pointer;font-size:12px;">✕</button>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // ============================================================
+        //  ПОСТРОЕНИЕ МАРШРУТА
+        // ============================================================
+        function cancelRouteBuilding() {
+            routeBuilding = false;
+            tempRoutePoints = [];
+            tempRouteMarkers.forEach(m => mapInstance.removeLayer(m));
+            tempRouteMarkers = [];
+            if (tempRouteLine) {
+                mapInstance.removeLayer(tempRouteLine);
+                tempRouteLine = null;
+            }
+            document.getElementById('admin-route-status').textContent = 'Нажми "Добавить маршрут" и кликай по точкам';
+            document.getElementById('admin-route-status').style.color = '#555';
+            renderMarkers();
+        }
+
+        async function finishRoute() {
+            if (tempRoutePoints.length < 2) {
+                alert('Нужно минимум 2 точки для маршрута');
+                return;
+            }
+
+            const name = prompt('Введите название маршрута (например, "Путь героя"):', 'Маршрут');
+            if (name === null) {
+                cancelRouteBuilding();
+                return;
+            }
+
+            const colors = ['#d4c08a', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#ff9ff3', '#54a0ff', '#ff6b6b'];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+
+            const routeData = {
+                name: name.trim() || 'Маршрут',
+                color: color,
+                points: tempRoutePoints,
+                created_at: new Date().toISOString()
+            };
+
+            const result = await saveRouteToDB(routeData);
+            if (result) {
+                cancelRouteBuilding();
+                document.getElementById('admin-route-status').textContent = '✅ Маршрут создан!';
+                document.getElementById('admin-route-status').style.color = '#4caf50';
+                setTimeout(() => {
+                    document.getElementById('admin-route-status').textContent = 'Нажми "Добавить маршрут" и кликай по точкам';
+                    document.getElementById('admin-route-status').style.color = '#555';
+                }, 3000);
+            }
+        }
+
+        document.getElementById('admin-add-route').addEventListener('click', function() {
+            if (!isAdmin) {
+                alert('Войдите в админ-панель');
+                return;
+            }
+
+            if (routeBuilding) {
+                if (tempRoutePoints.length < 2) {
+                    alert('Нужно минимум 2 точки для маршрута');
+                    return;
+                }
+                finishRoute();
+                return;
+            }
+
+            routeBuilding = true;
+            tempRoutePoints = [];
+            tempRouteMarkers = [];
+            if (tempRouteLine) {
+                mapInstance.removeLayer(tempRouteLine);
+                tempRouteLine = null;
+            }
+
+            document.getElementById('admin-route-status').textContent = '🔵 Кликай по маркерам на карте или по пустому месту. Нажми "Добавить маршрут" снова для завершения.';
+            document.getElementById('admin-route-status').style.color = '#4ecdc4';
+            renderMarkers();
+            alert('🟢 Режим построения маршрута включен! Кликайте по маркерам на карте или по пустому месту.');
+        });
+
+        document.getElementById('admin-clear-routes').addEventListener('click', async function() {
+            if (!isAdmin) return;
+            if (!confirm('Удалить все маршруты?')) return;
+            for (const route of routes) {
+                await deleteRouteFromDB(route.id);
+            }
+            routes = [];
+            renderRoutes();
+            renderRoutesLegend();
+            renderAdminRoutesList();
+        });
+
+        // ============================================================
+        //  ОСТАЛЬНЫЕ ФУНКЦИИ (галерея, просмотр, админка)
+        // ============================================================
+        function renderLocations() {
+            const list = document.getElementById('location-list');
+            if (!locations || locations.length === 0) {
+                list.innerHTML = '<li class="empty-msg">Нет локаций</li>';
+                return;
+            }
+            let html = '';
+            locations.forEach(loc => {
+                const count = loc.photos ? loc.photos.length : 0;
+                html += `
+                    <li data-id="${loc.id}" onclick="flyToLocation(${loc.id})">
+                        <span class="loc-name">${loc.name}</span>
+                        <span class="loc-photos-count">${count}</span>
+                    </li>
+                `;
+            });
+            list.innerHTML = html;
+        }
+
+        function flyToLocation(id) {
+            const loc = locations.find(l => l.id === id);
+            if (!loc || !mapInstance) return;
+            mapInstance.flyTo([loc.lat, loc.lng], 4, { duration: 1 });
+            const marker = markerMap.get(id);
+            if (marker) setTimeout(() => marker.openPopup(), 400);
+        }
+
+        // ============================================================
+        //  МОДАЛКА ПРОСМОТРА
+        // ============================================================
+        function openModal(id) {
+            const loc = locations.find(l => l.id === id);
+            if (!loc) return;
+            currentModalId = id;
+
+            document.getElementById('modal-title').textContent = loc.name;
+            document.getElementById('modal-desc').textContent = loc.description || 'Описание отсутствует';
+
+            const gallery = document.getElementById('modal-gallery');
+            const noPhotos = document.getElementById('modal-no-photos');
+            gallery.innerHTML = '';
+
+            const photos = loc.photos || [];
+            if (photos.length === 0) {
+                noPhotos.style.display = 'block';
+            } else {
+                noPhotos.style.display = 'none';
+                photos.forEach((photo, idx) => {
+                    const div = document.createElement('div');
+                    div.className = 'photo-item';
+                    const imgSrc = typeof photo === 'object' && photo.url ? photo.url : photo;
+                    const cap = typeof photo === 'object' && photo.caption ? photo.caption : '';
+                    div.innerHTML = `
+                        <img src="${imgSrc}" loading="lazy" onclick="openViewer(${id}, ${idx})">
+                        <div class="photo-caption">
+                            ${cap ? cap : '<span class="caption-empty">Нет подписи</span>'}
+                        </div>
+                    `;
+                    gallery.appendChild(div);
+                });
+            }
+
+            document.getElementById('location-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        window.openModal = openModal;
+        document.getElementById('modal-close-btn').addEventListener('click', () => {
+            document.getElementById('location-modal').classList.remove('active');
+            document.body.style.overflow = '';
+        });
+        document.getElementById('location-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                document.getElementById('location-modal').classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // ============================================================
+        //  ПОЛНОЭКРАННЫЙ ПРОСМОТР
+        // ============================================================
+        let touchStartX = 0;
+        let touchEndX = 0;
+
+        function openViewer(locId, index) {
+            const loc = locations.find(l => l.id === locId);
+            if (!loc || !loc.photos || loc.photos.length === 0) return;
+
+            viewerData.photos = loc.photos;
+            viewerData.index = index;
+            viewerData.locId = locId;
+            viewerData.locName = loc.name;
+            viewerData.locDesc = loc.description || '';
+
+            updateViewer();
+            document.getElementById('photo-viewer-overlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            touchStartX = 0;
+            touchEndX = 0;
+        }
+
+        function updateViewer() {
+            const photo = viewerData.photos[viewerData.index];
+            const url = typeof photo === 'object' && photo.url ? photo.url : photo;
+            const cap = typeof photo === 'object' && photo.caption ? photo.caption : '';
+
+            document.getElementById('viewer-img').src = url;
+            document.getElementById('viewer-counter').textContent = 
+                `${viewerData.index + 1} / ${viewerData.photos.length}`;
+            document.getElementById('viewer-title').textContent = viewerData.locName || 'Название локации';
+            document.getElementById('viewer-location').textContent = `📍 ${viewerData.locDesc || 'Локация'}`;
+            
+            const captionEl = document.getElementById('viewer-caption');
+            captionEl.value = cap || '';
+            captionEl.placeholder = 'Введите описание к фото...';
+            
+            const saveBtn = document.getElementById('viewer-caption-save');
+            if (isAdmin) {
+                saveBtn.classList.remove('hidden');
+                captionEl.readOnly = false;
+                captionEl.style.cursor = 'text';
+            } else {
+                saveBtn.classList.add('hidden');
+                captionEl.readOnly = true;
+                captionEl.style.cursor = 'default';
+            }
+        }
+
+        document.getElementById('viewer-caption-save').addEventListener('click', async function() {
+            if (viewerData.locId === null || viewerData.index === null) return;
+            
+            const loc = locations.find(l => l.id === viewerData.locId);
+            if (!loc || !loc.photos || !loc.photos[viewerData.index]) return;
+
+            const newCaption = document.getElementById('viewer-caption').value.trim();
+            const photo = loc.photos[viewerData.index];
+            
+            if (typeof photo === 'object') {
+                photo.caption = newCaption;
+            } else {
+                loc.photos[viewerData.index] = {
+                    url: photo,
+                    caption: newCaption
+                };
+            }
+
+            await saveAll();
+            
+            renderAdminList();
+            renderMarkers();
+            renderLocations();
+            if (editingId !== null) editLocation(editingId);
+            
+            setAdminStatus('✅ Подпись сохранена', 'ok');
+            this.textContent = '✅ Сохранено!';
+            setTimeout(() => {
+                this.textContent = '💾 Сохранить';
+            }, 2000);
+        });
+
+        function closeViewer() {
+            document.getElementById('photo-viewer-overlay').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        document.getElementById('viewer-close-btn').addEventListener('click', closeViewer);
+        document.getElementById('photo-viewer-overlay').addEventListener('click', function(e) {
+            if (e.target === this) closeViewer();
+        });
+
+        function goToPrev() {
+            if (viewerData.photos.length === 0) return;
+            viewerData.index = (viewerData.index - 1 + viewerData.photos.length) % viewerData.photos.length;
+            updateViewer();
+        }
+
+        function goToNext() {
+            if (viewerData.photos.length === 0) return;
+            viewerData.index = (viewerData.index + 1) % viewerData.photos.length;
+            updateViewer();
+        }
+
+        document.getElementById('viewer-prev').addEventListener('click', function(e) {
+            e.stopPropagation();
+            goToPrev();
+        });
+        document.getElementById('viewer-next').addEventListener('click', function(e) {
+            e.stopPropagation();
+            goToNext();
+        });
+
+        const viewerOverlay = document.getElementById('photo-viewer-overlay');
+        viewerOverlay.addEventListener('touchstart', function(e) {
+            touchStartX = e.changedTouches[0].screenX;
+        }, { passive: true });
+        viewerOverlay.addEventListener('touchend', function(e) {
+            touchEndX = e.changedTouches[0].screenX;
+            handleSwipe();
+        }, { passive: true });
+
+        function handleSwipe() {
+            const swipeThreshold = 50;
+            const diff = touchStartX - touchEndX;
+            if (Math.abs(diff) < swipeThreshold) return;
+            if (diff > 0) goToNext();
+            else goToPrev();
+        }
+
+        document.addEventListener('keydown', function(e) {
+            const viewer = document.getElementById('photo-viewer-overlay');
+            if (!viewer.classList.contains('active')) return;
+            if (e.key === 'Escape') closeViewer();
+            else if (e.key === 'ArrowLeft') goToPrev();
+            else if (e.key === 'ArrowRight') goToNext();
+            else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+                document.getElementById('viewer-caption-save').click();
+            }
+        });
 
         // ============================================================
         //  АДМИН-ПАНЕЛЬ
@@ -1266,9 +1645,6 @@
             }
         });
 
-        // ============================================================
-        //  АДМИН-АВТОРИЗАЦИЯ
-        // ============================================================
         async function checkAdminAuth() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
@@ -1336,169 +1712,6 @@
             if (routeBuilding) cancelRouteBuilding();
         });
 
-        // ============================================================
-        //  АДМИН-УПРАВЛЕНИЕ МАРШРУТАМИ
-        // ============================================================
-        let tempRoutePoints = [];
-
-        function cancelRouteBuilding() {
-            routeBuilding = false;
-            tempRoutePoints = [];
-            document.getElementById('admin-route-status').textContent = 'Нажми "Добавить маршрут" и кликай по точкам';
-            document.getElementById('admin-route-status').style.color = '#555';
-            // Убираем временные маркеры
-            if (window.tempRouteMarkers) {
-                window.tempRouteMarkers.forEach(m => mapInstance.removeLayer(m));
-                window.tempRouteMarkers = [];
-            }
-            if (window.tempRouteLine) {
-                mapInstance.removeLayer(window.tempRouteLine);
-                window.tempRouteLine = null;
-            }
-        }
-
-        document.getElementById('admin-add-route').addEventListener('click', function() {
-            if (!isAdmin) {
-                alert('Войдите в админ-панель');
-                return;
-            }
-
-            // Если уже строим маршрут — завершаем
-            if (routeBuilding) {
-                if (tempRoutePoints.length < 2) {
-                    alert('Нужно минимум 2 точки для маршрута');
-                    return;
-                }
-                finishRoute();
-                return;
-            }
-
-            // Начинаем строить маршрут
-            routeBuilding = true;
-            tempRoutePoints = [];
-            document.getElementById('admin-route-status').textContent = 'Кликай по карте для добавления точек. Нажми "Добавить маршрут" снова для завершения.';
-            document.getElementById('admin-route-status').style.color = '#d4c08a';
-
-            // Убираем старые временные маркеры
-            if (window.tempRouteMarkers) {
-                window.tempRouteMarkers.forEach(m => mapInstance.removeLayer(m));
-                window.tempRouteMarkers = [];
-            }
-            if (window.tempRouteLine) {
-                mapInstance.removeLayer(window.tempRouteLine);
-                window.tempRouteLine = null;
-            }
-
-            // Добавляем обработчик клика по карте
-            if (window.routeClickHandler) {
-                mapInstance.off('click', window.routeClickHandler);
-            }
-            window.routeClickHandler = function(e) {
-                if (!routeBuilding) return;
-                const lat = e.latlng.lat;
-                const lng = e.latlng.lng;
-                tempRoutePoints.push({ lat, lng });
-
-                // Добавляем временный маркер
-                if (!window.tempRouteMarkers) window.tempRouteMarkers = [];
-                const marker = L.circleMarker([lat, lng], {
-                    radius: 6,
-                    color: '#d4c08a',
-                    fillColor: '#d4c08a',
-                    fillOpacity: 0.8,
-                    weight: 2
-                }).addTo(mapInstance);
-                window.tempRouteMarkers.push(marker);
-
-                // Рисуем линию
-                if (window.tempRouteLine) {
-                    mapInstance.removeLayer(window.tempRouteLine);
-                }
-                if (tempRoutePoints.length >= 2) {
-                    const latlngs = tempRoutePoints.map(p => [p.lat, p.lng]);
-                    window.tempRouteLine = L.polyline(latlngs, {
-                        color: '#d4c08a',
-                        weight: 3,
-                        opacity: 0.8,
-                        dashArray: '5, 10'
-                    }).addTo(mapInstance);
-                }
-
-                document.getElementById('admin-route-status').textContent = 
-                    `Точка ${tempRoutePoints.length} добавлена. Кликай дальше или нажми "Добавить маршрут" для завершения.`;
-            };
-            mapInstance.on('click', window.routeClickHandler);
-        });
-
-        async function finishRoute() {
-            if (tempRoutePoints.length < 2) {
-                alert('Нужно минимум 2 точки для маршрута');
-                return;
-            }
-
-            const name = prompt('Введите название маршрута (например, "Путь героя"):', 'Маршрут');
-            if (name === null) {
-                cancelRouteBuilding();
-                return;
-            }
-
-            const colors = ['#d4c08a', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#ff9ff3', '#54a0ff', '#ff6b6b'];
-            const color = colors[Math.floor(Math.random() * colors.length)];
-
-            const routeData = {
-                name: name.trim() || 'Маршрут',
-                color: color,
-                points: tempRoutePoints,
-                created_at: new Date().toISOString()
-            };
-
-            await saveRouteToDB(routeData);
-            cancelRouteBuilding();
-            document.getElementById('admin-route-status').textContent = '✅ Маршрут создан!';
-            document.getElementById('admin-route-status').style.color = '#4caf50';
-            setTimeout(() => {
-                document.getElementById('admin-route-status').textContent = 'Нажми "Добавить маршрут" и кликай по точкам';
-                document.getElementById('admin-route-status').style.color = '#555';
-            }, 3000);
-        }
-
-        document.getElementById('admin-clear-routes').addEventListener('click', async function() {
-            if (!isAdmin) return;
-            if (!confirm('Удалить все маршруты?')) return;
-            for (const route of routes) {
-                await deleteRouteFromDB(route.id);
-            }
-            routes = [];
-            renderRoutes();
-            renderRoutesLegend();
-            renderAdminRoutesList();
-        });
-
-        function renderAdminRoutesList() {
-            const container = document.getElementById('admin-routes-list');
-            if (!routes || routes.length === 0) {
-                container.innerHTML = '<div style="color:#444;font-style:italic;padding:6px;font-size:12px;">Нет маршрутов</div>';
-                return;
-            }
-            let html = '';
-            routes.forEach(route => {
-                const pointsCount = route.points ? route.points.length : 0;
-                html += `
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px;border-bottom:1px solid #1a1a2a;font-size:12px;">
-                        <span style="display:flex;align-items:center;gap:6px;">
-                            <span style="display:inline-block;width:16px;height:3px;border-radius:2px;background:${route.color || '#d4c08a'}"></span>
-                            ${route.name || 'Маршрут'} (${pointsCount} точек)
-                        </span>
-                        <button onclick="deleteRouteFromDB('${route.id}')" style="background:none;border:none;color:#ff5555;cursor:pointer;font-size:12px;">✕</button>
-                    </div>
-                `;
-            });
-            container.innerHTML = html;
-        }
-
-        // ============================================================
-        //  АДМИН-УПРАВЛЕНИЕ ЛОКАЦИЯМИ
-        // ============================================================
         async function loadAdminLocations() {
             try {
                 const { data, error } = await supabaseClient
@@ -1695,9 +1908,6 @@
             }
         }
 
-        // ============================================================
-        //  СОХРАНЕНИЕ
-        // ============================================================
         async function saveAll() {
             try {
                 for (const loc of locations) {
@@ -1825,198 +2035,6 @@
         });
 
         // ============================================================
-        //  ОСТАЛЬНОЕ (галерея, просмотрщик)
-        // ============================================================
-        function openModal(id) {
-            const loc = locations.find(l => l.id === id);
-            if (!loc) return;
-            currentModalId = id;
-
-            document.getElementById('modal-title').textContent = loc.name;
-            document.getElementById('modal-desc').textContent = loc.description || 'Описание отсутствует';
-
-            const gallery = document.getElementById('modal-gallery');
-            const noPhotos = document.getElementById('modal-no-photos');
-            gallery.innerHTML = '';
-
-            const photos = loc.photos || [];
-            if (photos.length === 0) {
-                noPhotos.style.display = 'block';
-            } else {
-                noPhotos.style.display = 'none';
-                photos.forEach((photo, idx) => {
-                    const div = document.createElement('div');
-                    div.className = 'photo-item';
-                    const imgSrc = typeof photo === 'object' && photo.url ? photo.url : photo;
-                    const cap = typeof photo === 'object' && photo.caption ? photo.caption : '';
-                    div.innerHTML = `
-                        <img src="${imgSrc}" loading="lazy" onclick="openViewer(${id}, ${idx})">
-                        <div class="photo-caption">
-                            ${cap ? cap : '<span class="caption-empty">Нет подписи</span>'}
-                        </div>
-                    `;
-                    gallery.appendChild(div);
-                });
-            }
-
-            document.getElementById('location-modal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        window.openModal = openModal;
-        document.getElementById('modal-close-btn').addEventListener('click', () => {
-            document.getElementById('location-modal').classList.remove('active');
-            document.body.style.overflow = '';
-        });
-        document.getElementById('location-modal').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) {
-                document.getElementById('location-modal').classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        });
-
-        // ============================================================
-        //  ПОЛНОЭКРАННЫЙ ПРОСМОТР
-        // ============================================================
-        let touchStartX = 0;
-        let touchEndX = 0;
-
-        function openViewer(locId, index) {
-            const loc = locations.find(l => l.id === locId);
-            if (!loc || !loc.photos || loc.photos.length === 0) return;
-
-            viewerData.photos = loc.photos;
-            viewerData.index = index;
-            viewerData.locId = locId;
-            viewerData.locName = loc.name;
-            viewerData.locDesc = loc.description || '';
-
-            updateViewer();
-            document.getElementById('photo-viewer-overlay').classList.add('active');
-            document.body.style.overflow = 'hidden';
-            touchStartX = 0;
-            touchEndX = 0;
-        }
-
-        function updateViewer() {
-            const photo = viewerData.photos[viewerData.index];
-            const url = typeof photo === 'object' && photo.url ? photo.url : photo;
-            const cap = typeof photo === 'object' && photo.caption ? photo.caption : '';
-
-            document.getElementById('viewer-img').src = url;
-            document.getElementById('viewer-counter').textContent = 
-                `${viewerData.index + 1} / ${viewerData.photos.length}`;
-            document.getElementById('viewer-title').textContent = viewerData.locName || 'Название локации';
-            document.getElementById('viewer-location').textContent = `📍 ${viewerData.locDesc || 'Локация'}`;
-            
-            const captionEl = document.getElementById('viewer-caption');
-            captionEl.value = cap || '';
-            captionEl.placeholder = 'Введите описание к фото...';
-            
-            const saveBtn = document.getElementById('viewer-caption-save');
-            if (isAdmin) {
-                saveBtn.classList.remove('hidden');
-                captionEl.readOnly = false;
-                captionEl.style.cursor = 'text';
-            } else {
-                saveBtn.classList.add('hidden');
-                captionEl.readOnly = true;
-                captionEl.style.cursor = 'default';
-            }
-        }
-
-        document.getElementById('viewer-caption-save').addEventListener('click', async function() {
-            if (viewerData.locId === null || viewerData.index === null) return;
-            
-            const loc = locations.find(l => l.id === viewerData.locId);
-            if (!loc || !loc.photos || !loc.photos[viewerData.index]) return;
-
-            const newCaption = document.getElementById('viewer-caption').value.trim();
-            const photo = loc.photos[viewerData.index];
-            
-            if (typeof photo === 'object') {
-                photo.caption = newCaption;
-            } else {
-                loc.photos[viewerData.index] = {
-                    url: photo,
-                    caption: newCaption
-                };
-            }
-
-            await saveAll();
-            
-            renderAdminList();
-            renderMarkers();
-            renderLocations();
-            if (editingId !== null) editLocation(editingId);
-            
-            setAdminStatus('✅ Подпись сохранена', 'ok');
-            this.textContent = '✅ Сохранено!';
-            setTimeout(() => {
-                this.textContent = '💾 Сохранить';
-            }, 2000);
-        });
-
-        function closeViewer() {
-            document.getElementById('photo-viewer-overlay').classList.remove('active');
-            document.body.style.overflow = '';
-        }
-
-        document.getElementById('viewer-close-btn').addEventListener('click', closeViewer);
-        document.getElementById('photo-viewer-overlay').addEventListener('click', function(e) {
-            if (e.target === this) closeViewer();
-        });
-
-        function goToPrev() {
-            if (viewerData.photos.length === 0) return;
-            viewerData.index = (viewerData.index - 1 + viewerData.photos.length) % viewerData.photos.length;
-            updateViewer();
-        }
-
-        function goToNext() {
-            if (viewerData.photos.length === 0) return;
-            viewerData.index = (viewerData.index + 1) % viewerData.photos.length;
-            updateViewer();
-        }
-
-        document.getElementById('viewer-prev').addEventListener('click', function(e) {
-            e.stopPropagation();
-            goToPrev();
-        });
-        document.getElementById('viewer-next').addEventListener('click', function(e) {
-            e.stopPropagation();
-            goToNext();
-        });
-
-        const viewerOverlay = document.getElementById('photo-viewer-overlay');
-        viewerOverlay.addEventListener('touchstart', function(e) {
-            touchStartX = e.changedTouches[0].screenX;
-        }, { passive: true });
-        viewerOverlay.addEventListener('touchend', function(e) {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        }, { passive: true });
-
-        function handleSwipe() {
-            const swipeThreshold = 50;
-            const diff = touchStartX - touchEndX;
-            if (Math.abs(diff) < swipeThreshold) return;
-            if (diff > 0) goToNext();
-            else goToPrev();
-        }
-
-        document.addEventListener('keydown', function(e) {
-            const viewer = document.getElementById('photo-viewer-overlay');
-            if (!viewer.classList.contains('active')) return;
-            if (e.key === 'Escape') closeViewer();
-            else if (e.key === 'ArrowLeft') goToPrev();
-            else if (e.key === 'ArrowRight') goToNext();
-            else if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
-                document.getElementById('viewer-caption-save').click();
-            }
-        });
-
-        // ============================================================
         //  ЗАПУСК
         // ============================================================
         async function startApp() {
@@ -2026,7 +2044,7 @@
             console.log('Атлас загружен');
             console.log('📱 На телефонах: свайп влево/вправо для переключения фото');
             console.log('⌨️ На ПК: стрелки ← → на клавиатуре');
-            console.log('🗺️ Маршруты можно скрывать/показывать через легенду');
+            console.log('🗺️ Для построения маршрута: админ-панель → Добавить маршрут → кликай по маркерам');
         }
 
         startApp();
