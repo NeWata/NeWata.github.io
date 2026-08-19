@@ -476,7 +476,7 @@
             box-shadow: 0 0 30px rgba(212, 192, 138, 0.6);
         }
 
-        /* ===== ПОЛНОЭКРАННЫЙ ПРОСМОТР С РЕДАКТИРОВАНИЕМ ===== */
+        /* ===== ПОЛНОЭКРАННЫЙ ПРОСМОТР ===== */
         #photo-viewer-overlay {
             position: fixed;
             top: 0;
@@ -993,7 +993,7 @@
         });
 
         // ============================================================
-        //  ⭐ ПОЛНОЭКРАННЫЙ ПРОСМОТР С РЕДАКТИРОВАНИЕМ
+        //  ⭐ ПОЛНОЭКРАННЫЙ ПРОСМОТР (с правкой — только админ может редактировать)
         // ============================================================
         function openViewer(locId, index) {
             const loc = locations.find(l => l.id === locId);
@@ -1025,16 +1025,20 @@
             captionEl.value = cap || '';
             captionEl.placeholder = 'Введите описание к фото...';
             
-            // Показываем кнопку сохранения только админу
+            // ⭐ КНОПКА СОХРАНЕНИЯ ТОЛЬКО ДЛЯ АДМИНА
             const saveBtn = document.getElementById('viewer-caption-save');
             if (isAdmin) {
                 saveBtn.classList.remove('hidden');
+                captionEl.readOnly = false;
+                captionEl.style.cursor = 'text';
             } else {
                 saveBtn.classList.add('hidden');
+                captionEl.readOnly = true;
+                captionEl.style.cursor = 'default';
             }
         }
 
-        // ⭐ СОХРАНЕНИЕ ПОДПИСИ ИЗ ПРОСМОТРЩИКА
+        // Сохранение подписи из просмотрщика
         document.getElementById('viewer-caption-save').addEventListener('click', async function() {
             if (viewerData.locId === null || viewerData.index === null) return;
             
@@ -1055,7 +1059,6 @@
 
             await saveAll();
             
-            // Обновляем интерфейс
             renderAdminList();
             renderMarkers();
             renderLocations();
@@ -1529,7 +1532,7 @@
             document.getElementById('admin-file-count').textContent = '0 файлов';
             
             setAdminStatus('✅ Фото загружены', 'ok');
-            alert('Фото загружены! Теперь вы можете отредактировать подписи, нажав ✎ под каждым фото или в полноэкранном режиме.');
+            alert('Фото загружены!');
         });
 
         // ============================================================
