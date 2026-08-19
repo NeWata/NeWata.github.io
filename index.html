@@ -343,6 +343,7 @@
             #header h1 .separator { display: none; }
         }
 
+        /* ===== АДМИН-ПАНЕЛЬ ===== */
         .admin-overlay {
             position: fixed;
             top: 0;
@@ -361,13 +362,13 @@
 
         .admin-box {
             background: #161624;
-            padding: 30px;
+            padding: 24px;
             border-radius: 16px;
             border: 1px solid #2e2e48;
-            width: 500px;
-            max-width: 94%;
+            width: 700px;
+            max-width: 96%;
             box-shadow: 0 30px 80px rgba(0,0,0,0.9);
-            max-height: 90vh;
+            max-height: 92vh;
             overflow-y: auto;
             position: relative;
         }
@@ -509,42 +510,150 @@
         .admin-box .file-upload-area:hover { border-color: #d4c08a; color: #aaa; }
         .admin-box .file-upload-area input[type="file"] { display: none; }
 
-        .admin-box .admin-list {
-            list-style: none;
-            max-height: 150px;
-            overflow-y: auto;
-            margin: 6px 0;
-        }
-        .admin-box .admin-list li {
-            background: rgba(22,22,34,0.8);
-            padding: 5px 10px;
-            border-radius: 4px;
-            border-left: 2px solid #d4c08a;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 13px;
-            margin-bottom: 3px;
-        }
-        .admin-box .admin-list li .loc-actions button {
-            background: none; border: none; color: #666; cursor: pointer; font-size: 13px; padding: 0 4px;
-        }
-        .admin-box .admin-list li .loc-actions .del:hover { color: #ff5555; }
-        .admin-box .admin-list li .loc-actions .edit:hover { color: #d4c08a; }
-
         .admin-box .status-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
             gap: 6px;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
             font-size: 12px;
             color: #555;
         }
         .admin-box .status-bar .status-ok { color: #4caf50; }
         .admin-box .status-bar .status-error { color: #ff5555; }
         .admin-box .status-bar .status-syncing { color: #ffa726; }
+
+        /* ===== ВКЛАДКИ ===== */
+        .admin-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+            border-bottom: 1px solid #2a2a40;
+            padding-bottom: 4px;
+            flex-wrap: wrap;
+        }
+        .admin-tab {
+            padding: 6px 16px;
+            border: none;
+            background: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 13px;
+            border-radius: 8px 8px 0 0;
+            transition: 0.3s;
+            font-weight: 500;
+        }
+        .admin-tab:hover {
+            color: #d4c08a;
+            background: rgba(212, 192, 138, 0.1);
+        }
+        .admin-tab.active {
+            color: #f0e8c8;
+            background: rgba(212, 192, 138, 0.15);
+            border-bottom: 2px solid #d4c08a;
+        }
+
+        .admin-tab-content {
+            display: none;
+            animation: fadeIn 0.25s ease;
+        }
+        .admin-tab-content.active {
+            display: block;
+        }
+
+        /* ===== СКРОЛЛИРУЕМЫЕ СПИСКИ ===== */
+        .admin-scroll-list {
+            max-height: 250px;
+            overflow-y: auto;
+            border: 1px solid #1a1a2a;
+            border-radius: 8px;
+            padding: 4px;
+            background: rgba(10, 10, 18, 0.5);
+        }
+        .admin-scroll-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .admin-scroll-list::-webkit-scrollbar-track {
+            background: #0a0a12;
+            border-radius: 4px;
+        }
+        .admin-scroll-list::-webkit-scrollbar-thumb {
+            background: #3a3a50;
+            border-radius: 4px;
+        }
+        .admin-scroll-list::-webkit-scrollbar-thumb:hover {
+            background: #4a4a60;
+        }
+
+        .admin-scroll-list .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 10px;
+            border-bottom: 1px solid #1a1a2a;
+            font-size: 12px;
+            transition: 0.2s;
+            border-radius: 4px;
+            gap: 8px;
+        }
+        .admin-scroll-list .list-item:hover {
+            background: rgba(212, 192, 138, 0.05);
+        }
+        .admin-scroll-list .list-item:last-child {
+            border-bottom: none;
+        }
+        .admin-scroll-list .list-item .item-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+            min-width: 0;
+            overflow: hidden;
+            flex-wrap: wrap;
+        }
+        .admin-scroll-list .list-item .item-info .name {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .admin-scroll-list .list-item .item-actions {
+            display: flex;
+            gap: 2px;
+            flex-shrink: 0;
+        }
+        .admin-scroll-list .list-item .item-actions button {
+            background: none;
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 13px;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+        .admin-scroll-list .list-item .item-actions button:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        .admin-scroll-list .list-item .item-actions .edit:hover { color: #4ecdc4; }
+        .admin-scroll-list .list-item .item-actions .delete:hover { color: #ff5555; }
+        .admin-scroll-list .list-item .item-actions .eye:hover { color: #f9ca24; }
+        .admin-scroll-list .list-item .item-actions .pin:hover { color: #4ecdc4; }
+
+        /* ===== РЕДАКТОР ЛОКАЦИИ ===== */
+        .admin-editor {
+            background: rgba(10, 10, 18, 0.5);
+            border: 1px solid #1a1a2a;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+        .admin-editor .form-group {
+            margin-bottom: 10px;
+        }
+        .admin-editor .form-group:last-child {
+            margin-bottom: 0;
+        }
 
         /* ===== НАДПИСИ - БЕЗ ФОНА ===== */
         .custom-label {
@@ -890,6 +999,32 @@
             .viewer-nav-btn.prev { left: 4px; }
             .viewer-nav-btn.next { right: 4px; }
         }
+
+        /* Адаптация под мобильные для админки */
+        @media (max-width: 768px) {
+            .admin-box {
+                padding: 16px;
+                width: 98%;
+                max-height: 95vh;
+            }
+            .admin-tabs {
+                gap: 2px;
+            }
+            .admin-tab {
+                padding: 4px 10px;
+                font-size: 11px;
+            }
+            .admin-scroll-list {
+                max-height: 150px;
+            }
+            .admin-scroll-list .list-item {
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+            .admin-scroll-list .list-item .item-info {
+                flex-wrap: wrap;
+            }
+        }
     </style>
 </head>
 <body>
@@ -955,6 +1090,7 @@
         </div>
     </div>
 
+    <!-- ===== АДМИН-ПАНЕЛЬ (НОВАЯ ВЕРСИЯ С ВКЛАДКАМИ) ===== -->
     <div class="admin-overlay" id="admin-overlay">
         <div class="admin-box">
             <button class="admin-close" id="admin-close-btn">✕</button>
@@ -976,75 +1112,92 @@
 
             <div id="admin-panel-content" style="display:none;">
                 <h2>Админ-панель</h2>
-                <p class="subtitle">Управление локациями</p>
+                <p class="subtitle">Управление контентом</p>
 
+                <!-- СТАТУС БАР -->
                 <div class="status-bar">
                     <span id="admin-sync-status">⏳ Загрузка...</span>
                     <div>
-                        <button class="btn btn-primary" id="admin-add-location" style="padding:4px 12px;font-size:12px;">+ Добавить</button>
-                        <button class="btn btn-secondary" id="admin-save-all" style="padding:4px 12px;font-size:12px;">💾 Сохранить</button>
+                        <button class="btn btn-secondary" id="admin-save-all" style="padding:4px 12px;font-size:12px;">💾 Сохранить всё</button>
                         <button class="btn btn-danger" id="admin-logout" style="padding:4px 12px;font-size:12px;">🚪 Выйти</button>
                     </div>
                 </div>
 
-                <div class="form-group">
-                    <label>Название</label>
-                    <input id="admin-location-name" placeholder="Название локации">
-                </div>
-                <div class="form-group">
-                    <label>Описание</label>
-                    <textarea id="admin-location-desc" placeholder="Описание локации"></textarea>
+                <!-- ===== ВКЛАДКИ ===== -->
+                <div class="admin-tabs">
+                    <button class="admin-tab active" data-tab="locations">📍 Локации</button>
+                    <button class="admin-tab" data-tab="routes">🗺️ Маршруты</button>
+                    <button class="admin-tab" data-tab="labels">🏷️ Надписи</button>
                 </div>
 
-                <div id="admin-photos-section">
-                    <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Фотографии</label>
-                    <div class="photo-grid" id="admin-photos-grid"></div>
+                <!-- ===== ВКЛАДКА: ЛОКАЦИИ ===== -->
+                <div class="admin-tab-content active" id="tab-locations">
+                    <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
+                        <button class="btn btn-primary" id="admin-add-location" style="padding:4px 14px;font-size:12px;">➕ Добавить локацию</button>
+                        <span style="font-size:12px;color:#555;align-self:center;">Всего: <span id="loc-count">0</span></span>
+                    </div>
 
-                    <div style="background: #0f0f1a; border-radius: 8px; padding: 14px; margin: 8px 0; border: 1px solid #1e1e30;">
-                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
-                            <label style="font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px;">Добавить фото:</label>
-                            <button class="btn btn-secondary" id="admin-file-upload" style="padding: 4px 14px; font-size: 12px;">📁 Выбрать файлы</button>
-                            <input type="file" id="admin-file-input" accept="image/*" multiple style="display:none;">
-                            <span id="admin-file-count" style="font-size: 12px; color: #555;">0 файлов</span>
+                    <!-- Редактор локации -->
+                    <div class="admin-editor" id="location-editor">
+                        <div class="form-group">
+                            <label>Название</label>
+                            <input id="admin-location-name" placeholder="Название локации">
                         </div>
-                        <button class="btn btn-primary" id="admin-upload-btn" style="padding: 4px 18px; font-size: 12px; margin-top: 6px;">⬆ Загрузить фото</button>
+                        <div class="form-group">
+                            <label>Описание</label>
+                            <textarea id="admin-location-desc" placeholder="Описание локации"></textarea>
+                        </div>
+
+                        <div id="admin-photos-section">
+                            <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Фотографии</label>
+                            <div class="photo-grid" id="admin-photos-grid"></div>
+
+                            <div style="background: #0f0f1a; border-radius: 8px; padding: 14px; margin: 8px 0; border: 1px solid #1e1e30;">
+                                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
+                                    <label style="font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px;">Добавить фото:</label>
+                                    <button class="btn btn-secondary" id="admin-file-upload" style="padding: 4px 14px; font-size: 12px;">📁 Выбрать файлы</button>
+                                    <input type="file" id="admin-file-input" accept="image/*" multiple style="display:none;">
+                                    <span id="admin-file-count" style="font-size: 12px; color: #555;">0 файлов</span>
+                                </div>
+                                <button class="btn btn-primary" id="admin-upload-btn" style="padding: 4px 18px; font-size: 12px; margin-top: 6px;">⬆ Загрузить фото</button>
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button class="btn btn-primary" id="admin-save-location">💾 Сохранить</button>
+                            <button class="btn btn-secondary" id="admin-cancel-edit">↩️ Отмена</button>
+                            <button class="btn btn-danger" id="admin-delete-location" style="margin-left:auto;">🗑️ Удалить</button>
+                        </div>
+                    </div>
+
+                    <!-- Список локаций -->
+                    <div style="margin-top:12px;">
+                        <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Список локаций</label>
+                        <div class="admin-scroll-list" id="admin-location-list"></div>
                     </div>
                 </div>
 
-                <hr style="border-color:#1e1e30; margin:12px 0;">
-                <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">🗺️ Маршруты</label>
-                <div id="admin-routes-section" style="margin: 8px 0;">
-                    <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;">
+                <!-- ===== ВКЛАДКА: МАРШРУТЫ ===== -->
+                <div class="admin-tab-content" id="tab-routes">
+                    <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">
                         <button class="btn btn-secondary" id="admin-add-route" style="padding:4px 12px;font-size:12px;">➕ Добавить маршрут</button>
                         <button class="btn btn-danger" id="admin-clear-routes" style="padding:4px 12px;font-size:12px;">🗑️ Очистить все</button>
                         <button class="btn btn-secondary" id="admin-show-all-routes" style="padding:4px 12px;font-size:12px;">👁️ Показать все</button>
                         <span id="admin-route-status" style="font-size:11px;color:#555;align-self:center;">Нажми "Добавить маршрут" и кликай по точкам</span>
                     </div>
-                    <div id="admin-routes-list" style="max-height:120px;overflow-y:auto;border:1px solid #1a1a2a;border-radius:6px;padding:4px;"></div>
+                    <div class="admin-scroll-list" id="admin-routes-list"></div>
                 </div>
 
-                <hr style="border-color:#1e1e30; margin:12px 0;">
-                <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">🏷️ Надписи на карте</label>
-                <div id="admin-labels-section" style="margin: 8px 0;">
-                    <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;">
+                <!-- ===== ВКЛАДКА: НАДПИСИ ===== -->
+                <div class="admin-tab-content" id="tab-labels">
+                    <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">
                         <button class="btn btn-secondary" id="admin-add-label" style="padding:4px 12px;font-size:12px;">✏️ Добавить текст</button>
                         <button class="btn btn-secondary" id="admin-toggle-labels" style="padding:4px 12px;font-size:12px;">👁️ Скрыть все</button>
                         <button class="btn btn-danger" id="admin-clear-labels" style="padding:4px 12px;font-size:12px;">🗑️ Удалить все</button>
                         <span id="admin-label-status" style="font-size:11px;color:#555;align-self:center;">✏️ Кликни по карте и введи текст</span>
                     </div>
-                    <div id="admin-labels-list" style="max-height:120px;overflow-y:auto;border:1px solid #1a1a2a;border-radius:6px;padding:4px;"></div>
+                    <div class="admin-scroll-list" id="admin-labels-list"></div>
                 </div>
-
-                <div class="btn-group">
-                    <button class="btn btn-primary" id="admin-save-location">💾 Сохранить</button>
-                    <button class="btn btn-secondary" id="admin-cancel-edit">↩️ Отмена</button>
-                    <button class="btn btn-danger" id="admin-delete-location" style="margin-left:auto;">🗑️ Удалить</button>
-                </div>
-
-                <hr style="border-color:#1e1e30; margin:12px 0;">
-
-                <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Все локации</label>
-                <ul class="admin-list" id="admin-location-list"></ul>
             </div>
         </div>
     </div>
@@ -1156,6 +1309,27 @@
         }
 
         // ============================================================
+        //  ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ ЦВЕТОВ
+        // ============================================================
+        function lightenColor(hex, percent) {
+            const num = parseInt(hex.replace('#', ''), 16);
+            const amt = Math.round(2.55 * percent);
+            const R = Math.min(255, (num >> 16) + amt);
+            const G = Math.min(255, ((num >> 8) & 0x00FF) + amt);
+            const B = Math.min(255, (num & 0x0000FF) + amt);
+            return `#${(1 << 24 | R << 16 | G << 8 | B).toString(16).slice(1)}`;
+        }
+
+        function isColorDark(hex) {
+            const num = parseInt(hex.replace('#', ''), 16);
+            const R = num >> 16;
+            const G = (num >> 8) & 0x00FF;
+            const B = num & 0x0000FF;
+            const brightness = (R * 299 + G * 587 + B * 114) / 1000;
+            return brightness < 128;
+        }
+
+        // ============================================================
         //  МАРКЕРЫ С ВЫБОРОМ ЦВЕТА (ТОЛЬКО ДЛЯ АДМИНА)
         // ============================================================
         function renderMarkers() {
@@ -1179,7 +1353,6 @@
             locations.forEach(loc => {
                 const markerColor = loc.markerColor || '#d4c08a';
                 
-                // Создаём иконку с цветом маркера
                 const icon = L.divIcon({
                     className: 'custom-marker',
                     html: `<div class="marker-dot" style="background: radial-gradient(circle at 30% 30%, ${lightenColor(markerColor, 30)}, ${markerColor}); border-color: ${markerColor};"></div>`,
@@ -1187,7 +1360,6 @@
                     iconAnchor: [14, 14]
                 });
                 
-                // 🟢 Палитра цветов ПОКАЗЫВАЕТСЯ ТОЛЬКО АДМИНУ
                 let colorPickerHtml = '';
                 if (isAdmin) {
                     popupColors.forEach(c => {
@@ -1239,7 +1411,6 @@
                         maxWidth: 220 
                     });
 
-                // Меняем цвет рамки попапа на цвет маркера
                 marker.on('popupopen', function() {
                     const popupElement = this._popup._wrapper;
                     if (popupElement) {
@@ -1253,27 +1424,6 @@
 
                 markerMap.set(loc.id, marker);
             });
-        }
-
-        // ============================================================
-        //  ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ ЦВЕТОВ
-        // ============================================================
-        function lightenColor(hex, percent) {
-            const num = parseInt(hex.replace('#', ''), 16);
-            const amt = Math.round(2.55 * percent);
-            const R = Math.min(255, (num >> 16) + amt);
-            const G = Math.min(255, ((num >> 8) & 0x00FF) + amt);
-            const B = Math.min(255, (num & 0x0000FF) + amt);
-            return `#${(1 << 24 | R << 16 | G << 8 | B).toString(16).slice(1)}`;
-        }
-
-        function isColorDark(hex) {
-            const num = parseInt(hex.replace('#', ''), 16);
-            const R = num >> 16;
-            const G = (num >> 8) & 0x00FF;
-            const B = num & 0x0000FF;
-            const brightness = (R * 299 + G * 587 + B * 114) / 1000;
-            return brightness < 128;
         }
 
         // ============================================================
@@ -1317,39 +1467,72 @@
 
                 if (error) throw error;
                 routes = data || [];
+                
+                routes.forEach(route => {
+                    if (typeof route.points === 'string') {
+                        try {
+                            route.points = JSON.parse(route.points);
+                        } catch (e) {
+                            route.points = [];
+                        }
+                    }
+                    if (!Array.isArray(route.points)) {
+                        route.points = [];
+                    }
+                });
+                
                 renderRoutes();
                 renderRoutesLegend();
                 renderAdminRoutesList();
                 console.log('✅ Маршруты загружены:', routes.length);
                 return true;
             } catch (e) {
-                console.error('Ошибка загрузки маршрутов:', e);
+                console.error('❌ Ошибка загрузки маршрутов:', e);
                 return false;
             }
         }
 
         async function saveRouteToDB(routeData) {
             try {
+                const dataToInsert = {
+                    name: routeData.name || 'Маршрут',
+                    color: routeData.color || '#d4c08a',
+                    points: routeData.points,
+                    labelposition: routeData.labelposition !== undefined ? routeData.labelposition : 0,
+                    labelsize: routeData.labelsize || 11,
+                    created_at: new Date().toISOString()
+                };
+                
+                console.log('📤 Сохраняем маршрут:', JSON.stringify(dataToInsert, null, 2));
+                
                 const { data, error } = await supabaseClient
                     .from('routes')
-                    .insert(routeData)
+                    .insert(dataToInsert)
                     .select()
                     .single();
 
                 if (error) throw error;
+                
+                if (typeof data.points === 'string') {
+                    data.points = JSON.parse(data.points);
+                }
                 routes.push(data);
                 renderRoutes();
                 renderRoutesLegend();
                 renderAdminRoutesList();
+                
+                console.log('✅ Маршрут сохранён:', data);
                 return data;
             } catch (e) {
-                console.error('Ошибка сохранения маршрута:', e);
-                alert('Ошибка сохранения маршрута: ' + e.message);
+                console.error('❌ Ошибка сохранения маршрута:', e);
+                alert('❌ Ошибка сохранения маршрута: ' + e.message);
                 return null;
             }
         }
 
         async function deleteRouteFromDB(routeId) {
+            if (!confirm('🗑️ Удалить этот маршрут?')) return false;
+            
             try {
                 const { error } = await supabaseClient
                     .from('routes')
@@ -1361,16 +1544,20 @@
                 renderRoutes();
                 renderRoutesLegend();
                 renderAdminRoutesList();
+                console.log('✅ Маршрут удалён:', routeId);
                 return true;
             } catch (e) {
-                console.error('Ошибка удаления маршрута:', e);
-                alert('Ошибка удаления маршрута: ' + e.message);
+                console.error('❌ Ошибка удаления маршрута:', e);
+                alert('❌ Ошибка удаления маршрута: ' + e.message);
                 return false;
             }
         }
 
         function addRoutePoint(lat, lng) {
-            tempRoutePoints.push({ lat, lng });
+            tempRoutePoints.push({ 
+                lat: typeof lat === 'number' ? lat : parseFloat(lat), 
+                lng: typeof lng === 'number' ? lng : parseFloat(lng) 
+            });
 
             const marker = L.circleMarker([lat, lng], {
                 radius: 6,
@@ -1421,12 +1608,30 @@
                 return;
             }
 
+            if (!routes || routes.length === 0) {
+                document.getElementById('routes-legend').classList.remove('visible');
+                return;
+            }
+
             routes.forEach(route => {
                 if (hiddenRoutes.has(route.id)) return;
-                const points = route.points || [];
-                if (points.length < 2) return;
-
-                const latlngs = points.map(p => [p.lat, p.lng]);
+                
+                let points = route.points;
+                if (typeof points === 'string') {
+                    try {
+                        points = JSON.parse(points);
+                    } catch (e) {
+                        points = [];
+                    }
+                }
+                if (!Array.isArray(points) || points.length < 2) return;
+                
+                const latlngs = points.map(p => {
+                    const lat = typeof p.lat === 'number' ? p.lat : parseFloat(p.lat);
+                    const lng = typeof p.lng === 'number' ? p.lng : parseFloat(p.lng);
+                    return [lat, lng];
+                });
+                
                 const color = route.color || '#d4c08a';
 
                 const polyline = L.polyline(latlngs, {
@@ -1438,7 +1643,9 @@
 
                 const markers = [];
                 points.forEach((p) => {
-                    const marker = L.circleMarker([p.lat, p.lng], {
+                    const lat = typeof p.lat === 'number' ? p.lat : parseFloat(p.lat);
+                    const lng = typeof p.lng === 'number' ? p.lng : parseFloat(p.lng);
+                    const marker = L.circleMarker([lat, lng], {
                         radius: 4,
                         color: color,
                         fillColor: '#0a0a12',
@@ -1575,7 +1782,7 @@
             if (!container) return;
             
             if (!routes || routes.length === 0) {
-                container.innerHTML = '<div style="color:#444;font-style:italic;padding:6px;font-size:12px;">Нет маршрутов</div>';
+                container.innerHTML = '<div class="list-item" style="color:#444;font-style:italic;justify-content:center;">Нет маршрутов</div>';
                 return;
             }
             
@@ -1583,25 +1790,24 @@
             routes.forEach(route => {
                 const isHidden = hiddenRoutes.has(route.id);
                 const pointsCount = route.points ? route.points.length : 0;
-                const eyeIcon = isHidden ? '👁️‍🗨️' : '👁️';
-                const eyeColor = isHidden ? '#666' : '#d4c08a';
                 const labelPos = route.labelposition !== undefined ? route.labelposition + 1 : '—';
                 const fontSize = route.labelsize || 11;
                 
                 html += `
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px;border-bottom:1px solid #1a1a2a;font-size:12px;">
-                        <span style="display:flex;align-items:center;gap:6px;">
-                            <span style="display:inline-block;width:16px;height:3px;border-radius:2px;background:${route.color || '#d4c08a'}"></span>
-                            ${route.name || 'Маршрут'} (${pointsCount} точек)
-                            <span style="color:#555;font-size:10px;">📌${labelPos}</span>
-                            <span style="color:#555;font-size:10px;">🔤${fontSize}px</span>
-                            ${isHidden ? ' 🔒' : ''}
-                        </span>
-                        <div style="display:flex;gap:2px;">
-                            <button onclick="editLabelPosition('${route.id}')" style="background:none;border:none;color:#4ecdc4;cursor:pointer;font-size:13px;padding:2px 4px;" title="Закрепить подпись на точке">📌</button>
-                            <button onclick="editLabelSize('${route.id}')" style="background:none;border:none;color:#f9ca24;cursor:pointer;font-size:13px;padding:2px 4px;" title="Изменить размер подписи">🔤</button>
-                            <button onclick="toggleRouteVisibility('${route.id}')" style="background:none;border:none;color:${eyeColor};cursor:pointer;font-size:14px;padding:2px 4px;">${eyeIcon}</button>
-                            <button onclick="deleteRouteFromDB('${route.id}')" style="background:none;border:none;color:#ff5555;cursor:pointer;font-size:12px;padding:2px 4px;">✕</button>
+                    <div class="list-item">
+                        <div class="item-info">
+                            <span style="display:inline-block;width:16px;height:3px;border-radius:2px;background:${route.color || '#d4c08a'};flex-shrink:0;"></span>
+                            <span class="name">${route.name || 'Маршрут'}</span>
+                            <span style="color:#555;font-size:10px;flex-shrink:0;">📍${pointsCount} точек</span>
+                            <span style="color:#555;font-size:10px;flex-shrink:0;">📌${labelPos}</span>
+                            <span style="color:#555;font-size:10px;flex-shrink:0;">🔤${fontSize}px</span>
+                            ${isHidden ? '<span style="color:#666;font-size:10px;flex-shrink:0;">🔒</span>' : ''}
+                        </div>
+                        <div class="item-actions">
+                            <button class="pin" onclick="editLabelPosition('${route.id}')" title="Закрепить подпись">📌</button>
+                            <button class="edit" onclick="editLabelSize('${route.id}')" title="Изменить размер">🔤</button>
+                            <button class="eye" onclick="toggleRouteVisibility('${route.id}')" title="${isHidden ? 'Показать' : 'Скрыть'}">${isHidden ? '👁️‍🗨️' : '👁️'}</button>
+                            <button class="delete" onclick="deleteRouteFromDB('${route.id}')" title="Удалить">✕</button>
                         </div>
                     </div>
                 `;
@@ -1685,13 +1891,13 @@
 
         document.getElementById('admin-add-route').addEventListener('click', function() {
             if (!isAdmin) {
-                alert('Войдите в админ-панель');
+                alert('⛔ Войдите в админ-панель');
                 return;
             }
 
             if (routeBuilding) {
                 if (tempRoutePoints.length < 2) {
-                    alert('Нужно минимум 2 точки для маршрута');
+                    alert('❌ Нужно минимум 2 точки для маршрута');
                     return;
                 }
                 finishRoute();
@@ -1716,7 +1922,7 @@
 
         document.getElementById('admin-clear-routes').addEventListener('click', async function() {
             if (!isAdmin) return;
-            if (!confirm('Удалить все маршруты?')) return;
+            if (!confirm('🗑️ Удалить все маршруты?')) return;
             for (const route of routes) {
                 await deleteRouteFromDB(route.id);
             }
@@ -1728,11 +1934,11 @@
 
         async function finishRoute() {
             if (tempRoutePoints.length < 2) {
-                alert('Нужно минимум 2 точки для маршрута');
+                alert('❌ Нужно минимум 2 точки для маршрута');
                 return;
             }
 
-            const name = prompt('Введите название маршрута:', 'Маршрут');
+            const name = prompt('📝 Введите название маршрута:', 'Маршрут');
             if (name === null) {
                 cancelRouteBuilding();
                 return;
@@ -1740,7 +1946,7 @@
 
             let labelPosition = Math.floor(tempRoutePoints.length / 2);
             const labelInput = prompt(
-                `Введите номер точки для подписи (от 1 до ${tempRoutePoints.length}, текущая: ${labelPosition + 1}):`,
+                `📌 Введите номер точки для подписи (от 1 до ${tempRoutePoints.length}, текущая: ${labelPosition + 1}):`,
                 String(labelPosition + 1)
             );
             
@@ -1754,14 +1960,20 @@
             const colors = ['#d4c08a', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#ff9ff3', '#54a0ff', '#ff6b6b'];
             const color = colors[Math.floor(Math.random() * colors.length)];
 
+            const pointsData = tempRoutePoints.map(p => ({
+                lat: typeof p.lat === 'number' ? p.lat : parseFloat(p.lat),
+                lng: typeof p.lng === 'number' ? p.lng : parseFloat(p.lng)
+            }));
+
             const routeData = {
                 name: name.trim() || 'Маршрут',
                 color: color,
-                points: tempRoutePoints,
+                points: pointsData,
                 labelposition: labelPosition,
-                labelsize: 11,
-                created_at: new Date().toISOString()
+                labelsize: 11
             };
+
+            console.log('📤 Отправляем маршрут:', JSON.stringify(routeData, null, 2));
 
             const result = await saveRouteToDB(routeData);
             if (result) {
@@ -2037,7 +2249,7 @@
             if (!container) return;
 
             if (!labels || labels.length === 0) {
-                container.innerHTML = '<div style="color:#444;font-style:italic;padding:6px;font-size:12px;">📝 Нет надписей</div>';
+                container.innerHTML = '<div class="list-item" style="color:#444;font-style:italic;justify-content:center;">Нет надписей</div>';
                 return;
             }
 
@@ -2045,20 +2257,18 @@
             labels.forEach(label => {
                 const fontSize = label.font_size || 18;
                 html += `
-                    <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px;border-bottom:1px solid #1a1a2a;font-size:12px;">
-                        <span style="display:flex;align-items:center;gap:6px;">
-                            <span style="color:#d4c08a;font-size:14px;">🏷️</span>
-                            <strong style="font-size:${fontSize}px;">${label.text}</strong>
-                            <span style="color:#555;font-size:10px;">
-                                (${Number(label.lat).toFixed(3)}, ${Number(label.lng).toFixed(3)})
-                            </span>
-                            <span style="color:#f9ca24;font-size:10px;">🔤${fontSize}px</span>
-                        </span>
-                        <div style="display:flex;gap:2px;">
-                            <button onclick="changeLabelSize('${label.id}', -2)" style="background:none;border:none;color:#f9ca24;cursor:pointer;font-size:13px;padding:2px 4px;" title="Уменьшить">A-</button>
-                            <button onclick="changeLabelSize('${label.id}', 2)" style="background:none;border:none;color:#f9ca24;cursor:pointer;font-size:13px;padding:2px 4px;" title="Увеличить">A+</button>
-                            <button onclick="editLabelText('${label.id}')" style="background:none;border:none;color:#4ecdc4;cursor:pointer;font-size:13px;padding:2px 4px;" title="Редактировать текст">✎</button>
-                            <button onclick="deleteLabel('${label.id}')" style="background:none;border:none;color:#ff5555;cursor:pointer;font-size:13px;padding:2px 4px;" title="Удалить">✕</button>
+                    <div class="list-item">
+                        <div class="item-info">
+                            <span style="color:#d4c08a;font-size:14px;flex-shrink:0;">🏷️</span>
+                            <span class="name" style="font-size:${fontSize}px;">${label.text}</span>
+                            <span style="color:#555;font-size:10px;flex-shrink:0;">🔤${fontSize}px</span>
+                            <span style="color:#555;font-size:10px;flex-shrink:0;">📍${Number(label.lat).toFixed(2)}, ${Number(label.lng).toFixed(2)}</span>
+                        </div>
+                        <div class="item-actions">
+                            <button class="edit" onclick="changeLabelSize('${label.id}', -2)" title="Уменьшить">A-</button>
+                            <button class="edit" onclick="changeLabelSize('${label.id}', 2)" title="Увеличить">A+</button>
+                            <button class="edit" onclick="editLabelText('${label.id}')" title="Редактировать текст">✎</button>
+                            <button class="delete" onclick="deleteLabel('${label.id}')" title="Удалить">✕</button>
                         </div>
                     </div>
                 `;
@@ -2198,6 +2408,24 @@
         });
 
         // ============================================================
+        //  ВКЛАДКИ АДМИН-ПАНЕЛИ
+        // ============================================================
+        document.querySelectorAll('.admin-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
+                
+                this.classList.add('active');
+                const tabId = this.dataset.tab;
+                document.getElementById(`tab-${tabId}`).classList.add('active');
+                
+                if (tabId === 'locations') renderAdminList();
+                if (tabId === 'routes') renderAdminRoutesList();
+                if (tabId === 'labels') renderAdminLabelsList();
+            });
+        });
+
+        // ============================================================
         //  АВТОРИЗАЦИЯ
         // ============================================================
         async function checkAdminAuth() {
@@ -2306,24 +2534,31 @@
 
         function renderAdminList() {
             const list = document.getElementById('admin-location-list');
+            const count = document.getElementById('loc-count');
             if (!locations || locations.length === 0) {
-                list.innerHTML = '<li style="color:#444;font-style:italic;padding:10px;border:none;">Нет локаций</li>';
+                list.innerHTML = '<div class="list-item" style="color:#444;font-style:italic;justify-content:center;">Нет локаций</div>';
+                if (count) count.textContent = '0';
                 return;
             }
+            if (count) count.textContent = locations.length;
+            
             let html = '';
             locations.forEach(loc => {
-                const count = loc.photos ? loc.photos.length : 0;
+                const countPhotos = loc.photos ? loc.photos.length : 0;
                 const color = loc.markerColor || '#d4c08a';
                 html += `
-                    <li>
-                        <span>${loc.name} <span style="color:#666;font-size:11px;">(${count})</span>
-                            <span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${color};vertical-align:middle;margin-left:4px;"></span>
-                        </span>
-                        <div class="loc-actions">
-                            <button class="edit" onclick="editLocation(${loc.id})">✎</button>
-                            <button class="del" onclick="deleteLocation(${loc.id})">✕</button>
+                    <div class="list-item">
+                        <div class="item-info">
+                            <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0;"></span>
+                            <span class="name">${loc.name}</span>
+                            <span style="color:#555;font-size:10px;flex-shrink:0;">📷${countPhotos}</span>
+                            <span style="color:#555;font-size:10px;flex-shrink:0;">📍${loc.lat.toFixed(2)}, ${loc.lng.toFixed(2)}</span>
                         </div>
-                    </li>
+                        <div class="item-actions">
+                            <button class="edit" onclick="editLocation(${loc.id})" title="Редактировать">✎</button>
+                            <button class="delete" onclick="deleteLocation(${loc.id})" title="Удалить">✕</button>
+                        </div>
+                    </div>
                 `;
             });
             list.innerHTML = html;
