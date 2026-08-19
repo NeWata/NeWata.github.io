@@ -442,7 +442,7 @@
                 <h2 id="modal-title">Название</h2>
                 <div class="modal-desc" id="modal-desc">Описание</div>
             </div>
-            <div class="photo-gallery" id="modal-gallery"></div>
+            <div id="modal-gallery" class="photo-gallery"></div>
             <div id="modal-no-photos" class="no-photos">Нет фотографий</div>
         </div>
     </div>
@@ -517,11 +517,17 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
+        // ============================================================
+        //  КОНФИГУРАЦИЯ
+        // ============================================================
         const SUPABASE_URL = 'https://ufekhgjpxnnoutiikkjk.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmZWtoZ2pweG5ub3V0aWlra2prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNzIwNTYsImV4cCI6MjEwMjY0ODA1Nn0.Wc5_W5sD6VAVZVCg5hBlj2zvQCE72gTdX5KUXo0mqvs';
         const MAP_IMAGE_URL = 'image.png';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // ============================================================
+        //  СОСТОЯНИЕ
+        // ============================================================
         let locations = [];
         let mapInstance = null;
         let imageOverlay = null;
@@ -530,6 +536,9 @@
         let editingId = null;
         let isAdmin = false;
 
+        // ============================================================
+        //  ЗАГРУЗКА ДАННЫХ
+        // ============================================================
         async function loadLocations() {
             try {
                 const { data, error } = await supabaseClient
@@ -544,12 +553,15 @@
                 document.getElementById('sync-status').textContent = '✅ Синхронизировано';
                 document.getElementById('sync-status').style.color = '#4caf50';
             } catch (e) {
-                console.error(e);
+                console.error('Ошибка загрузки:', e);
                 document.getElementById('sync-status').textContent = '⚠️ Ошибка загрузки';
                 document.getElementById('sync-status').style.color = '#ff5555';
             }
         }
 
+        // ============================================================
+        //  КАРТА
+        // ============================================================
         function initMap() {
             mapInstance = L.map('map', {
                 center: [0, 0],
@@ -571,14 +583,18 @@
                 }).addTo(mapInstance);
                 mapInstance.fitBounds(bounds);
                 mapInstance.setMaxBounds(bounds);
+                console.log('Карта загружена');
             };
             img.onerror = function() {
-                alert('Файл "image.png" не найден!');
+                alert('Файл "image.png" не найден! Положите картинку рядом с index.html');
             };
             img.src = MAP_IMAGE_URL;
             renderMarkers();
         }
 
+        // ============================================================
+        //  ОТРИСОВКА
+        // ============================================================
         function renderLocations() {
             const list = document.getElementById('location-list');
             if (!locations || locations.length === 0) {
@@ -633,7 +649,7 @@
         }
 
         // ============================================================
-        //  ⭐ ГЛАВНОЕ — ПРОСМОТР ФОТО (РАБОТАЕТ!)
+        //  ГАЛЕРЕЯ — ПРОСТО И РАБОТАЕТ
         // ============================================================
         function openModal(id) {
             const loc = locations.find(l => l.id === id);
@@ -647,39 +663,39 @@
             const noPhotos = document.getElementById('modal-no-photos');
             gallery.innerHTML = '';
 
-            // 🟢 ПРОСТО БЕРЁМ photos КАК МАССИВ
-            const photos = Array.isArray(loc.photos) ? loc.photos : [];
-            
-            if (photos.length === 0) {
+            // Просто проверяем, есть ли фото
+            if (!loc.photos || !Array.isArray(loc.photos) || loc.photos.length === 0) {
                 noPhotos.style.display = 'block';
-            } else {
-                noPhotos.style.display = 'none';
-                photos.forEach((photo, idx) => {
-                    // 🟢 photo — ЭТО ПРОСТО СТРОКА С URL
-                    const url = typeof photo === 'string' ? photo : (photo.url || photo);
-                    if (!url) return;
-
-                    const div = document.createElement('div');
-                    div.className = 'photo-item';
-                    div.innerHTML = `
-                        <img src="${url}" loading="lazy" onclick="openViewer(${id}, ${idx})">
-                        <div class="photo-caption">
-                            <span class="caption-text">${photo.caption || ''}</span>
-                        </div>
-                    `;
-                    gallery.appendChild(div);
-                });
+                return;
             }
 
-            document.getElementById('location-modal').classList.add('active');
-            document.body.style.overflow = 'hidden';
+            noPhotos.style.display = 'none';
+            
+            // Показываем каждое фото
+            loc.photos.forEach((photo, idx) => {
+                // photo — это строка с URL
+                const url = typeof photo === 'string' ? photo : (photo.url || photo);
+                if (!url) return;
+
+                const div = document.createElement('div');
+                div.className = 'photo-item';
+                div.innerHTML = `
+                    <img src="${url}" loading="lazy" onclick="openViewer(${id}, ${idx})">
+                    <div class="photo-caption">
+                        <span class="caption-text">${photo.caption || ''}</span>
+                    </div>
+                `;
+                gallery.appendChild(div);
+            });
         }
 
         window.openModal = openModal;
+
         document.getElementById('modal-close-btn').addEventListener('click', () => {
             document.getElementById('location-modal').classList.remove('active');
             document.body.style.overflow = '';
         });
+
         document.getElementById('location-modal').addEventListener('click', (e) => {
             if (e.target === e.currentTarget) {
                 document.getElementById('location-modal').classList.remove('active');
@@ -687,6 +703,9 @@
             }
         });
 
+        // ============================================================
+        //  ПРОСМОТР ФОТО
+        // ============================================================
         let viewerData = { photos: [], index: 0 };
 
         function openViewer(locId, index) {
@@ -921,7 +940,7 @@
         });
 
         // ============================================================
-        //  ⭐ РЕДАКТИРОВАНИЕ (ФОТО ПОКАЗЫВАЮТСЯ!)
+        //  РЕДАКТИРОВАНИЕ — ПРОСТО ПОКАЗЫВАЕТ ФОТО
         // ============================================================
         function editLocation(id) {
             const loc = locations.find(l => l.id === id);
@@ -934,14 +953,12 @@
             const grid = document.getElementById('admin-photos-grid');
             grid.innerHTML = '';
 
-            const photos = Array.isArray(loc.photos) ? loc.photos : [];
-            
-            if (photos.length === 0) {
+            if (!loc.photos || !Array.isArray(loc.photos) || loc.photos.length === 0) {
                 grid.innerHTML = '<div style="color:#444;font-style:italic;padding:10px;text-align:center;">Нет фотографий</div>';
                 return;
             }
 
-            photos.forEach((photo, idx) => {
+            loc.photos.forEach((photo, idx) => {
                 const url = typeof photo === 'string' ? photo : (photo.url || photo);
                 if (!url) return;
 
@@ -956,6 +973,9 @@
             });
         }
 
+        // ============================================================
+        //  УДАЛЕНИЕ
+        // ============================================================
         async function deletePhoto(locId, photoIdx) {
             if (!confirm('Удалить это фото?')) return;
             const loc = locations.find(l => l.id === locId);
@@ -1006,6 +1026,9 @@
             }
         }
 
+        // ============================================================
+        //  СОХРАНЕНИЕ
+        // ============================================================
         async function saveAll() {
             try {
                 for (const loc of locations) {
@@ -1058,7 +1081,7 @@
         });
 
         // ============================================================
-        //  ⭐ ЗАГРУЗКА ФОТО (СОХРАНЯЕТСЯ КАК МАССИВ СТРОК)
+        //  ЗАГРУЗКА ФОТО
         // ============================================================
         document.getElementById('admin-file-input').addEventListener('change', async function(e) {
             if (editingId === null) {
@@ -1091,7 +1114,7 @@
                         .from('photos')
                         .getPublicUrl(filePath);
 
-                    // 🔥 СОХРАНЯЕМ КАК ПРОСТОЙ МАССИВ СТРОК
+                    // Сохраняем как простую строку
                     loc.photos.push(urlData.publicUrl);
                 } catch (err) {
                     console.error('Ошибка загрузки фото:', err);
