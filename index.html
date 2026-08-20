@@ -191,14 +191,15 @@
             border-color: #d4c08a;
         }
 
+        /* ===== НОВАЯ ТРЁХКОЛОНОЧНАЯ МОДАЛКА ===== */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.85);
-            backdrop-filter: blur(8px);
+            background: rgba(0,0,0,0.9);
+            backdrop-filter: blur(12px);
             z-index: 9999;
             display: none;
             justify-content: center;
@@ -206,79 +207,493 @@
             animation: fadeIn 0.25s ease;
         }
         .modal-overlay.active { display: flex; }
-        @keyframes fadeIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+        @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
 
         .modal-content {
-            background: #161624;
+            background: #12121f;
             border-radius: 16px;
-            max-width: 750px;
-            width: 92%;
-            max-height: 85vh;
-            overflow-y: auto;
-            padding: 24px 28px;
-            border: 1px solid #2e2e48;
-            box-shadow: 0 30px 80px rgba(0,0,0,0.9);
+            width: 96%;
+            max-width: 1400px;
+            height: 92vh;
+            max-height: 92vh;
+            border: 1px solid #2a2a42;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.95);
             position: relative;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
         }
-        .modal-content::-webkit-scrollbar { width: 4px; }
-        .modal-content::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
 
         .modal-close {
             position: absolute;
-            top: 12px;
+            top: 10px;
             right: 16px;
-            font-size: 24px;
+            font-size: 28px;
             color: #666;
             cursor: pointer;
             transition: 0.2s;
             background: none;
             border: none;
+            z-index: 10;
         }
         .modal-close:hover { color: #fff; transform: rotate(90deg); }
 
-        .modal-header { margin-bottom: 16px; padding-right: 40px; }
-        .modal-header h2 { font-size: 22px; color: #f0e8c8; }
-        .modal-header .modal-desc { color: #aaa; font-size: 14px; margin-top: 4px; }
-
-        .photo-gallery {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 12px;
-            margin: 12px 0;
+        /* ===== ТРИ КОЛОНКИ ===== */
+        .modal-body {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            padding-top: 8px;
         }
-        .photo-gallery .photo-item {
+
+        /* ЛЕВАЯ КОЛОНКА - ИНФОРМАЦИЯ */
+        .modal-left {
+            width: 30%;
+            min-width: 280px;
+            max-width: 400px;
+            padding: 16px 20px;
+            overflow-y: auto;
+            border-right: 1px solid #1e1e32;
+        }
+        .modal-left::-webkit-scrollbar { width: 4px; }
+        .modal-left::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
+
+        .modal-left .loc-title {
+            font-size: 22px;
+            color: #f0e8c8;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+        .modal-left .loc-subtitle {
+            font-size: 13px;
+            color: #888;
+            margin-bottom: 16px;
+        }
+
+        .modal-left .section-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #666;
+            margin-top: 16px;
+            margin-bottom: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-left .section-label .add-btn {
+            background: none;
+            border: 1px solid #3a3a50;
+            color: #888;
+            border-radius: 12px;
+            padding: 0 10px;
+            font-size: 11px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .modal-left .section-label .add-btn:hover {
+            border-color: #d4c08a;
+            color: #d4c08a;
+        }
+
+        .modal-left .description-text {
+            background: rgba(10, 10, 18, 0.5);
+            border: 1px solid #1a1a2a;
+            border-radius: 8px;
+            padding: 10px 12px;
+            color: #ccc;
+            font-size: 14px;
+            line-height: 1.7;
+            min-height: 100px;
+            resize: vertical;
+            width: 100%;
+            outline: none;
+            font-family: inherit;
+            transition: border-color 0.3s;
+        }
+        .modal-left .description-text:focus {
+            border-color: #d4c08a;
+        }
+        .modal-left .description-text:read-only {
+            cursor: default;
+            background: rgba(10, 10, 18, 0.3);
+        }
+
+        .modal-left .list-items {
+            list-style: none;
+            padding: 0;
+        }
+        .modal-left .list-items li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            color: #ddd;
+            border-bottom: 1px solid #1a1a2a;
+        }
+        .modal-left .list-items li .item-text {
+            flex: 1;
+        }
+        .modal-left .list-items li .item-actions {
+            display: flex;
+            gap: 4px;
+        }
+        .modal-left .list-items li .item-actions button {
+            background: none;
+            border: none;
+            color: #555;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 0 3px;
+            transition: 0.2s;
+        }
+        .modal-left .list-items li .item-actions .edit:hover { color: #4ecdc4; }
+        .modal-left .list-items li .item-actions .delete:hover { color: #ff5555; }
+
+        .modal-left .save-btn {
+            width: 100%;
+            padding: 8px;
+            margin-top: 16px;
+            background: #d4c08a;
+            color: #0a0a12;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .modal-left .save-btn:hover {
+            background: #e8d4a0;
+            transform: scale(1.01);
+        }
+        .modal-left .save-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ЦЕНТРАЛЬНАЯ КОЛОНКА - ГАЛЕРЕЯ */
+        .modal-center {
+            flex: 1;
+            padding: 16px 20px;
+            overflow-y: auto;
+            background: #0a0a12;
+        }
+        .modal-center::-webkit-scrollbar { width: 4px; }
+        .modal-center::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
+
+        .modal-center .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 12px;
+        }
+        .modal-center .gallery-grid .photo-card {
             position: relative;
             border-radius: 10px;
             overflow: hidden;
-            background: #0a0a12;
+            background: #0f0f1a;
             border: 1px solid #2a2a40;
             cursor: pointer;
             transition: 0.2s;
             aspect-ratio: 1;
         }
-        .photo-gallery .photo-item:hover { border-color: #d4c08a; transform: scale(1.02); }
-        .photo-gallery .photo-item img {
+        .modal-center .gallery-grid .photo-card:hover {
+            border-color: #d4c08a;
+            transform: scale(1.02);
+        }
+        .modal-center .gallery-grid .photo-card img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: block;
         }
-        .photo-gallery .photo-item .photo-caption {
-            padding: 6px 8px;
-            font-size: 12px;
-            color: #ccc;
-            background: rgba(15, 15, 26, 0.9);
-            border-top: 1px solid #1e1e30;
-            min-height: 30px;
-            word-wrap: break-word;
-            line-height: 1.3;
+        .modal-center .gallery-grid .photo-card .photo-label {
             position: absolute;
             bottom: 0;
             left: 0;
             right: 0;
+            padding: 4px 8px;
+            font-size: 11px;
+            color: #ccc;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
         }
-        .photo-gallery .photo-item .photo-caption .caption-empty { color: #444; font-style: italic; font-size: 11px; }
-        .no-photos { color: #444; font-style: italic; text-align: center; padding: 20px; }
+        .modal-center .empty-gallery {
+            color: #444;
+            font-style: italic;
+            text-align: center;
+            padding: 40px 0;
+            font-size: 14px;
+        }
+
+        /* ПРАВАЯ КОЛОНКА - АДМИН-ПАНЕЛЬ ФОТО */
+        .modal-right {
+            width: 280px;
+            min-width: 250px;
+            max-width: 320px;
+            padding: 16px 16px;
+            overflow-y: auto;
+            border-left: 1px solid #1e1e32;
+            background: rgba(10, 10, 18, 0.5);
+        }
+        .modal-right::-webkit-scrollbar { width: 4px; }
+        .modal-right::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
+
+        .modal-right .admin-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        .modal-right .upload-btn {
+            width: 100%;
+            padding: 8px;
+            background: rgba(255,255,255,0.06);
+            border: 1px dashed #3a3a50;
+            border-radius: 8px;
+            color: #888;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-bottom: 12px;
+        }
+        .modal-right .upload-btn:hover {
+            border-color: #d4c08a;
+            color: #d4c08a;
+            background: rgba(212, 192, 138, 0.05);
+        }
+
+        /* Список фото для админа (с drag & drop) */
+        .modal-right .photo-admin-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .modal-right .photo-admin-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 6px 8px;
+            background: rgba(16, 16, 28, 0.6);
+            border: 1px solid #1a1a2a;
+            border-radius: 8px;
+            transition: 0.2s;
+            cursor: grab;
+        }
+        .modal-right .photo-admin-item:hover {
+            border-color: #3a3a50;
+            background: rgba(22, 22, 38, 0.8);
+        }
+        .modal-right .photo-admin-item.dragging {
+            opacity: 0.4;
+            border-color: #d4c08a;
+        }
+        .modal-right .photo-admin-item.drag-over {
+            border-color: #d4c08a;
+            background: rgba(212, 192, 138, 0.05);
+        }
+        .modal-right .photo-admin-item .drag-handle {
+            color: #444;
+            font-size: 16px;
+            cursor: grab;
+            user-select: none;
+            flex-shrink: 0;
+        }
+        .modal-right .photo-admin-item .preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 4px;
+            object-fit: cover;
+            flex-shrink: 0;
+            background: #0a0a12;
+        }
+        .modal-right .photo-admin-item .info {
+            flex: 1;
+            min-width: 0;
+        }
+        .modal-right .photo-admin-item .info .name {
+            font-size: 12px;
+            color: #ccc;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .modal-right .photo-admin-item .info .caption-input {
+            width: 100%;
+            padding: 2px 6px;
+            font-size: 11px;
+            background: #0a0a12;
+            border: 1px solid #1a1a2a;
+            border-radius: 4px;
+            color: #aaa;
+            outline: none;
+            transition: 0.2s;
+        }
+        .modal-right .photo-admin-item .info .caption-input:focus {
+            border-color: #d4c08a;
+            color: #eee;
+        }
+        .modal-right .photo-admin-item .actions {
+            display: flex;
+            gap: 2px;
+            flex-shrink: 0;
+        }
+        .modal-right .photo-admin-item .actions button {
+            background: none;
+            border: none;
+            color: #555;
+            cursor: pointer;
+            font-size: 12px;
+            padding: 2px 4px;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+        .modal-right .photo-admin-item .actions button:hover {
+            background: rgba(255,255,255,0.05);
+        }
+        .modal-right .photo-admin-item .actions .delete:hover { color: #ff5555; }
+        .modal-right .photo-admin-item .actions .edit-caption:hover { color: #4ecdc4; }
+
+        .modal-right .empty-admin {
+            color: #444;
+            font-style: italic;
+            text-align: center;
+            padding: 20px 0;
+            font-size: 13px;
+        }
+
+        @media (max-width: 1024px) {
+            .modal-left { width: 35%; min-width: 220px; }
+            .modal-right { width: 220px; min-width: 180px; }
+        }
+
+        @media (max-width: 768px) {
+            .modal-content { width: 100%; height: 100vh; max-height: 100vh; border-radius: 0; }
+            .modal-body { flex-direction: column; overflow-y: auto; }
+            .modal-left { width: 100%; min-width: unset; max-width: unset; border-right: none; border-bottom: 1px solid #1e1e32; max-height: 40vh; }
+            .modal-center { min-height: 30vh; }
+            .modal-right { width: 100%; min-width: unset; max-width: unset; border-left: none; border-top: 1px solid #1e1e32; max-height: 40vh; }
+            .modal-center .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+        }
+
+        /* ===== НАДПИСИ - БЕЗ ФОНА ===== */
+        .custom-label {
+            background: none !important;
+            backdrop-filter: none !important;
+            padding: 2px 4px;
+            border: none !important;
+            color: #f0e8c8;
+            font-family: 'Georgia', 'Times New Roman', serif;
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 1.5px;
+            text-shadow: 
+                0 0 10px rgba(0, 0, 0, 0.9),
+                0 0 20px rgba(0, 0, 0, 0.8),
+                0 0 40px rgba(0, 0, 0, 0.6),
+                2px 2px 4px rgba(0, 0, 0, 0.9);
+            white-space: nowrap;
+            cursor: default;
+            user-select: none;
+            transition: all 0.2s ease;
+            pointer-events: all;
+            line-height: 1.2;
+        }
+        .custom-label:hover {
+            transform: scale(1.05);
+            text-shadow: 
+                0 0 15px rgba(212, 192, 138, 0.3),
+                0 0 30px rgba(0, 0, 0, 0.9),
+                2px 2px 4px rgba(0, 0, 0, 0.9);
+        }
+        .custom-label .label-text { display: inline-block; }
+        .custom-label .label-edit,
+        .custom-label .label-del,
+        .custom-label .label-drag-handle,
+        .custom-label .label-size-up,
+        .custom-label .label-size-down {
+            display: none;
+        }
+        .custom-label.admin-mode .label-edit,
+        .custom-label.admin-mode .label-del,
+        .custom-label.admin-mode .label-drag-handle,
+        .custom-label.admin-mode .label-size-up,
+        .custom-label.admin-mode .label-size-down {
+            display: inline-block;
+            background: rgba(0,0,0,0.5);
+            padding: 0 4px;
+            border-radius: 4px;
+        }
+        .custom-label .label-size-up,
+        .custom-label .label-size-down {
+            margin-left: 2px;
+            color: #f9ca24;
+            font-size: 14px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0 4px;
+            font-weight: bold;
+        }
+        .custom-label .label-size-up:hover,
+        .custom-label .label-size-down:hover {
+            color: #ffd93d;
+            transform: scale(1.2);
+        }
+        .custom-label.hidden-label { display: none !important; }
+        .custom-label.dragging { opacity: 0.6; transform: scale(0.95); }
+
+        .custom-marker {
+            background: none;
+            border: none;
+            filter: drop-shadow(0 0 10px rgba(212, 192, 138, 0.3));
+            transition: filter 0.3s ease;
+        }
+        .marker-dot {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 3px solid #fff;
+            box-shadow: 0 0 20px rgba(212, 192, 138, 0.4), inset 0 -2px 4px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: #0a0a12;
+            position: relative;
+            background: radial-gradient(circle at 30% 30%, #f0e8c8, #d4c08a);
+        }
+        .marker-dot::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 50%;
+            border: 2px solid rgba(212, 192, 138, 0.2);
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.2); opacity: 0.2; }
+            100% { transform: scale(1); opacity: 0.8; }
+        }
+        .marker-dot:hover {
+            transform: scale(1.15);
+            box-shadow: 0 0 30px rgba(212, 192, 138, 0.6);
+        }
 
         .custom-popup .leaflet-popup-content-wrapper {
             background: #161624;
@@ -318,29 +733,6 @@
         .popup-color-picker .color-option.active {
             border-color: #fff;
             box-shadow: 0 0 12px rgba(255,255,255,0.3);
-        }
-        .popup-view-link {
-            color: #d4c08a;
-            font-size: 11px;
-            display: block;
-            text-align: center;
-            margin-top: 4px;
-            text-decoration: underline;
-            cursor: pointer;
-        }
-
-        @media (max-width: 768px) {
-            #sidebar { width: 200px; min-width: 200px; }
-            #header h1 { font-size: 15px; }
-            #header h1 .title-en { font-size: 11px; }
-            .modal-content { padding: 18px; }
-            .photo-gallery { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
-            #routes-legend { bottom: 80px; right: 10px; min-width: 100px; }
-        }
-        @media (max-width: 500px) {
-            #sidebar { display: none; }
-            #header h1 .title-en { display: none; }
-            #header h1 .separator { display: none; }
         }
 
         /* ===== АДМИН-ПАНЕЛЬ ===== */
@@ -496,20 +888,6 @@
         .admin-box .photo-grid .photo-item .photo-actions .edit-cap:hover { color: #d4c08a; }
         .admin-box .photo-grid .photo-item .photo-actions .del-photo:hover { color: #ff5555; }
 
-        .admin-box .file-upload-area {
-            border: 2px dashed #3a3a50;
-            border-radius: 6px;
-            padding: 14px;
-            text-align: center;
-            color: #666;
-            cursor: pointer;
-            transition: 0.2s;
-            margin: 8px 0;
-            font-size: 13px;
-        }
-        .admin-box .file-upload-area:hover { border-color: #d4c08a; color: #aaa; }
-        .admin-box .file-upload-area input[type="file"] { display: none; }
-
         .admin-box .status-bar {
             display: flex;
             justify-content: space-between;
@@ -524,7 +902,6 @@
         .admin-box .status-bar .status-error { color: #ff5555; }
         .admin-box .status-bar .status-syncing { color: #ffa726; }
 
-        /* ===== ВКЛАДКИ ===== */
         .admin-tabs {
             display: flex;
             gap: 4px;
@@ -558,11 +935,8 @@
             display: none;
             animation: fadeIn 0.25s ease;
         }
-        .admin-tab-content.active {
-            display: block;
-        }
+        .admin-tab-content.active { display: block; }
 
-        /* ===== СКРОЛЛИРУЕМЫЕ СПИСКИ ===== */
         .admin-scroll-list {
             max-height: 250px;
             overflow-y: auto;
@@ -571,20 +945,10 @@
             padding: 4px;
             background: rgba(10, 10, 18, 0.5);
         }
-        .admin-scroll-list::-webkit-scrollbar {
-            width: 6px;
-        }
-        .admin-scroll-list::-webkit-scrollbar-track {
-            background: #0a0a12;
-            border-radius: 4px;
-        }
-        .admin-scroll-list::-webkit-scrollbar-thumb {
-            background: #3a3a50;
-            border-radius: 4px;
-        }
-        .admin-scroll-list::-webkit-scrollbar-thumb:hover {
-            background: #4a4a60;
-        }
+        .admin-scroll-list::-webkit-scrollbar { width: 6px; }
+        .admin-scroll-list::-webkit-scrollbar-track { background: #0a0a12; border-radius: 4px; }
+        .admin-scroll-list::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 4px; }
+        .admin-scroll-list::-webkit-scrollbar-thumb:hover { background: #4a4a60; }
 
         .admin-scroll-list .list-item {
             display: flex;
@@ -597,12 +961,8 @@
             border-radius: 4px;
             gap: 8px;
         }
-        .admin-scroll-list .list-item:hover {
-            background: rgba(212, 192, 138, 0.05);
-        }
-        .admin-scroll-list .list-item:last-child {
-            border-bottom: none;
-        }
+        .admin-scroll-list .list-item:hover { background: rgba(212, 192, 138, 0.05); }
+        .admin-scroll-list .list-item:last-child { border-bottom: none; }
         .admin-scroll-list .list-item .item-info {
             display: flex;
             align-items: center;
@@ -632,15 +992,12 @@
             border-radius: 4px;
             transition: 0.2s;
         }
-        .admin-scroll-list .list-item .item-actions button:hover {
-            background: rgba(255,255,255,0.05);
-        }
+        .admin-scroll-list .list-item .item-actions button:hover { background: rgba(255,255,255,0.05); }
         .admin-scroll-list .list-item .item-actions .edit:hover { color: #4ecdc4; }
         .admin-scroll-list .list-item .item-actions .delete:hover { color: #ff5555; }
         .admin-scroll-list .list-item .item-actions .eye:hover { color: #f9ca24; }
         .admin-scroll-list .list-item .item-actions .pin:hover { color: #4ecdc4; }
 
-        /* ===== РЕДАКТОР ЛОКАЦИИ ===== */
         .admin-editor {
             background: rgba(10, 10, 18, 0.5);
             border: 1px solid #1a1a2a;
@@ -648,131 +1005,8 @@
             padding: 12px;
             margin-bottom: 12px;
         }
-        .admin-editor .form-group {
-            margin-bottom: 10px;
-        }
-        .admin-editor .form-group:last-child {
-            margin-bottom: 0;
-        }
-
-        /* ===== НАДПИСИ - БЕЗ ФОНА ===== */
-        .custom-label {
-            background: none !important;
-            backdrop-filter: none !important;
-            padding: 2px 4px;
-            border: none !important;
-            color: #f0e8c8;
-            font-family: 'Georgia', 'Times New Roman', serif;
-            font-size: 18px;
-            font-weight: 700;
-            letter-spacing: 1.5px;
-            text-shadow: 
-                0 0 10px rgba(0, 0, 0, 0.9),
-                0 0 20px rgba(0, 0, 0, 0.8),
-                0 0 40px rgba(0, 0, 0, 0.6),
-                2px 2px 4px rgba(0, 0, 0, 0.9);
-            white-space: nowrap;
-            cursor: default;
-            user-select: none;
-            transition: all 0.2s ease;
-            pointer-events: all;
-            line-height: 1.2;
-        }
-        .custom-label:hover {
-            transform: scale(1.05);
-            text-shadow: 
-                0 0 15px rgba(212, 192, 138, 0.3),
-                0 0 30px rgba(0, 0, 0, 0.9),
-                2px 2px 4px rgba(0, 0, 0, 0.9);
-        }
-        .custom-label .label-text {
-            display: inline-block;
-        }
-        .custom-label .label-edit,
-        .custom-label .label-del,
-        .custom-label .label-drag-handle,
-        .custom-label .label-size-up,
-        .custom-label .label-size-down {
-            display: none;
-        }
-        .custom-label.admin-mode .label-edit,
-        .custom-label.admin-mode .label-del,
-        .custom-label.admin-mode .label-drag-handle,
-        .custom-label.admin-mode .label-size-up,
-        .custom-label.admin-mode .label-size-down {
-            display: inline-block;
-            background: rgba(0,0,0,0.5);
-            padding: 0 4px;
-            border-radius: 4px;
-        }
-        .custom-label .label-size-up,
-        .custom-label .label-size-down {
-            margin-left: 2px;
-            color: #f9ca24;
-            font-size: 14px;
-            cursor: pointer;
-            background: none;
-            border: none;
-            padding: 0 4px;
-            font-weight: bold;
-        }
-        .custom-label .label-size-up:hover,
-        .custom-label .label-size-down:hover {
-            color: #ffd93d;
-            transform: scale(1.2);
-        }
-        .custom-label.hidden-label {
-            display: none !important;
-        }
-        .custom-label.dragging {
-            opacity: 0.6;
-            transform: scale(0.95);
-        }
-
-        /* ===== МАРКЕРЫ С ЦВЕТОМ ===== */
-        .custom-marker {
-            background: none;
-            border: none;
-            filter: drop-shadow(0 0 10px rgba(212, 192, 138, 0.3));
-            transition: filter 0.3s ease;
-        }
-        .marker-dot {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            border: 3px solid #fff;
-            box-shadow: 0 0 20px rgba(212, 192, 138, 0.4), inset 0 -2px 4px rgba(0,0,0,0.3);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: bold;
-            color: #0a0a12;
-            position: relative;
-            background: radial-gradient(circle at 30% 30%, #f0e8c8, #d4c08a);
-        }
-        .marker-dot::after {
-            content: '';
-            position: absolute;
-            top: -4px;
-            left: -4px;
-            right: -4px;
-            bottom: -4px;
-            border-radius: 50%;
-            border: 2px solid rgba(212, 192, 138, 0.2);
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 0.8; }
-            50% { transform: scale(1.2); opacity: 0.2; }
-            100% { transform: scale(1); opacity: 0.8; }
-        }
-        .marker-dot:hover {
-            transform: scale(1.15);
-            box-shadow: 0 0 30px rgba(212, 192, 138, 0.6);
-        }
+        .admin-editor .form-group { margin-bottom: 10px; }
+        .admin-editor .form-group:last-child { margin-bottom: 0; }
 
         #photo-viewer-overlay {
             position: fixed;
@@ -800,7 +1034,6 @@
             border: 1px solid #2a2a40;
             position: relative;
         }
-
         .viewer-image-area {
             flex: 2;
             display: flex;
@@ -818,7 +1051,6 @@
             border-radius: 8px;
             box-shadow: 0 0 40px rgba(0,0,0,0.5);
         }
-
         .viewer-info {
             width: 320px;
             min-width: 280px;
@@ -831,7 +1063,6 @@
         }
         .viewer-info::-webkit-scrollbar { width: 4px; }
         .viewer-info::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
-
         .viewer-info .viewer-counter {
             font-size: 13px;
             color: #555;
@@ -854,10 +1085,7 @@
             color: #555;
             margin-bottom: 6px;
         }
-        .viewer-info .viewer-caption-wrapper {
-            flex: 1;
-            position: relative;
-        }
+        .viewer-info .viewer-caption-wrapper { flex: 1; position: relative; }
         .viewer-info .viewer-caption {
             width: 100%;
             min-height: 80px;
@@ -873,13 +1101,8 @@
             font-family: inherit;
             transition: border-color 0.3s;
         }
-        .viewer-info .viewer-caption:focus {
-            border-color: #d4c08a;
-        }
-        .viewer-info .viewer-caption-empty {
-            color: #444;
-            font-style: italic;
-        }
+        .viewer-info .viewer-caption:focus { border-color: #d4c08a; }
+        .viewer-info .viewer-caption-empty { color: #444; font-style: italic; }
         .viewer-info .viewer-caption-save {
             margin-top: 8px;
             padding: 6px 16px;
@@ -893,12 +1116,8 @@
             transition: 0.2s;
             align-self: flex-start;
         }
-        .viewer-info .viewer-caption-save:hover {
-            background: #e8d4a0;
-        }
-        .viewer-info .viewer-caption-save.hidden {
-            display: none;
-        }
+        .viewer-info .viewer-caption-save:hover { background: #e8d4a0; }
+        .viewer-info .viewer-caption-save.hidden { display: none; }
 
         .viewer-nav-btn {
             position: absolute;
@@ -966,9 +1185,6 @@
         }
         @media (max-width: 768px) {
             .swipe-indicator { display: block; }
-        }
-
-        @media (max-width: 768px) {
             .viewer-container {
                 flex-direction: column;
                 width: 98%;
@@ -982,48 +1198,17 @@
                 border-top: 1px solid #22223a;
                 padding: 16px;
             }
-            .viewer-image-area {
-                flex: 1;
-                padding: 10px;
-                min-height: 200px;
-            }
-            .viewer-info .viewer-caption {
-                min-height: 50px;
-                font-size: 14px;
-            }
-            .viewer-nav-btn { 
-                width: 44px; 
-                height: 44px; 
-                font-size: 20px;
-            }
+            .viewer-image-area { flex: 1; padding: 10px; min-height: 200px; }
+            .viewer-info .viewer-caption { min-height: 50px; font-size: 14px; }
+            .viewer-nav-btn { width: 44px; height: 44px; font-size: 20px; }
             .viewer-nav-btn.prev { left: 4px; }
             .viewer-nav-btn.next { right: 4px; }
-        }
-
-        /* Адаптация под мобильные для админки */
-        @media (max-width: 768px) {
-            .admin-box {
-                padding: 16px;
-                width: 98%;
-                max-height: 95vh;
-            }
-            .admin-tabs {
-                gap: 2px;
-            }
-            .admin-tab {
-                padding: 4px 10px;
-                font-size: 11px;
-            }
-            .admin-scroll-list {
-                max-height: 150px;
-            }
-            .admin-scroll-list .list-item {
-                flex-wrap: wrap;
-                gap: 4px;
-            }
-            .admin-scroll-list .list-item .item-info {
-                flex-wrap: wrap;
-            }
+            .admin-box { padding: 16px; width: 98%; max-height: 95vh; }
+            .admin-tabs { gap: 2px; }
+            .admin-tab { padding: 4px 10px; font-size: 11px; }
+            .admin-scroll-list { max-height: 150px; }
+            .admin-scroll-list .list-item { flex-wrap: wrap; gap: 4px; }
+            .admin-scroll-list .list-item .item-info { flex-wrap: wrap; }
         }
     </style>
 </head>
@@ -1056,18 +1241,56 @@
         <div id="routes-list"></div>
     </div>
 
+    <!-- ===== НОВАЯ ТРЁХКОЛОНОЧНАЯ МОДАЛКА ===== -->
     <div class="modal-overlay" id="location-modal">
         <div class="modal-content">
             <button class="modal-close" id="modal-close-btn">✕</button>
-            <div class="modal-header">
-                <h2 id="modal-title">Название</h2>
-                <div class="modal-desc" id="modal-desc">Описание</div>
+            
+            <div class="modal-body">
+                <!-- ЛЕВАЯ КОЛОНКА -->
+                <div class="modal-left" id="modal-left">
+                    <div class="loc-title" id="modal-title">Название локации</div>
+                    <div class="loc-subtitle" id="modal-subtitle">📍 Подзаголовок</div>
+                    
+                    <div class="section-label">📝 Описание</div>
+                    <textarea class="description-text" id="modal-description" placeholder="Введите описание локации..."></textarea>
+                    
+                    <div class="section-label">
+                        👥 Персонажи
+                        <button class="add-btn" id="add-character">+ Добавить</button>
+                    </div>
+                    <ul class="list-items" id="characters-list"></ul>
+                    
+                    <div class="section-label">
+                        📋 Особенности
+                        <button class="add-btn" id="add-feature">+ Добавить</button>
+                    </div>
+                    <ul class="list-items" id="features-list"></ul>
+                    
+                    <button class="save-btn" id="modal-save-btn">💾 Сохранить изменения</button>
+                </div>
+                
+                <!-- ЦЕНТРАЛЬНАЯ КОЛОНКА -->
+                <div class="modal-center" id="modal-center">
+                    <div class="gallery-grid" id="modal-gallery"></div>
+                    <div id="modal-no-photos" class="empty-gallery">📷 Нет фотографий</div>
+                </div>
+                
+                <!-- ПРАВАЯ КОЛОНКА -->
+                <div class="modal-right" id="modal-right">
+                    <div class="admin-label">🔧 Управление фото</div>
+                    <button class="upload-btn" id="modal-upload-btn">📁 Загрузить фото</button>
+                    <input type="file" id="modal-file-input" accept="image/*" multiple style="display:none;">
+                    
+                    <div class="photo-admin-list" id="modal-photo-admin-list">
+                        <div class="empty-admin">Нет загруженных фото</div>
+                    </div>
+                </div>
             </div>
-            <div class="photo-gallery" id="modal-gallery"></div>
-            <div id="modal-no-photos" class="no-photos">Нет фотографий</div>
         </div>
     </div>
 
+    <!-- ПОЛНОЭКРАННЫЙ ПРОСМОТР ФОТО -->
     <div id="photo-viewer-overlay">
         <div class="viewer-container">
             <button class="viewer-close-btn" id="viewer-close-btn">✕</button>
@@ -1090,7 +1313,7 @@
         </div>
     </div>
 
-    <!-- ===== АДМИН-ПАНЕЛЬ (НОВАЯ ВЕРСИЯ С ВКЛАДКАМИ) ===== -->
+    <!-- ===== АДМИН-ПАНЕЛЬ ===== -->
     <div class="admin-overlay" id="admin-overlay">
         <div class="admin-box">
             <button class="admin-close" id="admin-close-btn">✕</button>
@@ -1114,7 +1337,6 @@
                 <h2>Админ-панель</h2>
                 <p class="subtitle">Управление контентом</p>
 
-                <!-- СТАТУС БАР -->
                 <div class="status-bar">
                     <span id="admin-sync-status">⏳ Загрузка...</span>
                     <div>
@@ -1123,29 +1345,30 @@
                     </div>
                 </div>
 
-                <!-- ===== ВКЛАДКИ ===== -->
                 <div class="admin-tabs">
                     <button class="admin-tab active" data-tab="locations">📍 Локации</button>
                     <button class="admin-tab" data-tab="routes">🗺️ Маршруты</button>
                     <button class="admin-tab" data-tab="labels">🏷️ Надписи</button>
                 </div>
 
-                <!-- ===== ВКЛАДКА: ЛОКАЦИИ ===== -->
                 <div class="admin-tab-content active" id="tab-locations">
                     <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
                         <button class="btn btn-primary" id="admin-add-location" style="padding:4px 14px;font-size:12px;">➕ Добавить локацию</button>
                         <span style="font-size:12px;color:#555;align-self:center;">Всего: <span id="loc-count">0</span></span>
                     </div>
 
-                    <!-- Редактор локации -->
                     <div class="admin-editor" id="location-editor">
                         <div class="form-group">
                             <label>Название</label>
                             <input id="admin-location-name" placeholder="Название локации">
                         </div>
                         <div class="form-group">
-                            <label>Описание</label>
-                            <textarea id="admin-location-desc" placeholder="Описание локации"></textarea>
+                            <label>Описание (краткое)</label>
+                            <textarea id="admin-location-desc" placeholder="Краткое описание для попапа"></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Подзаголовок</label>
+                            <input id="admin-location-subtitle" placeholder="Например: Столица Сильванора">
                         </div>
 
                         <div id="admin-photos-section">
@@ -1170,14 +1393,12 @@
                         </div>
                     </div>
 
-                    <!-- Список локаций -->
                     <div style="margin-top:12px;">
                         <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Список локаций</label>
                         <div class="admin-scroll-list" id="admin-location-list"></div>
                     </div>
                 </div>
 
-                <!-- ===== ВКЛАДКА: МАРШРУТЫ ===== -->
                 <div class="admin-tab-content" id="tab-routes">
                     <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">
                         <button class="btn btn-secondary" id="admin-add-route" style="padding:4px 12px;font-size:12px;">➕ Добавить маршрут</button>
@@ -1188,7 +1409,6 @@
                     <div class="admin-scroll-list" id="admin-routes-list"></div>
                 </div>
 
-                <!-- ===== ВКЛАДКА: НАДПИСИ ===== -->
                 <div class="admin-tab-content" id="tab-labels">
                     <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">
                         <button class="btn btn-secondary" id="admin-add-label" style="padding:4px 12px;font-size:12px;">✏️ Добавить текст</button>
@@ -1235,6 +1455,8 @@
         let hiddenRoutes = new Set();
         let labelsHidden = false;
         let userLabelsHidden = false;
+        let modalPhotos = [];
+        let dragData = null;
 
         // ============================================================
         //  ЗАГРУЗКА ДАННЫХ
@@ -2103,9 +2325,6 @@
             }
         }
 
-        // ============================================================
-        //  РЕНДЕР НАДПИСЕЙ (ПОЛНОЕ СКРЫТИЕ)
-        // ============================================================
         function renderLabels() {
             Object.values(labelLayers).forEach(layer => {
                 if (layer.marker) {
@@ -2211,9 +2430,6 @@
             });
         }
 
-        // ============================================================
-        //  КНОПКА ДЛЯ ПОЛЬЗОВАТЕЛЕЙ - СКРЫТЬ/ПОКАЗАТЬ НАДПИСИ
-        // ============================================================
         document.getElementById('user-toggle-labels').addEventListener('click', function() {
             userLabelsHidden = !userLabelsHidden;
             this.textContent = userLabelsHidden ? '🏷️ Показать названия' : '🏷️ Скрыть названия';
@@ -2221,9 +2437,6 @@
             renderLabels();
         });
 
-        // ============================================================
-        //  ИЗМЕНЕНИЕ РАЗМЕРА НАДПИСИ
-        // ============================================================
         async function changeLabelSize(labelId, delta) {
             if (!isAdmin) return;
             
@@ -2369,6 +2582,482 @@
         });
 
         // ============================================================
+        //  НОВАЯ ТРЁХКОЛОНОЧНАЯ МОДАЛКА
+        // ============================================================
+        let currentLocationId = null;
+        let modalIsAdmin = false;
+
+        function openModal(id) {
+            const loc = locations.find(l => l.id === id);
+            if (!loc) return;
+            
+            currentLocationId = id;
+            modalIsAdmin = isAdmin;
+            
+            // Заполняем левую колонку
+            document.getElementById('modal-title').textContent = loc.name || 'Без названия';
+            document.getElementById('modal-subtitle').textContent = loc.subtitle || '📍 Локация';
+            
+            const descTextarea = document.getElementById('modal-description');
+            descTextarea.value = loc.description_long || '';
+            descTextarea.readOnly = !isAdmin;
+            descTextarea.style.borderColor = isAdmin ? '#d4c08a40' : 'transparent';
+            
+            // Персонажи
+            renderList('characters-list', loc.characters || [], 'character');
+            
+            // Особенности
+            renderList('features-list', loc.features || [], 'feature');
+            
+            // Сохраняем фото для админ-панели
+            modalPhotos = loc.photos || [];
+            
+            // Рендерим галерею
+            renderModalGallery(loc.photos || []);
+            
+            // Рендерим админ-список фото
+            renderModalAdminPhotos(loc.photos || []);
+            
+            // Показываем/скрываем админ-панель справа
+            document.getElementById('modal-right').style.display = isAdmin ? 'block' : 'none';
+            
+            // Показываем/скрываем кнопку сохранения
+            document.getElementById('modal-save-btn').style.display = isAdmin ? 'block' : 'none';
+            
+            document.getElementById('location-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function renderList(containerId, items, type) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            
+            if (!items || items.length === 0) {
+                container.innerHTML = '<li style="color:#444;font-style:italic;padding:8px;">Нет записей</li>';
+                return;
+            }
+            
+            let html = '';
+            items.forEach((item, index) => {
+                const text = typeof item === 'string' ? item : item.text || '—';
+                html += `
+                    <li>
+                        <span class="item-text">${text}</span>
+                        ${isAdmin ? `
+                        <div class="item-actions">
+                            <button class="edit" onclick="editListItem('${containerId}', ${index}, '${type}')" title="Редактировать">✎</button>
+                            <button class="delete" onclick="deleteListItem('${containerId}', ${index}, '${type}')" title="Удалить">✕</button>
+                        </div>
+                        ` : ''}
+                    </li>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        window.editListItem = function(containerId, index, type) {
+            const loc = locations.find(l => l.id === currentLocationId);
+            if (!loc) return;
+            
+            const list = type === 'character' ? loc.characters : loc.features;
+            if (!list || !list[index]) return;
+            
+            const currentText = typeof list[index] === 'string' ? list[index] : list[index].text || '';
+            const newText = prompt('✏️ Введите новый текст:', currentText);
+            if (newText === null) return;
+            if (newText.trim() === '') {
+                alert('❌ Текст не может быть пустым');
+                return;
+            }
+            
+            if (typeof list[index] === 'string') {
+                list[index] = newText.trim();
+            } else {
+                list[index].text = newText.trim();
+            }
+            
+            renderList(containerId, list, type);
+        };
+
+        window.deleteListItem = function(containerId, index, type) {
+            if (!confirm('🗑️ Удалить эту запись?')) return;
+            
+            const loc = locations.find(l => l.id === currentLocationId);
+            if (!loc) return;
+            
+            const list = type === 'character' ? loc.characters : loc.features;
+            if (!list) return;
+            
+            list.splice(index, 1);
+            renderList(containerId, list, type);
+        };
+
+        document.getElementById('add-character').addEventListener('click', function() {
+            if (!isAdmin) return;
+            const loc = locations.find(l => l.id === currentLocationId);
+            if (!loc) return;
+            
+            const text = prompt('👤 Введите имя персонажа:');
+            if (text === null || text.trim() === '') return;
+            
+            if (!loc.characters) loc.characters = [];
+            loc.characters.push(text.trim());
+            renderList('characters-list', loc.characters, 'character');
+        });
+
+        document.getElementById('add-feature').addEventListener('click', function() {
+            if (!isAdmin) return;
+            const loc = locations.find(l => l.id === currentLocationId);
+            if (!loc) return;
+            
+            const text = prompt('📋 Введите особенность:');
+            if (text === null || text.trim() === '') return;
+            
+            if (!loc.features) loc.features = [];
+            loc.features.push(text.trim());
+            renderList('features-list', loc.features, 'feature');
+        });
+
+        // ============================================================
+        //  ГАЛЕРЕЯ В ЦЕНТРАЛЬНОЙ КОЛОНКЕ
+        // ============================================================
+        function renderModalGallery(photos) {
+            const gallery = document.getElementById('modal-gallery');
+            const noPhotos = document.getElementById('modal-no-photos');
+            gallery.innerHTML = '';
+            
+            if (!photos || photos.length === 0) {
+                noPhotos.style.display = 'block';
+                return;
+            }
+            
+            noPhotos.style.display = 'none';
+            
+            photos.forEach((photo, idx) => {
+                const url = typeof photo === 'object' && photo.url ? photo.url : photo;
+                const cap = typeof photo === 'object' && photo.caption ? photo.caption : '';
+                if (!url) return;
+                
+                const div = document.createElement('div');
+                div.className = 'photo-card';
+                div.innerHTML = `
+                    <img src="${url}" loading="lazy" onclick="openViewerFromModal(${idx})">
+                    <div class="photo-label">${cap || 'Без подписи'}</div>
+                `;
+                gallery.appendChild(div);
+            });
+        }
+
+        function openViewerFromModal(index) {
+            const loc = locations.find(l => l.id === currentLocationId);
+            if (!loc || !loc.photos || loc.photos.length === 0) return;
+            
+            viewerData.photos = loc.photos;
+            viewerData.index = index;
+            viewerData.locId = currentLocationId;
+            viewerData.locName = loc.name || 'Название локации';
+            viewerData.locDesc = loc.description_long || '';
+            
+            updateViewer();
+            document.getElementById('photo-viewer-overlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // ============================================================
+        //  АДМИН-ПАНЕЛЬ ФОТО В ПРАВОЙ КОЛОНКЕ (С DRAG & DROP)
+        // ============================================================
+        function renderModalAdminPhotos(photos) {
+            const container = document.getElementById('modal-photo-admin-list');
+            if (!container) return;
+            
+            if (!photos || photos.length === 0) {
+                container.innerHTML = '<div class="empty-admin">Нет загруженных фото</div>';
+                return;
+            }
+            
+            let html = '';
+            photos.forEach((photo, idx) => {
+                const url = typeof photo === 'object' && photo.url ? photo.url : photo;
+                const cap = typeof photo === 'object' && photo.caption ? photo.caption : '';
+                if (!url) return;
+                
+                html += `
+                    <div class="photo-admin-item" draggable="true" data-index="${idx}" data-id="${currentLocationId}">
+                        <span class="drag-handle">⠿</span>
+                        <img class="preview" src="${url}" loading="lazy" onerror="this.style.display='none'">
+                        <div class="info">
+                            <div class="name">${cap || 'Без подписи'}</div>
+                            <input class="caption-input" type="text" value="${cap}" placeholder="Подпись..." 
+                                   onchange="updatePhotoCaption(${currentLocationId}, ${idx}, this.value)">
+                        </div>
+                        <div class="actions">
+                            <button class="delete" onclick="deletePhotoFromModal(${currentLocationId}, ${idx})" title="Удалить фото">✕</button>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            
+            // Добавляем события drag & drop
+            const items = container.querySelectorAll('.photo-admin-item');
+            items.forEach(item => {
+                item.addEventListener('dragstart', handleDragStart);
+                item.addEventListener('dragend', handleDragEnd);
+                item.addEventListener('dragover', handleDragOver);
+                item.addEventListener('dragenter', handleDragEnter);
+                item.addEventListener('dragleave', handleDragLeave);
+                item.addEventListener('drop', handleDrop);
+            });
+        }
+
+        let draggedItem = null;
+
+        function handleDragStart(e) {
+            draggedItem = this;
+            this.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', this.innerHTML);
+        }
+
+        function handleDragEnd(e) {
+            this.classList.remove('dragging');
+            document.querySelectorAll('.photo-admin-item').forEach(el => el.classList.remove('drag-over'));
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+        }
+
+        function handleDragEnter(e) {
+            e.preventDefault();
+            if (this !== draggedItem) {
+                this.classList.add('drag-over');
+            }
+        }
+
+        function handleDragLeave(e) {
+            this.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            this.classList.remove('drag-over');
+            
+            if (this === draggedItem) return;
+            
+            const fromIndex = parseInt(draggedItem.dataset.index);
+            const toIndex = parseInt(this.dataset.index);
+            
+            if (isNaN(fromIndex) || isNaN(toIndex)) return;
+            
+            // Меняем порядок в массиве photos
+            const loc = locations.find(l => l.id === currentLocationId);
+            if (!loc || !loc.photos) return;
+            
+            const photos = loc.photos;
+            const [movedItem] = photos.splice(fromIndex, 1);
+            photos.splice(toIndex, 0, movedItem);
+            
+            // Перерисовываем
+            renderModalGallery(photos);
+            renderModalAdminPhotos(photos);
+            
+            // Автосохраняем порядок
+            saveLocationData();
+        }
+
+        // ============================================================
+        //  ОБНОВЛЕНИЕ ПОДПИСИ ФОТО
+        // ============================================================
+        window.updatePhotoCaption = function(locId, index, value) {
+            if (!isAdmin) return;
+            
+            const loc = locations.find(l => l.id === locId);
+            if (!loc || !loc.photos || !loc.photos[index]) return;
+            
+            const photo = loc.photos[index];
+            if (typeof photo === 'object') {
+                photo.caption = value.trim();
+            } else {
+                loc.photos[index] = { url: photo, caption: value.trim() };
+            }
+            
+            // Обновляем галерею и список админа
+            renderModalGallery(loc.photos);
+            renderModalAdminPhotos(loc.photos);
+        };
+
+        // ============================================================
+        //  УДАЛЕНИЕ ФОТО ИЗ МОДАЛКИ
+        // ============================================================
+        window.deletePhotoFromModal = async function(locId, index) {
+            if (!isAdmin) return;
+            if (!confirm('🗑️ Удалить это фото?')) return;
+            
+            const loc = locations.find(l => l.id === locId);
+            if (!loc || !loc.photos || !loc.photos[index]) return;
+            
+            try {
+                const photo = loc.photos[index];
+                const url = typeof photo === 'object' && photo.url ? photo.url : photo;
+                if (url && typeof url === 'string') {
+                    const urlParts = url.split('/storage/v1/object/public/photos/');
+                    if (urlParts.length > 1) {
+                        const filePath = urlParts[1];
+                        await supabaseClient.storage.from('photos').remove([filePath]);
+                    }
+                }
+                
+                loc.photos.splice(index, 1);
+                
+                // Сохраняем в БД
+                await saveLocationData();
+                
+                // Перерисовываем
+                renderModalGallery(loc.photos);
+                renderModalAdminPhotos(loc.photos);
+                
+                // Обновляем админ-панель
+                renderAdminList();
+                renderMarkers();
+                
+            } catch (e) {
+                console.error('❌ Ошибка удаления фото:', e);
+                alert('❌ Ошибка удаления фото: ' + e.message);
+            }
+        };
+
+        // ============================================================
+        //  ЗАГРУЗКА ФОТО В МОДАЛКЕ
+        // ============================================================
+        document.getElementById('modal-upload-btn').addEventListener('click', function() {
+            if (!isAdmin) {
+                alert('⛔ Только админ может загружать фото');
+                return;
+            }
+            document.getElementById('modal-file-input').click();
+        });
+
+        document.getElementById('modal-file-input').addEventListener('change', async function(e) {
+            if (!isAdmin) return;
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+            
+            const loc = locations.find(l => l.id === currentLocationId);
+            if (!loc) return;
+            
+            if (!Array.isArray(loc.photos)) {
+                loc.photos = [];
+            }
+            
+            for (const file of files) {
+                try {
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+                    const filePath = `locations/${currentLocationId}/${fileName}`;
+                    
+                    const { error: uploadError } = await supabaseClient.storage
+                        .from('photos')
+                        .upload(filePath, file);
+                    
+                    if (uploadError) throw uploadError;
+                    
+                    const { data: urlData } = supabaseClient.storage
+                        .from('photos')
+                        .getPublicUrl(filePath);
+                    
+                    loc.photos.push({
+                        url: urlData.publicUrl,
+                        caption: ''
+                    });
+                } catch (err) {
+                    console.error('Ошибка загрузки фото:', err);
+                    alert('❌ Ошибка загрузки фото: ' + err.message);
+                }
+            }
+            
+            // Сохраняем в БД
+            await saveLocationData();
+            
+            // Перерисовываем
+            renderModalGallery(loc.photos);
+            renderModalAdminPhotos(loc.photos);
+            renderAdminList();
+            renderMarkers();
+            
+            document.getElementById('modal-file-input').value = '';
+        });
+
+        // ============================================================
+        //  СОХРАНЕНИЕ ДАННЫХ ЛОКАЦИИ ИЗ МОДАЛКИ
+        // ============================================================
+        async function saveLocationData() {
+            const loc = locations.find(l => l.id === currentLocationId);
+            if (!loc) return;
+            
+            try {
+                const { error } = await supabaseClient
+                    .from('locations')
+                    .upsert(loc, { onConflict: 'id' });
+                
+                if (error) throw error;
+                
+                // Обновляем глобальный массив
+                const idx = locations.findIndex(l => l.id === currentLocationId);
+                if (idx !== -1) {
+                    locations[idx] = loc;
+                }
+                
+                // Обновляем маркеры и списки
+                renderMarkers();
+                renderLocations();
+                renderAdminList();
+                
+                console.log('✅ Локация сохранена');
+                return true;
+            } catch (e) {
+                console.error('❌ Ошибка сохранения:', e);
+                alert('❌ Ошибка сохранения: ' + e.message);
+                return false;
+            }
+        }
+
+        // Кнопка "Сохранить" в левой колонке
+        document.getElementById('modal-save-btn').addEventListener('click', async function() {
+            if (!isAdmin) return;
+            
+            const loc = locations.find(l => l.id === currentLocationId);
+            if (!loc) return;
+            
+            // Сохраняем описание
+            loc.description_long = document.getElementById('modal-description').value;
+            
+            // Сохраняем (персонажи и особенности уже в массивах)
+            await saveLocationData();
+            
+            this.textContent = '✅ Сохранено!';
+            setTimeout(() => {
+                this.textContent = '💾 Сохранить изменения';
+            }, 2000);
+        });
+
+        // ============================================================
+        //  ЗАКРЫТИЕ МОДАЛКИ
+        // ============================================================
+        document.getElementById('modal-close-btn').addEventListener('click', () => {
+            document.getElementById('location-modal').classList.remove('active');
+            document.body.style.overflow = '';
+        });
+
+        document.getElementById('location-modal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                document.getElementById('location-modal').classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // ============================================================
         //  АДМИН-ПАНЕЛЬ (основная)
         // ============================================================
         const adminOverlay = document.getElementById('admin-overlay');
@@ -2403,13 +3092,11 @@
             editingId = null;
             document.getElementById('admin-location-name').value = '';
             document.getElementById('admin-location-desc').value = '';
+            document.getElementById('admin-location-subtitle').value = '';
             document.getElementById('admin-photos-grid').innerHTML = '';
             if (routeBuilding) cancelRouteBuilding();
         });
 
-        // ============================================================
-        //  ВКЛАДКИ АДМИН-ПАНЕЛИ
-        // ============================================================
         document.querySelectorAll('.admin-tab').forEach(tab => {
             tab.addEventListener('click', function() {
                 document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
@@ -2573,13 +3260,18 @@
                 const lng = e.latlng.lng.toFixed(3);
                 const name = prompt('Название новой локации:');
                 if (!name) return;
-                const desc = prompt('Описание:');
+                const desc = prompt('Краткое описание:');
+                const subtitle = prompt('Подзаголовок (например: Столица Сильванора):');
                 const newLoc = {
                     id: Date.now(),
                     lat: parseFloat(lat),
                     lng: parseFloat(lng),
                     name: name.trim(),
                     description: desc?.trim() || 'Описание отсутствует',
+                    subtitle: subtitle?.trim() || '',
+                    description_long: '',
+                    characters: [],
+                    features: [],
                     photos: [],
                     markerColor: '#d4c08a'
                 };
@@ -2599,6 +3291,7 @@
 
             document.getElementById('admin-location-name').value = loc.name || '';
             document.getElementById('admin-location-desc').value = loc.description || '';
+            document.getElementById('admin-location-subtitle').value = loc.subtitle || '';
 
             const grid = document.getElementById('admin-photos-grid');
             grid.innerHTML = '';
@@ -2620,8 +3313,8 @@
                     <div class="photo-caption">
                         <span class="cap-text">${cap}</span>
                         <div class="photo-actions">
-                            <button class="edit-cap" onclick="editPhotoCaption(${id}, ${idx})" title="Редактировать подпись">✎</button>
-                            <button class="del-photo" onclick="deletePhoto(${id}, ${idx})" title="Удалить фото">✕</button>
+                            <button class="edit-cap" onclick="editPhotoCaptionAdmin(${id}, ${idx})" title="Редактировать подпись">✎</button>
+                            <button class="del-photo" onclick="deletePhotoAdmin(${id}, ${idx})" title="Удалить фото">✕</button>
                         </div>
                     </div>
                 `;
@@ -2629,7 +3322,7 @@
             });
         }
 
-        function editPhotoCaption(locId, photoIdx) {
+        window.editPhotoCaptionAdmin = function(locId, photoIdx) {
             const loc = locations.find(l => l.id === locId);
             if (!loc || !loc.photos || !loc.photos[photoIdx]) return;
 
@@ -2654,36 +3347,9 @@
             renderLocations();
             editLocation(locId);
             setAdminStatus('✅ Подпись обновлена', 'ok');
-        }
+        };
 
-        async function deleteLocation(id) {
-            if (!confirm('Удалить эту локацию?')) return;
-            try {
-                const { error } = await supabaseClient
-                    .from('locations')
-                    .delete()
-                    .eq('id', id);
-                if (error) throw error;
-                locations = locations.filter(l => l.id !== id);
-                renderAdminList();
-                renderMarkers();
-                renderLocations();
-                if (editingId === id) {
-                    editingId = null;
-                    document.getElementById('admin-location-name').value = '';
-                    document.getElementById('admin-location-desc').value = '';
-                    document.getElementById('admin-photos-grid').innerHTML = '';
-                }
-                setAdminStatus('✅ Удалено', 'ok');
-                alert('Локация удалена!');
-            } catch (e) {
-                console.error('Ошибка удаления:', e);
-                alert('Ошибка удаления: ' + e.message);
-                setAdminStatus('⚠️ Ошибка удаления', 'error');
-            }
-        }
-
-        async function deletePhoto(locId, photoIdx) {
+        window.deletePhotoAdmin = async function(locId, photoIdx) {
             if (!confirm('Удалить это фото?')) return;
             const loc = locations.find(l => l.id === locId);
             if (!loc || !loc.photos) return;
@@ -2711,6 +3377,34 @@
                 console.error('Ошибка удаления фото:', e);
                 alert('Ошибка удаления фото: ' + e.message);
                 setAdminStatus('⚠️ Ошибка удаления фото', 'error');
+            }
+        };
+
+        async function deleteLocation(id) {
+            if (!confirm('Удалить эту локацию?')) return;
+            try {
+                const { error } = await supabaseClient
+                    .from('locations')
+                    .delete()
+                    .eq('id', id);
+                if (error) throw error;
+                locations = locations.filter(l => l.id !== id);
+                renderAdminList();
+                renderMarkers();
+                renderLocations();
+                if (editingId === id) {
+                    editingId = null;
+                    document.getElementById('admin-location-name').value = '';
+                    document.getElementById('admin-location-desc').value = '';
+                    document.getElementById('admin-location-subtitle').value = '';
+                    document.getElementById('admin-photos-grid').innerHTML = '';
+                }
+                setAdminStatus('✅ Удалено', 'ok');
+                alert('Локация удалена!');
+            } catch (e) {
+                console.error('Ошибка удаления:', e);
+                alert('Ошибка удаления: ' + e.message);
+                setAdminStatus('⚠️ Ошибка удаления', 'error');
             }
         }
 
@@ -2746,6 +3440,7 @@
 
             loc.name = document.getElementById('admin-location-name').value.trim() || 'Без названия';
             loc.description = document.getElementById('admin-location-desc').value.trim() || 'Описание отсутствует';
+            loc.subtitle = document.getElementById('admin-location-subtitle').value.trim() || '';
 
             await saveAll();
             renderAdminList();
@@ -2759,7 +3454,7 @@
         });
 
         // ============================================================
-        //  ЗАГРУЗКА ФОТО
+        //  ЗАГРУЗКА ФОТО В АДМИН-ПАНЕЛИ
         // ============================================================
         document.getElementById('admin-file-upload').addEventListener('click', function() {
             if (editingId === null) {
@@ -2864,78 +3559,10 @@
         }
 
         // ============================================================
-        //  МОДАЛКА ПРОСМОТРА
-        // ============================================================
-        function openModal(id) {
-            const loc = locations.find(l => l.id === id);
-            if (!loc) return;
-            currentModalId = id;
-
-            document.getElementById('modal-title').textContent = loc.name;
-            document.getElementById('modal-desc').textContent = loc.description || 'Описание отсутствует';
-
-            const gallery = document.getElementById('modal-gallery');
-            const noPhotos = document.getElementById('modal-no-photos');
-            gallery.innerHTML = '';
-
-            const photos = loc.photos || [];
-            if (photos.length === 0) {
-                noPhotos.style.display = 'block';
-            } else {
-                noPhotos.style.display = 'none';
-                photos.forEach((photo, idx) => {
-                    const div = document.createElement('div');
-                    div.className = 'photo-item';
-                    const imgSrc = typeof photo === 'object' && photo.url ? photo.url : photo;
-                    const cap = typeof photo === 'object' && photo.caption ? photo.caption : '';
-                    div.innerHTML = `
-                        <img src="${imgSrc}" loading="lazy" onclick="openViewer(${id}, ${idx})">
-                        <div class="photo-caption">
-                            ${cap ? cap : '<span class="caption-empty">Нет подписи</span>'}
-                        </div>
-                    `;
-                    gallery.appendChild(div);
-                });
-            }
-
-            document.getElementById('location-modal').classList.add('active');
-            document.body.style.overflow = 'hidden';
-        }
-
-        window.openModal = openModal;
-        document.getElementById('modal-close-btn').addEventListener('click', () => {
-            document.getElementById('location-modal').classList.remove('active');
-            document.body.style.overflow = '';
-        });
-        document.getElementById('location-modal').addEventListener('click', (e) => {
-            if (e.target === e.currentTarget) {
-                document.getElementById('location-modal').classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        });
-
-        // ============================================================
         //  ПОЛНОЭКРАННЫЙ ПРОСМОТР
         // ============================================================
         let touchStartX = 0;
         let touchEndX = 0;
-
-        function openViewer(locId, index) {
-            const loc = locations.find(l => l.id === locId);
-            if (!loc || !loc.photos || loc.photos.length === 0) return;
-
-            viewerData.photos = loc.photos;
-            viewerData.index = index;
-            viewerData.locId = locId;
-            viewerData.locName = loc.name;
-            viewerData.locDesc = loc.description || '';
-
-            updateViewer();
-            document.getElementById('photo-viewer-overlay').classList.add('active');
-            document.body.style.overflow = 'hidden';
-            touchStartX = 0;
-            touchEndX = 0;
-        }
 
         function updateViewer() {
             const photo = viewerData.photos[viewerData.index];
@@ -3074,6 +3701,11 @@
         window.deletePhoto = deletePhoto;
         window.deleteLocation = deleteLocation;
         window.editLocation = editLocation;
+        window.openViewerFromModal = openViewerFromModal;
+        window.deletePhotoFromModal = deletePhotoFromModal;
+        window.updatePhotoCaption = updatePhotoCaption;
+        window.editListItem = editListItem;
+        window.deleteListItem = deleteListItem;
 
         // ============================================================
         //  ЗАПУСК
@@ -3090,6 +3722,7 @@
             console.log('👁️ Пользователи могут скрыть/показать надписи кнопкой в хедере');
             console.log('🎨 Цвет маркера меняется кликом по кружочкам (только админ)');
             console.log('🔤 Размер надписи меняется кнопками A+ / A- (только админ)');
+            console.log('📐 Новая трёхколоночная модалка с drag & drop для фото');
         }
 
         startApp();
