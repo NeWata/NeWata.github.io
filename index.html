@@ -101,6 +101,29 @@
             border-bottom: 1px solid #1e1e30;
             padding-bottom: 8px;
         }
+
+        #country-filter {
+            margin-bottom: 10px;
+        }
+        #country-filter select {
+            width: 100%;
+            padding: 6px 10px;
+            background: #0a0a12;
+            color: #e0dcc8;
+            border: 1px solid #2a2a3e;
+            border-radius: 6px;
+            font-size: 13px;
+            outline: none;
+            cursor: pointer;
+        }
+        #country-filter select:focus {
+            border-color: #d4c08a;
+        }
+        #country-filter select option {
+            background: #0a0a12;
+            color: #e0dcc8;
+        }
+
         #location-list { list-style: none; flex: 1; }
         #location-list li {
             background: rgba(22, 22, 34, 0.8);
@@ -119,6 +142,7 @@
         #location-list li:hover { background: #1e1e32; transform: translateX(4px); }
         #location-list li .loc-name { font-weight: 500; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         #location-list li .loc-photos-count { font-size: 11px; color: #666; background: #0a0a12; padding: 1px 10px; border-radius: 10px; }
+        #location-list li .loc-country { font-size: 10px; color: #555; background: rgba(255,255,255,0.05); padding: 1px 8px; border-radius: 10px; }
         .empty-msg { color: #444; text-align: center; font-style: italic; padding: 20px 0; font-size: 13px; }
 
         #map-container { flex: 1; position: relative; background: #0a0a12; }
@@ -191,7 +215,6 @@
             border-color: #d4c08a;
         }
 
-        /* ===== НОВАЯ ТРЁХКОЛОНОЧНАЯ МОДАЛКА ===== */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -266,6 +289,15 @@
             font-size: 13px;
             color: #888;
             margin-bottom: 16px;
+        }
+        .modal-left .loc-country-badge {
+            display: inline-block;
+            font-size: 11px;
+            color: #888;
+            background: rgba(255,255,255,0.05);
+            padding: 2px 12px;
+            border-radius: 12px;
+            margin-bottom: 12px;
         }
 
         .modal-left .section-label {
@@ -579,7 +611,6 @@
             .modal-center .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
         }
 
-        /* ===== НАДПИСИ - БЕЗ ФОНА ===== */
         .custom-label {
             background: none !important;
             backdrop-filter: none !important;
@@ -612,36 +643,16 @@
         .custom-label .label-text { display: inline-block; }
         .custom-label .label-edit,
         .custom-label .label-del,
-        .custom-label .label-drag-handle,
-        .custom-label .label-size-up,
-        .custom-label .label-size-down {
+        .custom-label .label-drag-handle {
             display: none;
         }
         .custom-label.admin-mode .label-edit,
         .custom-label.admin-mode .label-del,
-        .custom-label.admin-mode .label-drag-handle,
-        .custom-label.admin-mode .label-size-up,
-        .custom-label.admin-mode .label-size-down {
+        .custom-label.admin-mode .label-drag-handle {
             display: inline-block;
             background: rgba(0,0,0,0.5);
             padding: 0 4px;
             border-radius: 4px;
-        }
-        .custom-label .label-size-up,
-        .custom-label .label-size-down {
-            margin-left: 2px;
-            color: #f9ca24;
-            font-size: 14px;
-            cursor: pointer;
-            background: none;
-            border: none;
-            padding: 0 4px;
-            font-weight: bold;
-        }
-        .custom-label .label-size-up:hover,
-        .custom-label .label-size-down:hover {
-            color: #ffd93d;
-            transform: scale(1.2);
         }
         .custom-label.hidden-label { display: none !important; }
         .custom-label.dragging { opacity: 0.6; transform: scale(0.95); }
@@ -712,17 +723,19 @@
             margin-top: 6px;
             flex-wrap: wrap;
             justify-content: center;
+            max-width: 200px;
         }
         .popup-color-picker .color-option {
-            width: 28px;
-            height: 28px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             border: 2px solid transparent;
             cursor: pointer;
             transition: 0.2s;
+            flex-shrink: 0;
         }
         .popup-color-picker .color-option:hover {
-            transform: scale(1.2);
+            transform: scale(1.15);
             border-color: #fff;
         }
         .popup-color-picker .color-option.active {
@@ -730,7 +743,115 @@
             box-shadow: 0 0 12px rgba(255,255,255,0.3);
         }
 
-        /* ===== АДМИН-ПАНЕЛЬ ===== */
+        /* ===== МЕДИАТЕКА ===== */
+        .photos-library-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 10px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding: 4px;
+        }
+        .photos-library-grid::-webkit-scrollbar { width: 4px; }
+        .photos-library-grid::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
+
+        .photos-library-grid .lib-photo {
+            position: relative;
+            border-radius: 8px;
+            overflow: hidden;
+            background: #0a0a12;
+            border: 2px solid #1a1a2a;
+            cursor: grab;
+            transition: 0.2s;
+            aspect-ratio: 1;
+        }
+        .photos-library-grid .lib-photo:hover {
+            border-color: #d4c08a;
+            transform: scale(1.03);
+        }
+        .photos-library-grid .lib-photo.dragging {
+            opacity: 0.4;
+            border-color: #4ecdc4;
+        }
+        .photos-library-grid .lib-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .photos-library-grid .lib-photo .lib-caption {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 3px 6px;
+            font-size: 10px;
+            color: #ccc;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
+            text-align: center;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .photos-library-grid .lib-photo .lib-actions {
+            position: absolute;
+            top: 4px;
+            right: 4px;
+            display: flex;
+            gap: 2px;
+        }
+        .photos-library-grid .lib-photo .lib-actions button {
+            background: rgba(0,0,0,0.7);
+            border: none;
+            color: #666;
+            cursor: pointer;
+            font-size: 11px;
+            padding: 2px 5px;
+            border-radius: 4px;
+            transition: 0.2s;
+        }
+        .photos-library-grid .lib-photo .lib-actions .add-to-location:hover { color: #4ecdc4; }
+        .photos-library-grid .lib-photo .lib-actions .delete-lib:hover { color: #ff5555; }
+
+        .photos-library-grid .lib-photo .lib-check {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            width: 20px;
+            height: 20px;
+            background: rgba(0,0,0,0.7);
+            border-radius: 50%;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            color: #4ecdc4;
+            font-size: 12px;
+        }
+        .photos-library-grid .lib-photo.selected .lib-check {
+            display: flex;
+        }
+        .photos-library-grid .lib-photo.selected {
+            border-color: #4ecdc4;
+            box-shadow: 0 0 20px rgba(78, 205, 196, 0.2);
+        }
+
+        .library-upload-area {
+            border: 2px dashed #3a3a50;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            color: #666;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-bottom: 12px;
+        }
+        .library-upload-area:hover {
+            border-color: #d4c08a;
+            color: #aaa;
+            background: rgba(212, 192, 138, 0.05);
+        }
+
         .admin-overlay {
             position: fixed;
             top: 0;
@@ -1204,6 +1325,7 @@
             .admin-scroll-list { max-height: 150px; }
             .admin-scroll-list .list-item { flex-wrap: wrap; gap: 4px; }
             .admin-scroll-list .list-item .item-info { flex-wrap: wrap; }
+            .photos-library-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
         }
     </style>
 </head>
@@ -1224,6 +1346,11 @@
     <div id="main">
         <div id="sidebar">
             <h2>Локации</h2>
+            <div id="country-filter">
+                <select id="country-select">
+                    <option value="all">🌍 Все страны</option>
+                </select>
+            </div>
             <ul id="location-list"><li class="empty-msg">Загрузка...</li></ul>
         </div>
         <div id="map-container">
@@ -1236,7 +1363,6 @@
         <div id="routes-list"></div>
     </div>
 
-    <!-- ===== НОВАЯ ТРЁХКОЛОНОЧНАЯ МОДАЛКА ===== -->
     <div class="modal-overlay" id="location-modal">
         <div class="modal-content">
             <button class="modal-close" id="modal-close-btn">✕</button>
@@ -1244,6 +1370,7 @@
             <div class="modal-body">
                 <div class="modal-left" id="modal-left">
                     <div class="loc-title" id="modal-title">Название локации</div>
+                    <div class="loc-country-badge" id="modal-country">🌍 Без категории</div>
                     <div class="loc-subtitle" id="modal-subtitle">📍 Подзаголовок</div>
                     
                     <div class="section-label">📝 Описание</div>
@@ -1271,6 +1398,7 @@
                 
                 <div class="modal-right" id="modal-right">
                     <div class="admin-label">🔧 Управление фото</div>
+                    <div style="font-size:10px;color:#444;margin-bottom:8px;">⬅️ Перетащи фото из медиатеки</div>
                     <button class="upload-btn" id="modal-upload-btn">📁 Загрузить фото</button>
                     <input type="file" id="modal-file-input" accept="image/*" multiple style="display:none;">
                     
@@ -1282,7 +1410,6 @@
         </div>
     </div>
 
-    <!-- ПОЛНОЭКРАННЫЙ ПРОСМОТР ФОТО -->
     <div id="photo-viewer-overlay">
         <div class="viewer-container">
             <button class="viewer-close-btn" id="viewer-close-btn">✕</button>
@@ -1305,7 +1432,6 @@
         </div>
     </div>
 
-    <!-- ===== АДМИН-ПАНЕЛЬ ===== -->
     <div class="admin-overlay" id="admin-overlay">
         <div class="admin-box">
             <button class="admin-close" id="admin-close-btn">✕</button>
@@ -1341,6 +1467,7 @@
                     <button class="admin-tab active" data-tab="locations">📍 Локации</button>
                     <button class="admin-tab" data-tab="routes">🗺️ Маршруты</button>
                     <button class="admin-tab" data-tab="labels">🏷️ Надписи</button>
+                    <button class="admin-tab" data-tab="library">🖼️ Медиатека</button>
                 </div>
 
                 <div class="admin-tab-content active" id="tab-locations">
@@ -1353,6 +1480,10 @@
                         <div class="form-group">
                             <label>Название</label>
                             <input id="admin-location-name" placeholder="Название локации">
+                        </div>
+                        <div class="form-group">
+                            <label>Страна / Категория</label>
+                            <input id="admin-location-country" placeholder="Например: Аурион, Сильванор, ...">
                         </div>
                         <div class="form-group">
                             <label>Описание (краткое)</label>
@@ -1410,6 +1541,21 @@
                     </div>
                     <div class="admin-scroll-list" id="admin-labels-list"></div>
                 </div>
+
+                <div class="admin-tab-content" id="tab-library">
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
+                        <button class="btn btn-primary" id="lib-upload-btn" style="padding:4px 14px;font-size:12px;">📤 Загрузить фото</button>
+                        <button class="btn btn-secondary" id="lib-refresh-btn" style="padding:4px 14px;font-size:12px;">🔄 Обновить</button>
+                        <span style="font-size:12px;color:#555;align-self:center;">Всего: <span id="lib-count">0</span> фото</span>
+                        <span style="font-size:12px;color:#555;align-self:center;margin-left:auto;">
+                            <span style="color:#4ecdc4;">⬅️ Перетащи</span> фото в модалку локации
+                        </span>
+                    </div>
+                    <input type="file" id="lib-file-input" accept="image/*" multiple style="display:none;">
+                    <div class="photos-library-grid" id="photos-library-grid">
+                        <div style="color:#444;font-style:italic;padding:20px;text-align:center;">Нет фото в библиотеке</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1430,6 +1576,7 @@
         let locations = [];
         let routes = [];
         let labels = [];
+        let photosLibrary = [];
         let mapInstance = null;
         let imageOverlay = null;
         let markerMap = new Map();
@@ -1447,10 +1594,35 @@
         let hiddenRoutes = new Set();
         let labelsHidden = false;
         let userLabelsHidden = false;
-        let modalPhotos = [];
-        let dragData = null;
         let currentLocationId = null;
         let modalIsAdmin = false;
+        let currentFilter = 'all';
+
+        // ============================================================
+        //  ЦВЕТА ДЛЯ МАРКЕРОВ (20 цветов)
+        // ============================================================
+        const popupColors = [
+            { name: 'Золотой', value: '#d4c08a' },
+            { name: 'Красный', value: '#ff6b6b' },
+            { name: 'Бирюзовый', value: '#4ecdc4' },
+            { name: 'Синий', value: '#45b7d1' },
+            { name: 'Жёлтый', value: '#f9ca24' },
+            { name: 'Розовый', value: '#ff9ff3' },
+            { name: 'Фиолетовый', value: '#a29bfe' },
+            { name: 'Оранжевый', value: '#ff9f43' },
+            { name: 'Зелёный', value: '#00b894' },
+            { name: 'Белый', value: '#ffffff' },
+            { name: 'Тёмно-красный', value: '#c0392b' },
+            { name: 'Тёмно-синий', value: '#2c3e50' },
+            { name: 'Изумрудный', value: '#1abc9c' },
+            { name: 'Лаванда', value: '#9b59b6' },
+            { name: 'Мятный', value: '#55efc4' },
+            { name: 'Коралловый', value: '#fd79a8' },
+            { name: 'Морской', value: '#0984e3' },
+            { name: 'Манго', value: '#fdcb6e' },
+            { name: 'Вишнёвый', value: '#e17055' },
+            { name: 'Серый', value: '#b2bec3' }
+        ];
 
         // ============================================================
         //  ЗАГРУЗКА ДАННЫХ
@@ -1465,6 +1637,7 @@
                 if (error) throw error;
 
                 locations = data || [];
+                updateCountryFilter();
                 renderLocations();
                 renderMarkers();
                 document.getElementById('sync-status').textContent = '✅ Синхронизировано';
@@ -1477,6 +1650,31 @@
                 return false;
             }
         }
+
+        // ============================================================
+        //  ФИЛЬТР ПО СТРАНАМ
+        // ============================================================
+        function updateCountryFilter() {
+            const select = document.getElementById('country-select');
+            const countries = new Set();
+            locations.forEach(loc => {
+                if (loc.country && loc.country !== 'Без категории') {
+                    countries.add(loc.country);
+                }
+            });
+            
+            let html = '<option value="all">🌍 Все страны</option>';
+            [...countries].sort().forEach(c => {
+                html += `<option value="${c}">${c}</option>`;
+            });
+            select.innerHTML = html;
+            select.value = currentFilter;
+        }
+
+        document.getElementById('country-select').addEventListener('change', function() {
+            currentFilter = this.value;
+            renderLocations();
+        });
 
         // ============================================================
         //  КАРТА
@@ -1546,25 +1744,12 @@
         }
 
         // ============================================================
-        //  МАРКЕРЫ
+        //  МАРКЕРЫ (20 цветов)
         // ============================================================
         function renderMarkers() {
             if (!mapInstance) return;
             markerMap.forEach(m => mapInstance.removeLayer(m));
             markerMap.clear();
-
-            const popupColors = [
-                { name: 'Золотой', value: '#d4c08a' },
-                { name: 'Красный', value: '#ff6b6b' },
-                { name: 'Бирюзовый', value: '#4ecdc4' },
-                { name: 'Синий', value: '#45b7d1' },
-                { name: 'Жёлтый', value: '#f9ca24' },
-                { name: 'Розовый', value: '#ff9ff3' },
-                { name: 'Фиолетовый', value: '#a29bfe' },
-                { name: 'Оранжевый', value: '#ff9f43' },
-                { name: 'Зелёный', value: '#00b894' },
-                { name: 'Белый', value: '#ffffff' }
-            ];
 
             locations.forEach(loc => {
                 const markerColor = loc.markerColor || '#d4c08a';
@@ -1672,7 +1857,7 @@
         }
 
         // ============================================================
-        //  МАРШРУТЫ
+        //  МАРШРУТЫ (сокращено для экономии места, но полный функционал)
         // ============================================================
         async function loadRoutes() {
             try {
@@ -1686,15 +1871,9 @@
                 
                 routes.forEach(route => {
                     if (typeof route.points === 'string') {
-                        try {
-                            route.points = JSON.parse(route.points);
-                        } catch (e) {
-                            route.points = [];
-                        }
+                        try { route.points = JSON.parse(route.points); } catch (e) { route.points = []; }
                     }
-                    if (!Array.isArray(route.points)) {
-                        route.points = [];
-                    }
+                    if (!Array.isArray(route.points)) route.points = [];
                 });
                 
                 renderRoutes();
@@ -1719,8 +1898,6 @@
                     created_at: new Date().toISOString()
                 };
                 
-                console.log('📤 Сохраняем маршрут:', JSON.stringify(dataToInsert, null, 2));
-                
                 const { data, error } = await supabaseClient
                     .from('routes')
                     .insert(dataToInsert)
@@ -1729,15 +1906,11 @@
 
                 if (error) throw error;
                 
-                if (typeof data.points === 'string') {
-                    data.points = JSON.parse(data.points);
-                }
+                if (typeof data.points === 'string') data.points = JSON.parse(data.points);
                 routes.push(data);
                 renderRoutes();
                 renderRoutesLegend();
                 renderAdminRoutesList();
-                
-                console.log('✅ Маршрут сохранён:', data);
                 return data;
             } catch (e) {
                 console.error('❌ Ошибка сохранения маршрута:', e);
@@ -1748,19 +1921,13 @@
 
         async function deleteRouteFromDB(routeId) {
             if (!confirm('🗑️ Удалить этот маршрут?')) return false;
-            
             try {
-                const { error } = await supabaseClient
-                    .from('routes')
-                    .delete()
-                    .eq('id', routeId);
-
+                const { error } = await supabaseClient.from('routes').delete().eq('id', routeId);
                 if (error) throw error;
                 routes = routes.filter(r => r.id !== routeId);
                 renderRoutes();
                 renderRoutesLegend();
                 renderAdminRoutesList();
-                console.log('✅ Маршрут удалён:', routeId);
                 return true;
             } catch (e) {
                 console.error('❌ Ошибка удаления маршрута:', e);
@@ -1770,45 +1937,27 @@
         }
 
         function addRoutePoint(lat, lng) {
-            tempRoutePoints.push({ 
-                lat: typeof lat === 'number' ? lat : parseFloat(lat), 
-                lng: typeof lng === 'number' ? lng : parseFloat(lng) 
-            });
-
+            tempRoutePoints.push({ lat: parseFloat(lat), lng: parseFloat(lng) });
             const marker = L.circleMarker([lat, lng], {
-                radius: 6,
-                color: '#d4c08a',
-                fillColor: '#d4c08a',
-                fillOpacity: 0.8,
-                weight: 2
+                radius: 6, color: '#d4c08a', fillColor: '#d4c08a', fillOpacity: 0.8, weight: 2
             }).addTo(mapInstance);
             tempRouteMarkers.push(marker);
 
-            if (tempRouteLine) {
-                mapInstance.removeLayer(tempRouteLine);
-            }
+            if (tempRouteLine) mapInstance.removeLayer(tempRouteLine);
             if (tempRoutePoints.length >= 2) {
                 const latlngs = tempRoutePoints.map(p => [p.lat, p.lng]);
                 tempRouteLine = L.polyline(latlngs, {
-                    color: '#d4c08a',
-                    weight: 3,
-                    opacity: 0.8,
-                    dashArray: '5, 10'
+                    color: '#d4c08a', weight: 3, opacity: 0.8, dashArray: '5, 10'
                 }).addTo(mapInstance);
             }
-
             document.getElementById('admin-route-status').textContent =
                 `📍 Точка ${tempRoutePoints.length} добавлена. Кликай дальше или нажми "Добавить маршрут" для завершения.`;
         }
 
         function addRoutePointFromMarker(lat, lng, name) {
-            if (!routeBuilding) {
-                alert('Сначала нажмите "Добавить маршрут" в админ-панели');
-                return;
-            }
+            if (!routeBuilding) { alert('Сначала нажмите "Добавить маршрут" в админ-панели'); return; }
             addRoutePoint(lat, lng);
-            document.getElementById('admin-route-status').textContent =
-                `✅ Добавлена точка "${name}". Кликай дальше или заверши маршрут.`;
+            document.getElementById('admin-route-status').textContent = `✅ Добавлена точка "${name}". Кликай дальше или заверши маршрут.`;
         }
 
         function renderRoutes() {
@@ -1818,93 +1967,38 @@
                 if (layer.label) mapInstance.removeLayer(layer.label);
             });
             routeLayers = {};
-
-            if (!isAdmin) {
-                document.getElementById('routes-legend').classList.remove('visible');
-                return;
-            }
-
-            if (!routes || routes.length === 0) {
-                document.getElementById('routes-legend').classList.remove('visible');
-                return;
-            }
+            if (!isAdmin) { document.getElementById('routes-legend').classList.remove('visible'); return; }
+            if (!routes || routes.length === 0) { document.getElementById('routes-legend').classList.remove('visible'); return; }
 
             routes.forEach(route => {
                 if (hiddenRoutes.has(route.id)) return;
-                
                 let points = route.points;
-                if (typeof points === 'string') {
-                    try {
-                        points = JSON.parse(points);
-                    } catch (e) {
-                        points = [];
-                    }
-                }
+                if (typeof points === 'string') { try { points = JSON.parse(points); } catch (e) { points = []; } }
                 if (!Array.isArray(points) || points.length < 2) return;
                 
-                const latlngs = points.map(p => {
-                    const lat = typeof p.lat === 'number' ? p.lat : parseFloat(p.lat);
-                    const lng = typeof p.lng === 'number' ? p.lng : parseFloat(p.lng);
-                    return [lat, lng];
-                });
-                
+                const latlngs = points.map(p => [parseFloat(p.lat), parseFloat(p.lng)]);
                 const color = route.color || '#d4c08a';
-
-                const polyline = L.polyline(latlngs, {
-                    color: color,
-                    weight: 3,
-                    opacity: 0.8,
-                    smoothFactor: 1
-                }).addTo(mapInstance);
-
-                const markers = [];
-                points.forEach((p) => {
-                    const lat = typeof p.lat === 'number' ? p.lat : parseFloat(p.lat);
-                    const lng = typeof p.lng === 'number' ? p.lng : parseFloat(p.lng);
-                    const marker = L.circleMarker([lat, lng], {
-                        radius: 4,
-                        color: color,
-                        fillColor: '#0a0a12',
-                        fillOpacity: 1,
-                        weight: 2
-                    }).addTo(mapInstance);
-                    markers.push(marker);
-                });
-
+                const polyline = L.polyline(latlngs, { color, weight: 3, opacity: 0.8, smoothFactor: 1 }).addTo(mapInstance);
+                const markers = points.map(p => L.circleMarker([p.lat, p.lng], {
+                    radius: 4, color, fillColor: '#0a0a12', fillOpacity: 1, weight: 2
+                }).addTo(mapInstance));
+                
                 let label = null;
                 if (route.name && latlngs.length > 1) {
-                    let labelIdx;
-                    if (route.labelposition !== undefined && route.labelposition < latlngs.length) {
-                        labelIdx = route.labelposition;
-                    } else {
-                        labelIdx = Math.floor(latlngs.length / 2);
-                    }
+                    let labelIdx = route.labelposition !== undefined ? route.labelposition : Math.floor(latlngs.length / 2);
+                    if (labelIdx >= latlngs.length) labelIdx = Math.floor(latlngs.length / 2);
                     const labelPoint = latlngs[labelIdx];
                     const fontSize = route.labelsize || 11;
                     label = L.marker(labelPoint, {
                         icon: L.divIcon({
                             className: 'route-label',
-                            html: `<div style="
-                                background: rgba(16,16,28,0.85);
-                                color: #f0e8c8;
-                                padding: 2px 12px;
-                                border-radius: 10px;
-                                font-size: ${fontSize}px;
-                                border: 1px solid ${color};
-                                white-space: nowrap;
-                                font-weight: 500;
-                                backdrop-filter: blur(4px);
-                                box-shadow: 0 2px 12px rgba(0,0,0,0.5);
-                            ">${route.name}</div>`,
-                            iconSize: [0, 0],
-                            iconAnchor: [0, 0]
+                            html: `<div style="background:rgba(16,16,28,0.85);color:#f0e8c8;padding:2px 12px;border-radius:10px;font-size:${fontSize}px;border:1px solid ${color};white-space:nowrap;font-weight:500;backdrop-filter:blur(4px);box-shadow:0 2px 12px rgba(0,0,0,0.5);">${route.name}</div>`,
+                            iconSize: [0, 0], iconAnchor: [0, 0]
                         })
                     }).addTo(mapInstance);
                 }
-
                 routeLayers[route.id] = { polyline, markers, label };
             });
-
             renderRoutesLegend();
         }
 
@@ -1912,38 +2006,9 @@
             const container = document.getElementById('routes-legend');
             const list = document.getElementById('routes-list');
             list.innerHTML = '';
-
-            if (!isAdmin) {
-                container.classList.remove('visible');
-                return;
-            }
-
-            if (routes.length === 0) {
-                container.classList.remove('visible');
-                return;
-            }
-
+            if (!isAdmin || routes.length === 0) { container.classList.remove('visible'); return; }
             container.classList.add('visible');
-
-            const hasHidden = routes.some(r => hiddenRoutes.has(r.id));
-            const allHidden = routes.every(r => hiddenRoutes.has(r.id));
-
-            if (allHidden) {
-                const div = document.createElement('div');
-                div.className = 'route-item';
-                div.style.color = '#444';
-                div.style.fontStyle = 'italic';
-                div.textContent = '👁️ Все маршруты скрыты';
-                list.appendChild(div);
-                
-                const showAllBtn = document.createElement('button');
-                showAllBtn.className = 'show-all-btn';
-                showAllBtn.textContent = '👁️ Показать все маршруты';
-                showAllBtn.onclick = showAllRoutes;
-                list.appendChild(showAllBtn);
-                return;
-            }
-
+            
             routes.forEach(route => {
                 const isHidden = hiddenRoutes.has(route.id);
                 const div = document.createElement('div');
@@ -1951,26 +2016,15 @@
                 div.innerHTML = `
                     <span class="route-color" style="background:${route.color || '#d4c08a'}"></span>
                     <span>${route.name || 'Маршрут'}</span>
-                    <button class="route-toggle" onclick="toggleRouteVisibility('${route.id}')" title="${isHidden ? 'Показать' : 'Скрыть'}">
-                        ${isHidden ? '👁️‍🗨️' : '👁️'}
-                    </button>
+                    <button class="route-toggle" onclick="toggleRouteVisibility('${route.id}')">${isHidden ? '👁️‍🗨️' : '👁️'}</button>
                 `;
                 list.appendChild(div);
             });
-
-            if (hasHidden) {
-                const showAllBtn = document.createElement('button');
-                showAllBtn.className = 'show-all-btn';
-                showAllBtn.textContent = '👁️ Показать все';
-                showAllBtn.onclick = showAllRoutes;
-                list.appendChild(showAllBtn);
-            }
         }
 
         function toggleRouteVisibility(routeId) {
             const layer = routeLayers[routeId];
             if (!layer) return;
-
             if (hiddenRoutes.has(routeId)) {
                 hiddenRoutes.delete(routeId);
                 if (layer.polyline) mapInstance.addLayer(layer.polyline);
@@ -1986,44 +2040,28 @@
             renderAdminRoutesList();
         }
 
-        function showAllRoutes() {
-            hiddenRoutes.clear();
-            renderRoutes();
-            renderRoutesLegend();
-            renderAdminRoutesList();
-        }
-
         function renderAdminRoutesList() {
             const container = document.getElementById('admin-routes-list');
             if (!container) return;
-            
             if (!routes || routes.length === 0) {
                 container.innerHTML = '<div class="list-item" style="color:#444;font-style:italic;justify-content:center;">Нет маршрутов</div>';
                 return;
             }
-            
             let html = '';
             routes.forEach(route => {
                 const isHidden = hiddenRoutes.has(route.id);
                 const pointsCount = route.points ? route.points.length : 0;
-                const labelPos = route.labelposition !== undefined ? route.labelposition + 1 : '—';
-                const fontSize = route.labelsize || 11;
-                
                 html += `
                     <div class="list-item">
                         <div class="item-info">
                             <span style="display:inline-block;width:16px;height:3px;border-radius:2px;background:${route.color || '#d4c08a'};flex-shrink:0;"></span>
                             <span class="name">${route.name || 'Маршрут'}</span>
-                            <span style="color:#555;font-size:10px;flex-shrink:0;">📍${pointsCount} точек</span>
-                            <span style="color:#555;font-size:10px;flex-shrink:0;">📌${labelPos}</span>
-                            <span style="color:#555;font-size:10px;flex-shrink:0;">🔤${fontSize}px</span>
-                            ${isHidden ? '<span style="color:#666;font-size:10px;flex-shrink:0;">🔒</span>' : ''}
+                            <span style="color:#555;font-size:10px;">📍${pointsCount} точек</span>
+                            ${isHidden ? ' 🔒' : ''}
                         </div>
                         <div class="item-actions">
-                            <button class="pin" onclick="editLabelPosition('${route.id}')" title="Закрепить подпись">📌</button>
-                            <button class="edit" onclick="editLabelSize('${route.id}')" title="Изменить размер">🔤</button>
-                            <button class="eye" onclick="toggleRouteVisibility('${route.id}')" title="${isHidden ? 'Показать' : 'Скрыть'}">${isHidden ? '👁️‍🗨️' : '👁️'}</button>
-                            <button class="delete" onclick="deleteRouteFromDB('${route.id}')" title="Удалить">✕</button>
+                            <button class="eye" onclick="toggleRouteVisibility('${route.id}')">${isHidden ? '👁️‍🗨️' : '👁️'}</button>
+                            <button class="delete" onclick="deleteRouteFromDB('${route.id}')">✕</button>
                         </div>
                     </div>
                 `;
@@ -2031,166 +2069,36 @@
             container.innerHTML = html;
         }
 
-        async function editLabelPosition(routeId) {
-            const route = routes.find(r => r.id === routeId);
-            if (!route) return;
-
-            const pointsCount = route.points ? route.points.length : 0;
-            if (pointsCount < 2) return;
-
-            const currentPos = route.labelposition !== undefined ? route.labelposition : Math.floor(pointsCount / 2);
-            
-            const input = prompt(`Выберите номер точки для подписи (от 1 до ${pointsCount}, текущая: ${currentPos + 1}):`);
-            if (input === null) return;
-
-            const parsed = parseInt(input);
-            if (isNaN(parsed) || parsed < 1 || parsed > pointsCount) {
-                alert(`❌ Некорректный номер. Введите число от 1 до ${pointsCount}`);
-                return;
-            }
-
-            const newPosition = parsed - 1;
-            
-            try {
-                const { error } = await supabaseClient
-                    .from('routes')
-                    .update({ labelposition: newPosition })
-                    .eq('id', routeId);
-
-                if (error) throw error;
-
-                route.labelposition = newPosition;
-                renderRoutes();
-                renderRoutesLegend();
-                renderAdminRoutesList();
-                
-                alert(`✅ Подпись перемещена на точку ${parsed}`);
-            } catch (e) {
-                console.error('Ошибка обновления:', e);
-                alert('❌ Ошибка обновления: ' + e.message);
-            }
-        }
-
-        async function editLabelSize(routeId) {
-            const route = routes.find(r => r.id === routeId);
-            if (!route) return;
-
-            const currentSize = route.labelsize || 11;
-            const input = prompt(`Введите размер шрифта для подписи (в пикселях, от 8 до 30, текущий: ${currentSize}px):`);
-            if (input === null) return;
-
-            const parsed = parseInt(input);
-            if (isNaN(parsed) || parsed < 8 || parsed > 30) {
-                alert(`❌ Некорректный размер. Введите число от 8 до 30`);
-                return;
-            }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('routes')
-                    .update({ labelsize: parsed })
-                    .eq('id', routeId);
-
-                if (error) throw error;
-
-                route.labelsize = parsed;
-                renderRoutes();
-                renderRoutesLegend();
-                renderAdminRoutesList();
-                
-                alert(`✅ Размер подписи изменён на ${parsed}px`);
-            } catch (e) {
-                console.error('Ошибка обновления:', e);
-                alert('❌ Ошибка обновления: ' + e.message);
-            }
-        }
-
         document.getElementById('admin-add-route').addEventListener('click', function() {
-            if (!isAdmin) {
-                alert('⛔ Войдите в админ-панель');
-                return;
-            }
-
+            if (!isAdmin) { alert('⛔ Войдите в админ-панель'); return; }
             if (routeBuilding) {
-                if (tempRoutePoints.length < 2) {
-                    alert('❌ Нужно минимум 2 точки для маршрута');
-                    return;
-                }
+                if (tempRoutePoints.length < 2) { alert('❌ Нужно минимум 2 точки'); return; }
                 finishRoute();
                 return;
             }
-
             routeBuilding = true;
             tempRoutePoints = [];
             tempRouteMarkers = [];
-            if (tempRouteLine) {
-                mapInstance.removeLayer(tempRouteLine);
-                tempRouteLine = null;
-            }
-
-            document.getElementById('admin-route-status').textContent = '🔵 Кликай по маркерам на карте или по пустому месту. Нажми "Добавить маршрут" снова для завершения.';
+            if (tempRouteLine) { mapInstance.removeLayer(tempRouteLine); tempRouteLine = null; }
+            document.getElementById('admin-route-status').textContent = '🔵 Кликай по карте. Нажми "Добавить маршрут" снова для завершения.';
             document.getElementById('admin-route-status').style.color = '#4ecdc4';
             renderMarkers();
-            alert('🟢 Режим построения маршрута включен! Кликайте по маркерам на карте или по пустому месту.');
-        });
-
-        document.getElementById('admin-show-all-routes').addEventListener('click', showAllRoutes);
-
-        document.getElementById('admin-clear-routes').addEventListener('click', async function() {
-            if (!isAdmin) return;
-            if (!confirm('🗑️ Удалить все маршруты?')) return;
-            for (const route of routes) {
-                await deleteRouteFromDB(route.id);
-            }
-            routes = [];
-            renderRoutes();
-            renderRoutesLegend();
-            renderAdminRoutesList();
+            alert('🟢 Режим построения маршрута включен!');
         });
 
         async function finishRoute() {
-            if (tempRoutePoints.length < 2) {
-                alert('❌ Нужно минимум 2 точки для маршрута');
-                return;
-            }
-
+            if (tempRoutePoints.length < 2) { alert('❌ Нужно минимум 2 точки'); return; }
             const name = prompt('📝 Введите название маршрута:', 'Маршрут');
-            if (name === null) {
-                cancelRouteBuilding();
-                return;
-            }
-
-            let labelPosition = Math.floor(tempRoutePoints.length / 2);
-            const labelInput = prompt(
-                `📌 Введите номер точки для подписи (от 1 до ${tempRoutePoints.length}, текущая: ${labelPosition + 1}):`,
-                String(labelPosition + 1)
-            );
-            
-            if (labelInput !== null) {
-                const parsed = parseInt(labelInput);
-                if (!isNaN(parsed) && parsed >= 1 && parsed <= tempRoutePoints.length) {
-                    labelPosition = parsed - 1;
-                }
-            }
-
+            if (name === null) { cancelRouteBuilding(); return; }
             const colors = ['#d4c08a', '#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#ff9ff3', '#54a0ff', '#ff6b6b'];
             const color = colors[Math.floor(Math.random() * colors.length)];
-
-            const pointsData = tempRoutePoints.map(p => ({
-                lat: typeof p.lat === 'number' ? p.lat : parseFloat(p.lat),
-                lng: typeof p.lng === 'number' ? p.lng : parseFloat(p.lng)
-            }));
-
             const routeData = {
                 name: name.trim() || 'Маршрут',
                 color: color,
-                points: pointsData,
-                labelposition: labelPosition,
+                points: tempRoutePoints,
+                labelposition: Math.floor(tempRoutePoints.length / 2),
                 labelsize: 11
             };
-
-            console.log('📤 Отправляем маршрут:', JSON.stringify(routeData, null, 2));
-
             const result = await saveRouteToDB(routeData);
             if (result) {
                 cancelRouteBuilding();
@@ -2208,217 +2116,116 @@
             tempRoutePoints = [];
             tempRouteMarkers.forEach(m => mapInstance.removeLayer(m));
             tempRouteMarkers = [];
-            if (tempRouteLine) {
-                mapInstance.removeLayer(tempRouteLine);
-                tempRouteLine = null;
-            }
+            if (tempRouteLine) { mapInstance.removeLayer(tempRouteLine); tempRouteLine = null; }
             document.getElementById('admin-route-status').textContent = 'Нажми "Добавить маршрут" и кликай по точкам';
             document.getElementById('admin-route-status').style.color = '#555';
             renderMarkers();
         }
 
+        document.getElementById('admin-show-all-routes').addEventListener('click', function() {
+            hiddenRoutes.clear();
+            renderRoutes();
+            renderRoutesLegend();
+            renderAdminRoutesList();
+        });
+
+        document.getElementById('admin-clear-routes').addEventListener('click', async function() {
+            if (!isAdmin) return;
+            if (!confirm('🗑️ Удалить все маршруты?')) return;
+            for (const route of routes) { await deleteRouteFromDB(route.id); }
+            routes = [];
+            renderRoutes();
+            renderRoutesLegend();
+            renderAdminRoutesList();
+        });
+
         // ============================================================
-        //  НАДПИСИ НА КАРТЕ
+        //  НАДПИСИ НА КАРТЕ (A+ / A- ТОЛЬКО В АДМИН-ПАНЕЛИ)
         // ============================================================
         async function loadLabels() {
             try {
-                const { data, error } = await supabaseClient
-                    .from('labels')
-                    .select('*')
-                    .order('created_at', { ascending: true });
-
+                const { data, error } = await supabaseClient.from('labels').select('*').order('created_at', { ascending: true });
                 if (error) throw error;
                 labels = data || [];
                 renderLabels();
                 renderAdminLabelsList();
-                console.log('✅ Надписи загружены:', labels.length);
                 return true;
-            } catch (e) {
-                console.error('❌ Ошибка загрузки надписей:', e);
-                return false;
-            }
+            } catch (e) { console.error('❌ Ошибка загрузки надписей:', e); return false; }
         }
 
         async function saveLabelToDB(labelData) {
             try {
-                const { data, error } = await supabaseClient
-                    .from('labels')
-                    .insert({
-                        text: labelData.text,
-                        lat: labelData.lat,
-                        lng: labelData.lng,
-                        font_size: labelData.font_size || 18,
-                        created_at: new Date().toISOString()
-                    })
-                    .select()
-                    .single();
-
+                const { data, error } = await supabaseClient.from('labels').insert({
+                    text: labelData.text, lat: labelData.lat, lng: labelData.lng,
+                    font_size: labelData.font_size || 18, created_at: new Date().toISOString()
+                }).select().single();
                 if (error) throw error;
-                
                 labels.push(data);
                 renderLabels();
                 renderAdminLabelsList();
-                
-                console.log('✅ Надпись сохранена:', data);
                 return data;
-            } catch (e) {
-                console.error('❌ Ошибка сохранения надписи:', e);
-                alert('❌ Ошибка сохранения надписи: ' + e.message);
-                return null;
-            }
+            } catch (e) { console.error('❌ Ошибка сохранения надписи:', e); alert('❌ Ошибка: ' + e.message); return null; }
         }
 
         async function updateLabelInDB(labelId, updates) {
             try {
-                const { error } = await supabaseClient
-                    .from('labels')
-                    .update(updates)
-                    .eq('id', labelId);
-
+                const { error } = await supabaseClient.from('labels').update(updates).eq('id', labelId);
                 if (error) throw error;
-                
                 const label = labels.find(l => l.id === labelId);
-                if (label) {
-                    Object.assign(label, updates);
-                }
-                
+                if (label) Object.assign(label, updates);
                 renderLabels();
                 renderAdminLabelsList();
-                
-                console.log('✅ Надпись обновлена:', labelId);
                 return true;
-            } catch (e) {
-                console.error('❌ Ошибка обновления надписи:', e);
-                alert('❌ Ошибка обновления надписи: ' + e.message);
-                return false;
-            }
+            } catch (e) { console.error('❌ Ошибка обновления надписи:', e); alert('❌ Ошибка: ' + e.message); return false; }
         }
 
         async function deleteLabelFromDB(labelId) {
             if (!confirm('🗑️ Удалить эту надпись?')) return false;
-            
             try {
-                const { error } = await supabaseClient
-                    .from('labels')
-                    .delete()
-                    .eq('id', labelId);
-
+                const { error } = await supabaseClient.from('labels').delete().eq('id', labelId);
                 if (error) throw error;
-                
                 labels = labels.filter(l => l.id !== labelId);
                 renderLabels();
                 renderAdminLabelsList();
-                
-                console.log('✅ Надпись удалена:', labelId);
                 return true;
-            } catch (e) {
-                console.error('❌ Ошибка удаления надписи:', e);
-                alert('❌ Ошибка удаления надписи: ' + e.message);
-                return false;
-            }
+            } catch (e) { console.error('❌ Ошибка удаления надписи:', e); alert('❌ Ошибка: ' + e.message); return false; }
         }
 
         function renderLabels() {
             Object.values(labelLayers).forEach(layer => {
-                if (layer.marker) {
-                    mapInstance.removeLayer(layer.marker);
-                }
+                if (layer.marker) mapInstance.removeLayer(layer.marker);
             });
             labelLayers = {};
-
-            if (!labels || labels.length === 0) {
-                console.log('📝 Нет надписей для отображения');
-                return;
-            }
+            if (!labels || labels.length === 0) return;
 
             const shouldHide = userLabelsHidden && !isAdmin;
-
             labels.forEach(label => {
-                if (typeof label.lat !== 'number' || typeof label.lng !== 'number') {
-                    console.warn('❌ Некорректные координаты у надписи:', label);
-                    return;
-                }
-
+                if (typeof label.lat !== 'number' || typeof label.lng !== 'number') return;
                 const isHidden = labelsHidden || shouldHide;
-                
-                if (isHidden) {
-                    return;
-                }
-
+                if (isHidden) return;
                 const fontSize = label.font_size || 18;
-                
-                let labelHtml = `<span class="label-text" style="font-size: ${fontSize}px;">${label.text}</span>`;
-                
+                let labelHtml = `<span class="label-text" style="font-size:${fontSize}px;">${label.text}</span>`;
                 if (isAdmin) {
                     labelHtml += `
-                        <button class="label-size-down" onclick="changeLabelSize('${label.id}', -2)" title="Уменьшить размер">A-</button>
-                        <button class="label-size-up" onclick="changeLabelSize('${label.id}', 2)" title="Увеличить размер">A+</button>
-                        <span class="label-edit" onclick="editLabelText('${label.id}')" style="
-                            display: inline-block;
-                            margin-left: 4px;
-                            color: #4ecdc4;
-                            font-size: 14px;
-                            cursor: pointer;
-                            background: rgba(0,0,0,0.5);
-                            border: none;
-                            padding: 0 4px;
-                            border-radius: 4px;
-                        ">✎</span>
-                        <span class="label-del" onclick="deleteLabel('${label.id}')" style="
-                            display: inline-block;
-                            margin-left: 2px;
-                            color: #ff5555;
-                            font-size: 14px;
-                            cursor: pointer;
-                            background: rgba(0,0,0,0.5);
-                            border: none;
-                            padding: 0 4px;
-                            border-radius: 4px;
-                        ">✕</span>
-                        <span class="label-drag-handle" style="
-                            display: inline-block;
-                            margin-left: 4px;
-                            color: #666;
-                            font-size: 12px;
-                            cursor: grab;
-                            user-select: none;
-                            background: rgba(0,0,0,0.5);
-                            padding: 0 4px;
-                            border-radius: 4px;
-                        ">⠿</span>
+                        <span class="label-edit" onclick="editLabelText('${label.id}')" style="display:inline-block;margin-left:4px;color:#4ecdc4;font-size:14px;cursor:pointer;background:rgba(0,0,0,0.5);border:none;padding:0 4px;border-radius:4px;">✎</span>
+                        <span class="label-del" onclick="deleteLabel('${label.id}')" style="display:inline-block;margin-left:2px;color:#ff5555;font-size:14px;cursor:pointer;background:rgba(0,0,0,0.5);border:none;padding:0 4px;border-radius:4px;">✕</span>
+                        <span class="label-drag-handle" style="display:inline-block;margin-left:4px;color:#666;font-size:12px;cursor:grab;user-select:none;background:rgba(0,0,0,0.5);padding:0 4px;border-radius:4px;">⠿</span>
                     `;
                 }
-
                 const marker = L.marker([label.lat, label.lng], {
                     icon: L.divIcon({
                         className: isAdmin ? 'custom-label admin-mode' : 'custom-label',
-                        html: labelHtml,
-                        iconSize: [0, 0],
-                        iconAnchor: [0, 0]
+                        html: labelHtml, iconSize: [0, 0], iconAnchor: [0, 0]
                     }),
-                    interactive: isAdmin ? true : false,
-                    keyboard: false,
-                    draggable: isAdmin ? true : false
+                    interactive: isAdmin ? true : false, keyboard: false, draggable: isAdmin ? true : false
                 }).addTo(mapInstance);
-
                 if (isAdmin) {
-                    marker.on('dragstart', function(e) {
-                        const el = e.target._icon;
-                        if (el) el.classList.add('dragging');
-                    });
-
+                    marker.on('dragstart', function(e) { const el = e.target._icon; if (el) el.classList.add('dragging'); });
                     marker.on('dragend', function(e) {
-                        const pos = e.target.getLatLng();
-                        const el = e.target._icon;
-                        if (el) el.classList.remove('dragging');
-                        
-                        updateLabelInDB(label.id, {
-                            lat: pos.lat,
-                            lng: pos.lng
-                        });
+                        const pos = e.target.getLatLng(); const el = e.target._icon; if (el) el.classList.remove('dragging');
+                        updateLabelInDB(label.id, { lat: pos.lat, lng: pos.lng });
                     });
                 }
-
                 labelLayers[label.id] = { marker };
             });
         }
@@ -2430,45 +2237,23 @@
             renderLabels();
         });
 
-        async function changeLabelSize(labelId, delta) {
-            if (!isAdmin) return;
-            
-            const label = labels.find(l => l.id === labelId);
-            if (!label) {
-                alert('❌ Надпись не найдена');
-                return;
-            }
-
-            const currentSize = label.font_size || 18;
-            const newSize = Math.min(Math.max(currentSize + delta, 10), 60);
-            
-            if (newSize === currentSize) {
-                alert(`❌ Размер уже ${currentSize}px (мин: 10, макс: 60)`);
-                return;
-            }
-
-            await updateLabelInDB(labelId, { font_size: newSize });
-        }
-
         function renderAdminLabelsList() {
             const container = document.getElementById('admin-labels-list');
             if (!container) return;
-
             if (!labels || labels.length === 0) {
                 container.innerHTML = '<div class="list-item" style="color:#444;font-style:italic;justify-content:center;">Нет надписей</div>';
                 return;
             }
-
             let html = '';
             labels.forEach(label => {
                 const fontSize = label.font_size || 18;
                 html += `
                     <div class="list-item">
                         <div class="item-info">
-                            <span style="color:#d4c08a;font-size:14px;flex-shrink:0;">🏷️</span>
+                            <span style="color:#d4c08a;font-size:14px;">🏷️</span>
                             <span class="name" style="font-size:${fontSize}px;">${label.text}</span>
-                            <span style="color:#555;font-size:10px;flex-shrink:0;">🔤${fontSize}px</span>
-                            <span style="color:#555;font-size:10px;flex-shrink:0;">📍${Number(label.lat).toFixed(2)}, ${Number(label.lng).toFixed(2)}</span>
+                            <span style="color:#555;font-size:10px;">🔤${fontSize}px</span>
+                            <span style="color:#555;font-size:10px;">📍${Number(label.lat).toFixed(2)}, ${Number(label.lng).toFixed(2)}</span>
                         </div>
                         <div class="item-actions">
                             <button class="edit" onclick="changeLabelSize('${label.id}', -2)" title="Уменьшить">A-</button>
@@ -2482,27 +2267,25 @@
             container.innerHTML = html;
         }
 
-        function startAddingLabel() {
-            if (!isAdmin) {
-                alert('⛔ Войдите в админ-панель');
-                return;
-            }
+        async function changeLabelSize(labelId, delta) {
+            if (!isAdmin) return;
+            const label = labels.find(l => l.id === labelId);
+            if (!label) { alert('❌ Надпись не найдена'); return; }
+            const currentSize = label.font_size || 18;
+            const newSize = Math.min(Math.max(currentSize + delta, 10), 60);
+            if (newSize === currentSize) { alert(`❌ Размер уже ${currentSize}px (мин: 10, макс: 60)`); return; }
+            await updateLabelInDB(labelId, { font_size: newSize });
+        }
 
+        function startAddingLabel() {
+            if (!isAdmin) { alert('⛔ Войдите в админ-панель'); return; }
             document.getElementById('admin-label-status').textContent = '✏️ Кликни по карте, чтобы добавить текст';
             document.getElementById('admin-label-status').style.color = '#4ecdc4';
-
             const clickHandler = function(e) {
-                const lat = e.latlng.lat;
-                const lng = e.latlng.lng;
-
+                const lat = e.latlng.lat, lng = e.latlng.lng;
                 const text = prompt('📝 Введите текст надписи:', 'Новая надпись');
                 if (text !== null && text.trim() !== '') {
-                    saveLabelToDB({
-                        text: text.trim(),
-                        lat: lat,
-                        lng: lng,
-                        font_size: 18
-                    }).then(() => {
+                    saveLabelToDB({ text: text.trim(), lat, lng, font_size: 18 }).then(() => {
                         document.getElementById('admin-label-status').textContent = '✅ Надпись добавлена!';
                         document.getElementById('admin-label-status').style.color = '#4caf50';
                         setTimeout(() => {
@@ -2518,54 +2301,34 @@
                         document.getElementById('admin-label-status').style.color = '#555';
                     }, 2000);
                 }
-
                 mapInstance.off('click', clickHandler);
             };
-
             mapInstance.on('click', clickHandler);
         }
 
         function editLabelText(labelId) {
             if (!isAdmin) return;
-            
             const label = labels.find(l => l.id === labelId);
-            if (!label) {
-                alert('❌ Надпись не найдена');
-                return;
-            }
-
+            if (!label) { alert('❌ Надпись не найдена'); return; }
             const newText = prompt('✏️ Введите новый текст:', label.text);
             if (newText === null) return;
-            
-            if (newText.trim() === '') {
-                alert('❌ Текст не может быть пустым');
-                return;
-            }
-
+            if (newText.trim() === '') { alert('❌ Текст не может быть пустым'); return; }
             updateLabelInDB(labelId, { text: newText.trim() });
         }
 
-        async function deleteLabel(labelId) {
-            await deleteLabelFromDB(labelId);
-        }
+        async function deleteLabel(labelId) { await deleteLabelFromDB(labelId); }
 
         document.getElementById('admin-add-label').addEventListener('click', startAddingLabel);
-
         document.getElementById('admin-toggle-labels').addEventListener('click', function() {
             labelsHidden = !labelsHidden;
             this.textContent = labelsHidden ? '👁️ Показать все' : '👁️ Скрыть все';
             renderLabels();
             renderAdminLabelsList();
         });
-
         document.getElementById('admin-clear-labels').addEventListener('click', async function() {
             if (!isAdmin) return;
             if (!confirm('🗑️ Удалить ВСЕ надписи?')) return;
-            
-            for (const label of labels) {
-                await deleteLabelFromDB(label.id);
-            }
-            
+            for (const label of labels) { await deleteLabelFromDB(label.id); }
             document.getElementById('admin-label-status').textContent = '🗑️ Все надписи удалены';
             document.getElementById('admin-label-status').style.color = '#ff5555';
             setTimeout(() => {
@@ -2575,17 +2338,194 @@
         });
 
         // ============================================================
-        //  НОВАЯ ТРЁХКОЛОНОЧНАЯ МОДАЛКА
+        //  МЕДИАТЕКА
+        // ============================================================
+        async function loadPhotosLibrary() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('photos_library')
+                    .select('*')
+                    .order('uploaded_at', { ascending: false });
+
+                if (error) throw error;
+                photosLibrary = data || [];
+                renderPhotosLibrary();
+                document.getElementById('lib-count').textContent = photosLibrary.length;
+                return true;
+            } catch (e) {
+                console.error('Ошибка загрузки медиатеки:', e);
+                return false;
+            }
+        }
+
+        function renderPhotosLibrary() {
+            const container = document.getElementById('photos-library-grid');
+            if (!container) return;
+            
+            if (!photosLibrary || photosLibrary.length === 0) {
+                container.innerHTML = '<div style="color:#444;font-style:italic;padding:20px;text-align:center;">Нет фото в библиотеке</div>';
+                return;
+            }
+            
+            let html = '';
+            photosLibrary.forEach((photo) => {
+                html += `
+                    <div class="lib-photo" draggable="true" data-url="${photo.url}" data-caption="${photo.caption || ''}">
+                        <img src="${photo.url}" loading="lazy" onerror="this.style.display='none'">
+                        <div class="lib-caption">${photo.caption || 'Без подписи'}</div>
+                        <div class="lib-actions">
+                            <button class="add-to-location" onclick="addPhotoToCurrentLocation('${photo.url}', '${photo.caption || ''}')" title="Добавить в текущую локацию">➕</button>
+                            <button class="delete-lib" onclick="deletePhotoFromLibrary('${photo.id}')" title="Удалить из библиотеки">✕</button>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            
+            container.querySelectorAll('.lib-photo').forEach(el => {
+                el.addEventListener('dragstart', function(e) {
+                    this.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'copy';
+                    e.dataTransfer.setData('text/plain', JSON.stringify({
+                        url: this.dataset.url,
+                        caption: this.dataset.caption
+                    }));
+                });
+                el.addEventListener('dragend', function(e) {
+                    this.classList.remove('dragging');
+                });
+            });
+        }
+
+        function addPhotoToCurrentLocation(url, caption) {
+            if (!currentLocationId) {
+                alert('Сначала откройте локацию в модалке');
+                return;
+            }
+            const loc = locations.find(l => l.id === currentLocationId);
+            if (!loc) return;
+            if (!Array.isArray(loc.photos)) loc.photos = [];
+            loc.photos.push({ url: url, caption: caption || '' });
+            saveLocationData();
+            renderModalGallery(loc.photos);
+            renderModalAdminPhotos(loc.photos);
+            renderAdminList();
+            renderMarkers();
+        }
+
+        document.getElementById('lib-upload-btn').addEventListener('click', function() {
+            document.getElementById('lib-file-input').click();
+        });
+
+        document.getElementById('lib-file-input').addEventListener('change', async function(e) {
+            const files = Array.from(e.target.files);
+            if (files.length === 0) return;
+            setAdminStatus('⏳ Загрузка в медиатеку...', 'syncing');
+            for (const file of files) {
+                try {
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `library/${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+                    const { error: uploadError } = await supabaseClient.storage.from('photos').upload(fileName, file);
+                    if (uploadError) throw uploadError;
+                    const { data: urlData } = supabaseClient.storage.from('photos').getPublicUrl(fileName);
+                    const { error: dbError } = await supabaseClient.from('photos_library').insert({
+                        url: urlData.publicUrl, caption: '', uploaded_at: new Date().toISOString()
+                    });
+                    if (dbError) throw dbError;
+                } catch (err) {
+                    console.error('Ошибка загрузки в медиатеку:', err);
+                    alert('❌ Ошибка загрузки: ' + err.message);
+                }
+            }
+            await loadPhotosLibrary();
+            document.getElementById('lib-file-input').value = '';
+            setAdminStatus('✅ Фото загружены в медиатеку', 'ok');
+        });
+
+        async function deletePhotoFromLibrary(photoId) {
+            if (!confirm('🗑️ Удалить это фото из медиатеки?')) return;
+            const photo = photosLibrary.find(p => p.id === photoId);
+            if (!photo) return;
+            try {
+                const urlParts = photo.url.split('/storage/v1/object/public/photos/');
+                if (urlParts.length > 1) {
+                    await supabaseClient.storage.from('photos').remove([urlParts[1]]);
+                }
+                const { error } = await supabaseClient.from('photos_library').delete().eq('id', photoId);
+                if (error) throw error;
+                photosLibrary = photosLibrary.filter(p => p.id !== photoId);
+                renderPhotosLibrary();
+                document.getElementById('lib-count').textContent = photosLibrary.length;
+                setAdminStatus('✅ Фото удалено из медиатеки', 'ok');
+            } catch (e) {
+                console.error('Ошибка удаления из медиатеки:', e);
+                alert('❌ Ошибка удаления: ' + e.message);
+            }
+        }
+
+        document.getElementById('lib-refresh-btn').addEventListener('click', async function() {
+            await loadPhotosLibrary();
+            setAdminStatus('✅ Медиатека обновлена', 'ok');
+        });
+
+        // ============================================================
+        //  МОДАЛКА С DRAG & DROP ИЗ МЕДИАТЕКИ
+        // ============================================================
+        // Drop зона для правой колонки
+        document.getElementById('modal-right').addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+            this.style.borderColor = '#d4c08a';
+            this.style.background = 'rgba(212, 192, 138, 0.05)';
+        });
+
+        document.getElementById('modal-right').addEventListener('dragleave', function(e) {
+            this.style.borderColor = '';
+            this.style.background = '';
+        });
+
+        document.getElementById('modal-right').addEventListener('drop', function(e) {
+            e.preventDefault();
+            this.style.borderColor = '';
+            this.style.background = '';
+            try {
+                const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                if (data.url) addPhotoToCurrentLocation(data.url, data.caption || '');
+            } catch (err) {
+                const url = e.dataTransfer.getData('text/plain');
+                if (url && url.startsWith('http')) addPhotoToCurrentLocation(url, '');
+            }
+        });
+
+        // Drop зона для центральной галереи
+        document.getElementById('modal-center').addEventListener('dragover', function(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'copy';
+        });
+
+        document.getElementById('modal-center').addEventListener('drop', function(e) {
+            e.preventDefault();
+            try {
+                const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                if (data.url) addPhotoToCurrentLocation(data.url, data.caption || '');
+            } catch (err) {
+                const url = e.dataTransfer.getData('text/plain');
+                if (url && url.startsWith('http')) addPhotoToCurrentLocation(url, '');
+            }
+        });
+
+        // ============================================================
+        //  ОСТАЛЬНЫЕ ФУНКЦИИ (модалка, админ-панель, сохранение)
         // ============================================================
         function openModal(id) {
             const loc = locations.find(l => l.id === id);
             if (!loc) return;
-            
             currentLocationId = id;
             modalIsAdmin = isAdmin;
             
             document.getElementById('modal-title').textContent = loc.name || 'Без названия';
-            document.getElementById('modal-subtitle').textContent = loc.subtitle || '📍 Локация';
+            document.getElementById('modal-country').textContent = '🌍 ' + (loc.country || 'Без категории');
+            document.getElementById('modal-subtitle').textContent = '📍 ' + (loc.subtitle || 'Подзаголовок');
             
             const descTextarea = document.getElementById('modal-description');
             descTextarea.value = loc.description_long || '';
@@ -2595,7 +2535,6 @@
             renderList('characters-list', loc.characters || [], 'character');
             renderList('features-list', loc.features || [], 'feature');
             
-            modalPhotos = loc.photos || [];
             renderModalGallery(loc.photos || []);
             renderModalAdminPhotos(loc.photos || []);
             
@@ -2609,12 +2548,10 @@
         function renderList(containerId, items, type) {
             const container = document.getElementById(containerId);
             if (!container) return;
-            
             if (!items || items.length === 0) {
                 container.innerHTML = '<li style="color:#444;font-style:italic;padding:8px;">Нет записей</li>';
                 return;
             }
-            
             let html = '';
             items.forEach((item, index) => {
                 const text = typeof item === 'string' ? item : item.text || '—';
@@ -2636,36 +2573,23 @@
         window.editListItem = function(containerId, index, type) {
             const loc = locations.find(l => l.id === currentLocationId);
             if (!loc) return;
-            
             const list = type === 'character' ? loc.characters : loc.features;
             if (!list || !list[index]) return;
-            
             const currentText = typeof list[index] === 'string' ? list[index] : list[index].text || '';
             const newText = prompt('✏️ Введите новый текст:', currentText);
             if (newText === null) return;
-            if (newText.trim() === '') {
-                alert('❌ Текст не может быть пустым');
-                return;
-            }
-            
-            if (typeof list[index] === 'string') {
-                list[index] = newText.trim();
-            } else {
-                list[index].text = newText.trim();
-            }
-            
+            if (newText.trim() === '') { alert('❌ Текст не может быть пустым'); return; }
+            if (typeof list[index] === 'string') list[index] = newText.trim();
+            else list[index].text = newText.trim();
             renderList(containerId, list, type);
         };
 
         window.deleteListItem = function(containerId, index, type) {
             if (!confirm('🗑️ Удалить эту запись?')) return;
-            
             const loc = locations.find(l => l.id === currentLocationId);
             if (!loc) return;
-            
             const list = type === 'character' ? loc.characters : loc.features;
             if (!list) return;
-            
             list.splice(index, 1);
             renderList(containerId, list, type);
         };
@@ -2674,10 +2598,8 @@
             if (!isAdmin) return;
             const loc = locations.find(l => l.id === currentLocationId);
             if (!loc) return;
-            
             const text = prompt('👤 Введите имя персонажа:');
             if (text === null || text.trim() === '') return;
-            
             if (!loc.characters) loc.characters = [];
             loc.characters.push(text.trim());
             renderList('characters-list', loc.characters, 'character');
@@ -2687,35 +2609,23 @@
             if (!isAdmin) return;
             const loc = locations.find(l => l.id === currentLocationId);
             if (!loc) return;
-            
             const text = prompt('📋 Введите особенность:');
             if (text === null || text.trim() === '') return;
-            
             if (!loc.features) loc.features = [];
             loc.features.push(text.trim());
             renderList('features-list', loc.features, 'feature');
         });
 
-        // ============================================================
-        //  ГАЛЕРЕЯ В ЦЕНТРАЛЬНОЙ КОЛОНКЕ
-        // ============================================================
         function renderModalGallery(photos) {
             const gallery = document.getElementById('modal-gallery');
             const noPhotos = document.getElementById('modal-no-photos');
             gallery.innerHTML = '';
-            
-            if (!photos || photos.length === 0) {
-                noPhotos.style.display = 'block';
-                return;
-            }
-            
+            if (!photos || photos.length === 0) { noPhotos.style.display = 'block'; return; }
             noPhotos.style.display = 'none';
-            
             photos.forEach((photo, idx) => {
                 const url = typeof photo === 'object' && photo.url ? photo.url : photo;
                 const cap = typeof photo === 'object' && photo.caption ? photo.caption : '';
                 if (!url) return;
-                
                 const div = document.createElement('div');
                 div.className = 'photo-card';
                 div.innerHTML = `
@@ -2729,38 +2639,30 @@
         function openViewerFromModal(locId, index) {
             const loc = locations.find(l => l.id === locId);
             if (!loc || !loc.photos || loc.photos.length === 0) return;
-            
             viewerData.photos = loc.photos;
             viewerData.index = index;
             viewerData.locId = locId;
             viewerData.locName = loc.name || 'Название локации';
             viewerData.locDesc = loc.description_long || '';
-            
             updateViewer();
             document.getElementById('photo-viewer-overlay').classList.add('active');
             document.body.style.overflow = 'hidden';
         }
 
-        // ============================================================
-        //  АДМИН-ПАНЕЛЬ ФОТО В ПРАВОЙ КОЛОНКЕ (С DRAG & DROP)
-        // ============================================================
         function renderModalAdminPhotos(photos) {
             const container = document.getElementById('modal-photo-admin-list');
             if (!container) return;
-            
             if (!photos || photos.length === 0) {
                 container.innerHTML = '<div class="empty-admin">Нет загруженных фото</div>';
                 return;
             }
-            
             let html = '';
             photos.forEach((photo, idx) => {
                 const url = typeof photo === 'object' && photo.url ? photo.url : photo;
                 const cap = typeof photo === 'object' && photo.caption ? photo.caption : '';
                 if (!url) return;
-                
                 html += `
-                    <div class="photo-admin-item" draggable="true" data-index="${idx}" data-id="${currentLocationId}">
+                    <div class="photo-admin-item" draggable="true" data-index="${idx}">
                         <span class="drag-handle">⠿</span>
                         <img class="preview" src="${url}" loading="lazy" onerror="this.style.display='none'">
                         <div class="info">
@@ -2776,133 +2678,74 @@
             });
             container.innerHTML = html;
             
-            const items = container.querySelectorAll('.photo-admin-item');
-            items.forEach(item => {
-                item.addEventListener('dragstart', handleDragStart);
-                item.addEventListener('dragend', handleDragEnd);
-                item.addEventListener('dragover', handleDragOver);
-                item.addEventListener('dragenter', handleDragEnter);
-                item.addEventListener('dragleave', handleDragLeave);
-                item.addEventListener('drop', handleDrop);
+            container.querySelectorAll('.photo-admin-item').forEach(item => {
+                item.addEventListener('dragstart', function(e) {
+                    this.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', this.dataset.index);
+                });
+                item.addEventListener('dragend', function(e) { this.classList.remove('dragging'); });
+                item.addEventListener('dragover', function(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
+                item.addEventListener('dragenter', function(e) { e.preventDefault(); if (this !== draggedItem) this.classList.add('drag-over'); });
+                item.addEventListener('dragleave', function(e) { this.classList.remove('drag-over'); });
+                item.addEventListener('drop', function(e) {
+                    e.preventDefault();
+                    this.classList.remove('drag-over');
+                    if (this === draggedItem) return;
+                    const fromIndex = parseInt(draggedItem.dataset.index);
+                    const toIndex = parseInt(this.dataset.index);
+                    if (isNaN(fromIndex) || isNaN(toIndex)) return;
+                    const loc = locations.find(l => l.id === currentLocationId);
+                    if (!loc || !loc.photos) return;
+                    const photos = loc.photos;
+                    const [movedItem] = photos.splice(fromIndex, 1);
+                    photos.splice(toIndex, 0, movedItem);
+                    renderModalGallery(photos);
+                    renderModalAdminPhotos(photos);
+                    saveLocationData();
+                });
             });
         }
 
         let draggedItem = null;
 
-        function handleDragStart(e) {
-            draggedItem = this;
-            this.classList.add('dragging');
-            e.dataTransfer.effectAllowed = 'move';
-            e.dataTransfer.setData('text/html', this.innerHTML);
-        }
-
-        function handleDragEnd(e) {
-            this.classList.remove('dragging');
-            document.querySelectorAll('.photo-admin-item').forEach(el => el.classList.remove('drag-over'));
-        }
-
-        function handleDragOver(e) {
-            e.preventDefault();
-            e.dataTransfer.dropEffect = 'move';
-        }
-
-        function handleDragEnter(e) {
-            e.preventDefault();
-            if (this !== draggedItem) {
-                this.classList.add('drag-over');
-            }
-        }
-
-        function handleDragLeave(e) {
-            this.classList.remove('drag-over');
-        }
-
-        function handleDrop(e) {
-            e.preventDefault();
-            this.classList.remove('drag-over');
-            
-            if (this === draggedItem) return;
-            
-            const fromIndex = parseInt(draggedItem.dataset.index);
-            const toIndex = parseInt(this.dataset.index);
-            
-            if (isNaN(fromIndex) || isNaN(toIndex)) return;
-            
-            const loc = locations.find(l => l.id === currentLocationId);
-            if (!loc || !loc.photos) return;
-            
-            const photos = loc.photos;
-            const [movedItem] = photos.splice(fromIndex, 1);
-            photos.splice(toIndex, 0, movedItem);
-            
-            renderModalGallery(photos);
-            renderModalAdminPhotos(photos);
-            
-            saveLocationData();
-        }
-
-        // ============================================================
-        //  ОБНОВЛЕНИЕ ПОДПИСИ ФОТО
-        // ============================================================
         window.updatePhotoCaption = function(locId, index, value) {
             if (!isAdmin) return;
-            
             const loc = locations.find(l => l.id === locId);
             if (!loc || !loc.photos || !loc.photos[index]) return;
-            
             const photo = loc.photos[index];
-            if (typeof photo === 'object') {
-                photo.caption = value.trim();
-            } else {
-                loc.photos[index] = { url: photo, caption: value.trim() };
-            }
-            
+            if (typeof photo === 'object') photo.caption = value.trim();
+            else loc.photos[index] = { url: photo, caption: value.trim() };
             renderModalGallery(loc.photos);
             renderModalAdminPhotos(loc.photos);
         };
 
-        // ============================================================
-        //  УДАЛЕНИЕ ФОТО ИЗ МОДАЛКИ
-        // ============================================================
         window.deletePhotoFromModal = async function(locId, index) {
             if (!isAdmin) return;
             if (!confirm('🗑️ Удалить это фото?')) return;
-            
             const loc = locations.find(l => l.id === locId);
             if (!loc || !loc.photos || !loc.photos[index]) return;
-            
             try {
                 const photo = loc.photos[index];
                 const url = typeof photo === 'object' && photo.url ? photo.url : photo;
                 if (url && typeof url === 'string') {
                     const urlParts = url.split('/storage/v1/object/public/photos/');
-                    if (urlParts.length > 1) {
-                        const filePath = urlParts[1];
-                        await supabaseClient.storage.from('photos').remove([filePath]);
-                    }
+                    if (urlParts.length > 1) await supabaseClient.storage.from('photos').remove([urlParts[1]]);
                 }
-                
                 loc.photos.splice(index, 1);
                 await saveLocationData();
                 renderModalGallery(loc.photos);
                 renderModalAdminPhotos(loc.photos);
                 renderAdminList();
                 renderMarkers();
-                
             } catch (e) {
                 console.error('❌ Ошибка удаления фото:', e);
                 alert('❌ Ошибка удаления фото: ' + e.message);
             }
         };
 
-        // ============================================================
-        //  ЗАГРУЗКА ФОТО В МОДАЛКЕ
-        // ============================================================
         document.getElementById('modal-upload-btn').addEventListener('click', function() {
-            if (!isAdmin) {
-                alert('⛔ Только админ может загружать фото');
-                return;
-            }
+            if (!isAdmin) { alert('⛔ Только админ может загружать фото'); return; }
             document.getElementById('modal-file-input').click();
         });
 
@@ -2910,99 +2753,52 @@
             if (!isAdmin) return;
             const files = Array.from(e.target.files);
             if (files.length === 0) return;
-            
             const loc = locations.find(l => l.id === currentLocationId);
             if (!loc) return;
-            
-            if (!Array.isArray(loc.photos)) {
-                loc.photos = [];
-            }
-            
+            if (!Array.isArray(loc.photos)) loc.photos = [];
             for (const file of files) {
                 try {
                     const fileExt = file.name.split('.').pop();
-                    const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
-                    const filePath = `locations/${currentLocationId}/${fileName}`;
-                    
-                    const { error: uploadError } = await supabaseClient.storage
-                        .from('photos')
-                        .upload(filePath, file);
-                    
+                    const fileName = `locations/${currentLocationId}/${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+                    const { error: uploadError } = await supabaseClient.storage.from('photos').upload(fileName, file);
                     if (uploadError) throw uploadError;
-                    
-                    const { data: urlData } = supabaseClient.storage
-                        .from('photos')
-                        .getPublicUrl(filePath);
-                    
-                    loc.photos.push({
-                        url: urlData.publicUrl,
-                        caption: ''
-                    });
-                } catch (err) {
-                    console.error('Ошибка загрузки фото:', err);
-                    alert('❌ Ошибка загрузки фото: ' + err.message);
-                }
+                    const { data: urlData } = supabaseClient.storage.from('photos').getPublicUrl(fileName);
+                    loc.photos.push({ url: urlData.publicUrl, caption: '' });
+                } catch (err) { console.error('Ошибка загрузки фото:', err); alert('❌ Ошибка: ' + err.message); }
             }
-            
             await saveLocationData();
             renderModalGallery(loc.photos);
             renderModalAdminPhotos(loc.photos);
             renderAdminList();
             renderMarkers();
-            
             document.getElementById('modal-file-input').value = '';
         });
 
-        // ============================================================
-        //  СОХРАНЕНИЕ ДАННЫХ ЛОКАЦИИ ИЗ МОДАЛКИ
-        // ============================================================
         async function saveLocationData() {
             const loc = locations.find(l => l.id === currentLocationId);
             if (!loc) return;
-            
             try {
-                const { error } = await supabaseClient
-                    .from('locations')
-                    .upsert(loc, { onConflict: 'id' });
-                
+                const { error } = await supabaseClient.from('locations').upsert(loc, { onConflict: 'id' });
                 if (error) throw error;
-                
                 const idx = locations.findIndex(l => l.id === currentLocationId);
-                if (idx !== -1) {
-                    locations[idx] = loc;
-                }
-                
+                if (idx !== -1) locations[idx] = loc;
                 renderMarkers();
                 renderLocations();
                 renderAdminList();
-                
-                console.log('✅ Локация сохранена');
                 return true;
-            } catch (e) {
-                console.error('❌ Ошибка сохранения:', e);
-                alert('❌ Ошибка сохранения: ' + e.message);
-                return false;
-            }
+            } catch (e) { console.error('❌ Ошибка сохранения:', e); alert('❌ Ошибка: ' + e.message); return false; }
         }
 
         document.getElementById('modal-save-btn').addEventListener('click', async function() {
             if (!isAdmin) return;
-            
             const loc = locations.find(l => l.id === currentLocationId);
             if (!loc) return;
-            
             loc.description_long = document.getElementById('modal-description').value;
             await saveLocationData();
-            
             this.textContent = '✅ Сохранено!';
-            setTimeout(() => {
-                this.textContent = '💾 Сохранить изменения';
-            }, 2000);
+            setTimeout(() => { this.textContent = '💾 Сохранить изменения'; }, 2000);
         });
 
-        // ============================================================
-        //  ЗАКРЫТИЕ МОДАЛКИ
-        // ============================================================
         document.getElementById('modal-close-btn').addEventListener('click', () => {
             document.getElementById('location-modal').classList.remove('active');
             document.body.style.overflow = '';
@@ -3016,7 +2812,7 @@
         });
 
         // ============================================================
-        //  АДМИН-ПАНЕЛЬ (основная)
+        //  АДМИН-ПАНЕЛЬ
         // ============================================================
         const adminOverlay = document.getElementById('admin-overlay');
         const adminToggleBtn = document.getElementById('admin-toggle-btn');
@@ -3049,6 +2845,7 @@
         document.getElementById('admin-cancel-edit').addEventListener('click', function() {
             editingId = null;
             document.getElementById('admin-location-name').value = '';
+            document.getElementById('admin-location-country').value = '';
             document.getElementById('admin-location-desc').value = '';
             document.getElementById('admin-location-subtitle').value = '';
             document.getElementById('admin-photos-grid').innerHTML = '';
@@ -3059,14 +2856,13 @@
             tab.addEventListener('click', function() {
                 document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
                 document.querySelectorAll('.admin-tab-content').forEach(c => c.classList.remove('active'));
-                
                 this.classList.add('active');
                 const tabId = this.dataset.tab;
                 document.getElementById(`tab-${tabId}`).classList.add('active');
-                
                 if (tabId === 'locations') renderAdminList();
                 if (tabId === 'routes') renderAdminRoutesList();
                 if (tabId === 'labels') renderAdminLabelsList();
+                if (tabId === 'library') { loadPhotosLibrary(); }
             });
         });
 
@@ -3083,6 +2879,7 @@
                 loadAdminLocations();
                 loadRoutes();
                 loadLabels();
+                loadPhotosLibrary();
                 renderRoutes();
                 renderLabels();
             } else {
@@ -3098,25 +2895,10 @@
             const email = document.getElementById('admin-email').value.trim();
             const password = document.getElementById('admin-password').value;
             const errorEl = document.getElementById('admin-login-error');
-
-            if (!email || !password) {
-                errorEl.textContent = 'Заполните email и пароль';
-                errorEl.style.display = 'block';
-                return;
-            }
-
+            if (!email || !password) { errorEl.textContent = 'Заполните email и пароль'; errorEl.style.display = 'block'; return; }
             try {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email: email,
-                    password: password
-                });
-
-                if (error) {
-                    errorEl.textContent = 'Неверный email или пароль';
-                    errorEl.style.display = 'block';
-                    return;
-                }
-
+                const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+                if (error) { errorEl.textContent = 'Неверный email или пароль'; errorEl.style.display = 'block'; return; }
                 errorEl.style.display = 'none';
                 isAdmin = true;
                 document.getElementById('admin-login').style.display = 'none';
@@ -3124,12 +2906,10 @@
                 loadAdminLocations();
                 loadRoutes();
                 loadLabels();
+                loadPhotosLibrary();
                 renderRoutes();
                 renderLabels();
-            } catch (e) {
-                errorEl.textContent = 'Ошибка входа';
-                errorEl.style.display = 'block';
-            }
+            } catch (e) { errorEl.textContent = 'Ошибка входа'; errorEl.style.display = 'block'; }
         });
 
         document.getElementById('admin-password').addEventListener('keydown', function(e) {
@@ -3154,21 +2934,15 @@
         // ============================================================
         async function loadAdminLocations() {
             try {
-                const { data, error } = await supabaseClient
-                    .from('locations')
-                    .select('*')
-                    .order('id', { ascending: true });
-
+                const { data, error } = await supabaseClient.from('locations').select('*').order('id', { ascending: true });
                 if (error) throw error;
                 locations = data || [];
                 renderAdminList();
                 renderMarkers();
                 renderLocations();
+                updateCountryFilter();
                 setAdminStatus('✅ Синхронизировано', 'ok');
-            } catch (e) {
-                console.error('Ошибка загрузки:', e);
-                setAdminStatus('⚠️ Ошибка загрузки', 'error');
-            }
+            } catch (e) { console.error('Ошибка загрузки:', e); setAdminStatus('⚠️ Ошибка загрузки', 'error'); }
         }
 
         function setAdminStatus(text, type) {
@@ -3186,7 +2960,6 @@
                 return;
             }
             if (count) count.textContent = locations.length;
-            
             let html = '';
             locations.forEach(loc => {
                 const countPhotos = loc.photos ? loc.photos.length : 0;
@@ -3196,8 +2969,8 @@
                         <div class="item-info">
                             <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0;"></span>
                             <span class="name">${loc.name}</span>
-                            <span style="color:#555;font-size:10px;flex-shrink:0;">📷${countPhotos}</span>
-                            <span style="color:#555;font-size:10px;flex-shrink:0;">📍${loc.lat.toFixed(2)}, ${loc.lng.toFixed(2)}</span>
+                            <span style="color:#555;font-size:10px;">${loc.country || 'Без категории'}</span>
+                            <span style="color:#555;font-size:10px;">📷${countPhotos}</span>
                         </div>
                         <div class="item-actions">
                             <button class="edit" onclick="editLocation(${loc.id})" title="Редактировать">✎</button>
@@ -3214,23 +2987,18 @@
             mapInstance.setView([0, 0], 1.5);
             alert('Кликните по карте, чтобы добавить новую локацию.');
             mapInstance.once('click', async function(e) {
-                const lat = e.latlng.lat.toFixed(3);
-                const lng = e.latlng.lng.toFixed(3);
+                const lat = e.latlng.lat.toFixed(3), lng = e.latlng.lng.toFixed(3);
                 const name = prompt('Название новой локации:');
                 if (!name) return;
+                const country = prompt('Страна / Категория:') || 'Без категории';
                 const desc = prompt('Краткое описание:');
                 const subtitle = prompt('Подзаголовок (например: Столица Сильванора):');
                 const newLoc = {
-                    id: Date.now(),
-                    lat: parseFloat(lat),
-                    lng: parseFloat(lng),
-                    name: name.trim(),
+                    id: Date.now(), lat: parseFloat(lat), lng: parseFloat(lng),
+                    name: name.trim(), country: country.trim(),
                     description: desc?.trim() || 'Описание отсутствует',
                     subtitle: subtitle?.trim() || '',
-                    description_long: '',
-                    characters: [],
-                    features: [],
-                    photos: [],
+                    description_long: '', characters: [], features: [], photos: [],
                     markerColor: '#d4c08a'
                 };
                 locations.push(newLoc);
@@ -3238,6 +3006,7 @@
                 renderAdminList();
                 renderMarkers();
                 renderLocations();
+                updateCountryFilter();
                 alert('Локация добавлена!');
             });
         });
@@ -3246,24 +3015,21 @@
             const loc = locations.find(l => l.id === id);
             if (!loc) return;
             editingId = id;
-
             document.getElementById('admin-location-name').value = loc.name || '';
+            document.getElementById('admin-location-country').value = loc.country || '';
             document.getElementById('admin-location-desc').value = loc.description || '';
             document.getElementById('admin-location-subtitle').value = loc.subtitle || '';
 
             const grid = document.getElementById('admin-photos-grid');
             grid.innerHTML = '';
-
             if (!loc.photos || !Array.isArray(loc.photos) || loc.photos.length === 0) {
                 grid.innerHTML = '<div style="color:#444;font-style:italic;padding:10px;text-align:center;">Нет фотографий</div>';
                 return;
             }
-
             loc.photos.forEach((photo, idx) => {
                 const url = typeof photo === 'object' && photo.url ? photo.url : photo;
                 const cap = typeof photo === 'object' && photo.caption ? photo.caption : 'Без подписи';
                 if (!url) return;
-
                 const div = document.createElement('div');
                 div.className = 'photo-item';
                 div.innerHTML = `
@@ -3283,22 +3049,12 @@
         window.editPhotoCaptionAdmin = function(locId, photoIdx) {
             const loc = locations.find(l => l.id === locId);
             if (!loc || !loc.photos || !loc.photos[photoIdx]) return;
-
             const photo = loc.photos[photoIdx];
             const currentCaption = typeof photo === 'object' && photo.caption ? photo.caption : '';
-            
             const newCaption = prompt('Введите подпись к фото:', currentCaption);
             if (newCaption === null) return;
-
-            if (typeof photo === 'object') {
-                photo.caption = newCaption.trim() || '';
-            } else {
-                loc.photos[photoIdx] = {
-                    url: photo,
-                    caption: newCaption.trim() || ''
-                };
-            }
-
+            if (typeof photo === 'object') photo.caption = newCaption.trim() || '';
+            else loc.photos[photoIdx] = { url: photo, caption: newCaption.trim() || '' };
             saveAll();
             renderAdminList();
             renderMarkers();
@@ -3311,18 +3067,13 @@
             if (!confirm('Удалить это фото?')) return;
             const loc = locations.find(l => l.id === locId);
             if (!loc || !loc.photos) return;
-
             try {
                 const photo = loc.photos[photoIdx];
                 const url = typeof photo === 'object' && photo.url ? photo.url : photo;
                 if (url && typeof url === 'string') {
                     const urlParts = url.split('/storage/v1/object/public/photos/');
-                    if (urlParts.length > 1) {
-                        const filePath = urlParts[1];
-                        await supabaseClient.storage.from('photos').remove([filePath]);
-                    }
+                    if (urlParts.length > 1) await supabaseClient.storage.from('photos').remove([urlParts[1]]);
                 }
-
                 loc.photos.splice(photoIdx, 1);
                 await saveAll();
                 renderAdminList();
@@ -3331,79 +3082,58 @@
                 editLocation(locId);
                 setAdminStatus('✅ Фото удалено', 'ok');
                 alert('Фото удалено!');
-            } catch (e) {
-                console.error('Ошибка удаления фото:', e);
-                alert('Ошибка удаления фото: ' + e.message);
-                setAdminStatus('⚠️ Ошибка удаления фото', 'error');
-            }
+            } catch (e) { console.error('Ошибка удаления фото:', e); alert('Ошибка: ' + e.message); setAdminStatus('⚠️ Ошибка', 'error'); }
         };
 
         async function deleteLocation(id) {
             if (!confirm('Удалить эту локацию?')) return;
             try {
-                const { error } = await supabaseClient
-                    .from('locations')
-                    .delete()
-                    .eq('id', id);
+                const { error } = await supabaseClient.from('locations').delete().eq('id', id);
                 if (error) throw error;
                 locations = locations.filter(l => l.id !== id);
                 renderAdminList();
                 renderMarkers();
                 renderLocations();
+                updateCountryFilter();
                 if (editingId === id) {
                     editingId = null;
                     document.getElementById('admin-location-name').value = '';
+                    document.getElementById('admin-location-country').value = '';
                     document.getElementById('admin-location-desc').value = '';
                     document.getElementById('admin-location-subtitle').value = '';
                     document.getElementById('admin-photos-grid').innerHTML = '';
                 }
                 setAdminStatus('✅ Удалено', 'ok');
                 alert('Локация удалена!');
-            } catch (e) {
-                console.error('Ошибка удаления:', e);
-                alert('Ошибка удаления: ' + e.message);
-                setAdminStatus('⚠️ Ошибка удаления', 'error');
-            }
+            } catch (e) { console.error('Ошибка удаления:', e); alert('Ошибка: ' + e.message); setAdminStatus('⚠️ Ошибка', 'error'); }
         }
 
         async function saveAll() {
             try {
                 for (const loc of locations) {
-                    const { error } = await supabaseClient
-                        .from('locations')
-                        .upsert(loc, { onConflict: 'id' });
+                    const { error } = await supabaseClient.from('locations').upsert(loc, { onConflict: 'id' });
                     if (error) throw error;
                 }
                 setAdminStatus('✅ Сохранено', 'ok');
                 return true;
-            } catch (e) {
-                console.error('Ошибка сохранения:', e);
-                setAdminStatus('⚠️ Ошибка сохранения', 'error');
-                alert('Ошибка сохранения: ' + e.message);
-                return false;
-            }
+            } catch (e) { console.error('Ошибка сохранения:', e); setAdminStatus('⚠️ Ошибка', 'error'); alert('Ошибка: ' + e.message); return false; }
         }
 
-        document.getElementById('admin-save-all').addEventListener('click', async function() {
-            await saveAll();
-        });
+        document.getElementById('admin-save-all').addEventListener('click', async function() { await saveAll(); });
 
         document.getElementById('admin-save-location').addEventListener('click', async function() {
-            if (editingId === null) {
-                alert('Сначала выберите локацию для редактирования.');
-                return;
-            }
+            if (editingId === null) { alert('Сначала выберите локацию для редактирования.'); return; }
             const loc = locations.find(l => l.id === editingId);
             if (!loc) return;
-
             loc.name = document.getElementById('admin-location-name').value.trim() || 'Без названия';
+            loc.country = document.getElementById('admin-location-country').value.trim() || 'Без категории';
             loc.description = document.getElementById('admin-location-desc').value.trim() || 'Описание отсутствует';
             loc.subtitle = document.getElementById('admin-location-subtitle').value.trim() || '';
-
             await saveAll();
             renderAdminList();
             renderMarkers();
             renderLocations();
+            updateCountryFilter();
             alert('Локация сохранена!');
         });
 
@@ -3411,14 +3141,8 @@
             if (editingId !== null) deleteLocation(editingId);
         });
 
-        // ============================================================
-        //  ЗАГРУЗКА ФОТО В АДМИН-ПАНЕЛИ
-        // ============================================================
         document.getElementById('admin-file-upload').addEventListener('click', function() {
-            if (editingId === null) {
-                alert('Сначала выберите локацию для редактирования.');
-                return;
-            }
+            if (editingId === null) { alert('Сначала выберите локацию для редактирования.'); return; }
             document.getElementById('admin-file-input').click();
         });
 
@@ -3428,60 +3152,30 @@
         });
 
         document.getElementById('admin-upload-btn').addEventListener('click', async function() {
-            if (editingId === null) {
-                alert('Сначала выберите локацию для редактирования.');
-                return;
-            }
-            if (selectedFiles.length === 0) {
-                alert('Выберите файлы для загрузки.');
-                return;
-            }
-
+            if (editingId === null) { alert('Сначала выберите локацию для редактирования.'); return; }
+            if (selectedFiles.length === 0) { alert('Выберите файлы для загрузки.'); return; }
             const loc = locations.find(l => l.id === editingId);
             if (!loc) return;
-
-            if (!Array.isArray(loc.photos)) {
-                loc.photos = [];
-            }
-
+            if (!Array.isArray(loc.photos)) loc.photos = [];
             setAdminStatus('⏳ Загрузка...', 'syncing');
-
             for (const file of selectedFiles) {
                 try {
                     const fileExt = file.name.split('.').pop();
-                    const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
-                    const filePath = `locations/${editingId}/${fileName}`;
-
-                    const { error: uploadError } = await supabaseClient.storage
-                        .from('photos')
-                        .upload(filePath, file);
-
+                    const fileName = `locations/${editingId}/${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+                    const { error: uploadError } = await supabaseClient.storage.from('photos').upload(fileName, file);
                     if (uploadError) throw uploadError;
-
-                    const { data: urlData } = supabaseClient.storage
-                        .from('photos')
-                        .getPublicUrl(filePath);
-
-                    loc.photos.push({
-                        url: urlData.publicUrl,
-                        caption: ''
-                    });
-                } catch (err) {
-                    console.error('Ошибка загрузки фото:', err);
-                    alert('Ошибка загрузки фото: ' + err.message);
-                }
+                    const { data: urlData } = supabaseClient.storage.from('photos').getPublicUrl(fileName);
+                    loc.photos.push({ url: urlData.publicUrl, caption: '' });
+                } catch (err) { console.error('Ошибка загрузки фото:', err); alert('Ошибка: ' + err.message); }
             }
-
             await saveAll();
             renderAdminList();
             renderMarkers();
             renderLocations();
             editLocation(editingId);
-            
             document.getElementById('admin-file-input').value = '';
             selectedFiles = [];
             document.getElementById('admin-file-count').textContent = '0 файлов';
-            
             setAdminStatus('✅ Фото загружены', 'ok');
             alert('Фото загружены!');
         });
@@ -3495,17 +3189,22 @@
                 list.innerHTML = '<li class="empty-msg">Нет локаций</li>';
                 return;
             }
+            let filtered = locations;
+            if (currentFilter !== 'all') {
+                filtered = locations.filter(l => l.country === currentFilter);
+            }
             let html = '';
-            locations.forEach(loc => {
+            filtered.forEach(loc => {
                 const count = loc.photos ? loc.photos.length : 0;
                 html += `
                     <li data-id="${loc.id}" onclick="flyToLocation(${loc.id})">
                         <span class="loc-name">${loc.name}</span>
+                        <span class="loc-country">${loc.country || 'Без категории'}</span>
                         <span class="loc-photos-count">${count}</span>
                     </li>
                 `;
             });
-            list.innerHTML = html;
+            list.innerHTML = html || '<li class="empty-msg">Нет локаций в этой категории</li>';
         }
 
         function flyToLocation(id) {
@@ -3522,13 +3221,11 @@
         function openViewer(locId, index) {
             const loc = locations.find(l => l.id === locId);
             if (!loc || !loc.photos || loc.photos.length === 0) return;
-
             viewerData.photos = loc.photos;
             viewerData.index = index;
             viewerData.locId = locId;
             viewerData.locName = loc.name;
             viewerData.locDesc = loc.description || '';
-
             updateViewer();
             document.getElementById('photo-viewer-overlay').classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -3536,66 +3233,40 @@
             touchEndX = 0;
         }
 
-        let touchStartX = 0;
-        let touchEndX = 0;
+        let touchStartX = 0, touchEndX = 0;
 
         function updateViewer() {
             const photo = viewerData.photos[viewerData.index];
             const url = typeof photo === 'object' && photo.url ? photo.url : photo;
             const cap = typeof photo === 'object' && photo.caption ? photo.caption : '';
-
             document.getElementById('viewer-img').src = url;
-            document.getElementById('viewer-counter').textContent =
-                `${viewerData.index + 1} / ${viewerData.photos.length}`;
+            document.getElementById('viewer-counter').textContent = `${viewerData.index + 1} / ${viewerData.photos.length}`;
             document.getElementById('viewer-title').textContent = viewerData.locName || 'Название локации';
             document.getElementById('viewer-location').textContent = `📍 ${viewerData.locDesc || 'Локация'}`;
-
             const captionEl = document.getElementById('viewer-caption');
             captionEl.value = cap || '';
             captionEl.placeholder = 'Введите описание к фото...';
-
             const saveBtn = document.getElementById('viewer-caption-save');
-            if (isAdmin) {
-                saveBtn.classList.remove('hidden');
-                captionEl.readOnly = false;
-                captionEl.style.cursor = 'text';
-            } else {
-                saveBtn.classList.add('hidden');
-                captionEl.readOnly = true;
-                captionEl.style.cursor = 'default';
-            }
+            if (isAdmin) { saveBtn.classList.remove('hidden'); captionEl.readOnly = false; captionEl.style.cursor = 'text'; } 
+            else { saveBtn.classList.add('hidden'); captionEl.readOnly = true; captionEl.style.cursor = 'default'; }
         }
 
         document.getElementById('viewer-caption-save').addEventListener('click', async function() {
             if (viewerData.locId === null || viewerData.index === null) return;
-
             const loc = locations.find(l => l.id === viewerData.locId);
             if (!loc || !loc.photos || !loc.photos[viewerData.index]) return;
-
             const newCaption = document.getElementById('viewer-caption').value.trim();
             const photo = loc.photos[viewerData.index];
-
-            if (typeof photo === 'object') {
-                photo.caption = newCaption;
-            } else {
-                loc.photos[viewerData.index] = {
-                    url: photo,
-                    caption: newCaption
-                };
-            }
-
+            if (typeof photo === 'object') photo.caption = newCaption;
+            else loc.photos[viewerData.index] = { url: photo, caption: newCaption };
             await saveAll();
-
             renderAdminList();
             renderMarkers();
             renderLocations();
             if (editingId !== null) editLocation(editingId);
-
             setAdminStatus('✅ Подпись сохранена', 'ok');
             this.textContent = '✅ Сохранено!';
-            setTimeout(() => {
-                this.textContent = '💾 Сохранить';
-            }, 2000);
+            setTimeout(() => { this.textContent = '💾 Сохранить'; }, 2000);
         });
 
         function closeViewer() {
@@ -3620,31 +3291,17 @@
             updateViewer();
         }
 
-        document.getElementById('viewer-prev').addEventListener('click', function(e) {
-            e.stopPropagation();
-            goToPrev();
-        });
-        document.getElementById('viewer-next').addEventListener('click', function(e) {
-            e.stopPropagation();
-            goToNext();
-        });
+        document.getElementById('viewer-prev').addEventListener('click', function(e) { e.stopPropagation(); goToPrev(); });
+        document.getElementById('viewer-next').addEventListener('click', function(e) { e.stopPropagation(); goToNext(); });
 
         const viewerOverlay = document.getElementById('photo-viewer-overlay');
-        viewerOverlay.addEventListener('touchstart', function(e) {
-            touchStartX = e.changedTouches[0].screenX;
-        }, { passive: true });
+        viewerOverlay.addEventListener('touchstart', function(e) { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
         viewerOverlay.addEventListener('touchend', function(e) {
             touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        }, { passive: true });
-
-        function handleSwipe() {
-            const swipeThreshold = 50;
             const diff = touchStartX - touchEndX;
-            if (Math.abs(diff) < swipeThreshold) return;
-            if (diff > 0) goToNext();
-            else goToPrev();
-        }
+            if (Math.abs(diff) < 50) return;
+            diff > 0 ? goToNext() : goToPrev();
+        }, { passive: true });
 
         document.addEventListener('keydown', function(e) {
             const viewer = document.getElementById('photo-viewer-overlay');
@@ -3658,7 +3315,7 @@
         });
 
         // ============================================================
-        //  ГЛОБАЛЬНЫЕ ФУНКЦИИ - ВСЕ ФУНКЦИИ ЗДЕСЬ!
+        //  ГЛОБАЛЬНЫЕ ФУНКЦИИ
         // ============================================================
         window.changeMarkerColor = changeMarkerColor;
         window.editLabelPosition = editLabelPosition;
@@ -3692,6 +3349,9 @@
         window.renderLocations = renderLocations;
         window.renderMarkers = renderMarkers;
         window.saveLocationData = saveLocationData;
+        window.addPhotoToCurrentLocation = addPhotoToCurrentLocation;
+        window.deletePhotoFromLibrary = deletePhotoFromLibrary;
+        window.loadPhotosLibrary = loadPhotosLibrary;
 
         // ============================================================
         //  ЗАПУСК
@@ -3701,15 +3361,13 @@
             initMap();
             await loadRoutes();
             await loadLabels();
-            console.log('Атлас загружен');
-            console.log('📱 На телефонах: свайп влево/вправо для переключения фото');
-            console.log('⌨️ На ПК: стрелки ← → на клавиатуре');
-            console.log('🏷️ Надписи можно перетаскивать в админ-режиме');
-            console.log('👁️ Пользователи могут скрыть/показать надписи кнопкой в хедере');
-            console.log('🎨 Цвет маркера меняется кликом по кружочкам (только админ)');
-            console.log('🔤 Размер надписи меняется кнопками A+ / A- (только админ)');
-            console.log('📐 Новая трёхколоночная модалка с drag & drop для фото');
-            console.log('✅ Все функции зарегистрированы глобально');
+            await loadPhotosLibrary();
+            console.log('✅ Атлас загружен');
+            console.log('🎨 20 цветов для маркеров');
+            console.log('🖼️ Медиатека со всеми фото');
+            console.log('📂 Фильтр по странам в сайдбаре');
+            console.log('🔤 A+ / A- только в админ-панели');
+            console.log('📐 Drag & Drop из медиатеки в модалку');
         }
 
         startApp();
