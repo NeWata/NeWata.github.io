@@ -318,6 +318,15 @@
             border-radius: 12px;
             margin-bottom: 12px;
         }
+        .modal-left .loc-subcategory-badge {
+            display: inline-block;
+            font-size: 10px;
+            color: #666;
+            background: rgba(255,255,255,0.03);
+            padding: 1px 10px;
+            border-radius: 10px;
+            margin-left: 6px;
+        }
 
         .modal-left .section-label {
             font-size: 11px;
@@ -1357,7 +1366,10 @@
             <div class="modal-body">
                 <div class="modal-left" id="modal-left">
                     <div class="loc-title" id="modal-title">Название локации</div>
-                    <div class="loc-country-badge" id="modal-country">🌍 Без категории</div>
+                    <div>
+                        <span class="loc-country-badge" id="modal-country">🌍 Без категории</span>
+                        <span class="loc-subcategory-badge" id="modal-subcategory">📁 Без подкатегории</span>
+                    </div>
                     <div class="loc-subtitle" id="modal-subtitle">📍 Подзаголовок</div>
                     
                     <div class="section-label">📝 Описание</div>
@@ -1457,6 +1469,7 @@
                     <button class="admin-tab" data-tab="routes">🗺️ Маршруты</button>
                     <button class="admin-tab" data-tab="labels">🏷️ Надписи</button>
                     <button class="admin-tab" data-tab="library">🖼️ Медиатека</button>
+                    <button class="admin-tab" data-tab="subcategories">📂 Подкатегории</button>
                 </div>
 
                 <div class="admin-tab-content active" id="tab-locations">
@@ -1476,10 +1489,17 @@
                             <input id="admin-location-country" placeholder="Например: Аурион, Сильванор, ...">
                         </div>
                         <div class="form-group">
-                            <label>Родительская страна (подкатегория)</label>
-                            <select id="admin-location-parent">
-                                <option value="">— Нет (основная категория) —</option>
-                            </select>
+                            <label>Подкатегория</label>
+                            <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:4px;">
+                                <select id="admin-location-subcategory" style="flex:1; padding:6px 10px; background:#0a0a12; color:#e0dcc8; border:1px solid #2a2a3e; border-radius:6px; outline:none;">
+                                    <option value="">— Нет подкатегории —</option>
+                                </select>
+                                <button class="btn btn-secondary" id="add-subcategory-btn" style="padding:4px 12px;font-size:12px;">➕</button>
+                                <button class="btn btn-danger" id="delete-subcategory-btn" style="padding:4px 12px;font-size:12px;display:none;">✕</button>
+                            </div>
+                            <div style="font-size:10px;color:#444;margin-top:2px;">
+                                💡 Сначала выбери страну, затем добавь подкатегорию
+                            </div>
                         </div>
                         <div class="form-group">
                             <label>Описание (краткое)</label>
@@ -1552,6 +1572,17 @@
                         <div style="color:#444;font-style:italic;padding:20px;text-align:center;">Нет фото в библиотеке</div>
                     </div>
                 </div>
+
+                <div class="admin-tab-content" id="tab-subcategories">
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
+                        <button class="btn btn-primary" id="subcat-add-btn" style="padding:4px 14px;font-size:12px;">➕ Добавить подкатегорию</button>
+                        <button class="btn btn-secondary" id="subcat-refresh-btn" style="padding:4px 14px;font-size:12px;">🔄 Обновить</button>
+                        <span style="font-size:12px;color:#555;align-self:center;">Всего: <span id="subcat-count">0</span></span>
+                    </div>
+                    <div class="admin-scroll-list" id="subcategories-list">
+                        <div style="color:#444;font-style:italic;padding:20px;text-align:center;">Нет подкатегорий</div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1573,6 +1604,7 @@
         let routes = [];
         let labels = [];
         let photosLibrary = [];
+        let subcategories = [];
         let mapInstance = null;
         let imageOverlay = null;
         let markerMap = new Map();
@@ -1658,39 +1690,12 @@
             return [...countries].sort();
         }
 
-        function getSubcategories(country) {
-            return locations
-                .filter(l => l.parent_country === country)
-                .sort((a, b) => a.name.localeCompare(b.name));
-        }
-
-        function getLocationsByCountry(country) {
-            if (country === 'all') return locations;
-            return locations.filter(l => 
-                l.country === country || l.parent_country === country
-            );
-        }
-
-        function updateParentSelect(selectedCountry) {
-            const select = document.getElementById('admin-location-parent');
-            if (!select) return;
-            
-            const countries = getCountries();
-            let html = '<option value="">— Нет (основная категория) —</option>';
-            
-            countries.forEach(c => {
-                if (c === selectedCountry) return;
-                const subcats = getSubcategories(c);
-                if (subcats.length > 0 || c !== selectedCountry) {
-                    html += `<option value="${c}">${c}</option>`;
-                }
-            });
-            
-            select.innerHTML = html;
+        function getSubcategoriesByCountry(country) {
+            return subcategories.filter(s => s.country === country);
         }
 
         // ============================================================
-        //  ФИЛЬТР ПО СТРАНАМ (С ПОДКАТЕГОРИЯМИ)
+        //  ФИЛЬТР ПО СТРАНАМ
         // ============================================================
         function updateCountryFilter() {
             const select = document.getElementById('country-select');
@@ -1699,11 +1704,11 @@
             let html = '<option value="all">🌍 Все страны</option>';
             
             countries.forEach(c => {
-                const subcats = getSubcategories(c);
-                if (subcats.length > 0) {
+                const subs = getSubcategoriesByCountry(c);
+                if (subs.length > 0) {
                     html += `<option value="${c}" style="font-weight:bold;">📁 ${c}</option>`;
-                    subcats.forEach(sub => {
-                        html += `<option value="${sub.country}" style="padding-left:20px;color:#888;">  └─ ${sub.name}</option>`;
+                    subs.forEach(sub => {
+                        html += `<option value="${c}|${sub.name}" style="padding-left:20px;color:#888;">  └─ ${sub.name}</option>`;
                     });
                 } else {
                     html += `<option value="${c}">${c}</option>`;
@@ -1715,8 +1720,15 @@
         }
 
         document.getElementById('country-select').addEventListener('change', function() {
-            currentFilter = this.value;
-            renderLocations();
+            const val = this.value;
+            if (val.includes('|')) {
+                const [country, subcategory] = val.split('|');
+                currentFilter = country;
+                renderLocations();
+            } else {
+                currentFilter = val;
+                renderLocations();
+            }
         });
 
         // ============================================================
@@ -2464,6 +2476,232 @@
         });
 
         // ============================================================
+        //  ПОДКАТЕГОРИИ (ПОЛЬЗОВАТЕЛЬСКИЕ)
+        // ============================================================
+
+        // Загрузка подкатегорий
+        async function loadSubcategories() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('subcategories')
+                    .select('*')
+                    .order('country', { ascending: true })
+                    .order('name', { ascending: true });
+
+                if (error) throw error;
+                subcategories = data || [];
+                updateSubcategorySelect();
+                renderSubcategoriesList();
+                document.getElementById('subcat-count').textContent = subcategories.length;
+                return true;
+            } catch (e) {
+                console.error('❌ Ошибка загрузки подкатегорий:', e);
+                return false;
+            }
+        }
+
+        // Сохранение подкатегории
+        async function saveSubcategory(country, name) {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('subcategories')
+                    .insert({ country: country.trim(), name: name.trim() })
+                    .select()
+                    .single();
+
+                if (error) throw error;
+                subcategories.push(data);
+                updateSubcategorySelect();
+                renderSubcategoriesList();
+                document.getElementById('subcat-count').textContent = subcategories.length;
+                return data;
+            } catch (e) {
+                console.error('❌ Ошибка сохранения подкатегории:', e);
+                alert('❌ Ошибка: ' + e.message);
+                return null;
+            }
+        }
+
+        // Удаление подкатегории
+        async function deleteSubcategory(id) {
+            const sub = subcategories.find(s => s.id === id);
+            if (!sub) return;
+            
+            const used = locations.some(l => 
+                l.country === sub.country && l.subcategory === sub.name
+            );
+            
+            if (used) {
+                alert(`❌ Подкатегория "${sub.name}" используется в локациях! Сначала удалите или измените локации.`);
+                return;
+            }
+            
+            if (!confirm(`🗑️ Удалить подкатегорию "${sub.name}"?`)) return;
+            
+            try {
+                const { error } = await supabaseClient
+                    .from('subcategories')
+                    .delete()
+                    .eq('id', id);
+
+                if (error) throw error;
+                subcategories = subcategories.filter(s => s.id !== id);
+                updateSubcategorySelect();
+                renderSubcategoriesList();
+                document.getElementById('subcat-count').textContent = subcategories.length;
+                alert(`✅ Подкатегория "${sub.name}" удалена`);
+            } catch (e) {
+                console.error('❌ Ошибка удаления подкатегории:', e);
+                alert('❌ Ошибка: ' + e.message);
+            }
+        }
+
+        // Обновление выпадающего списка подкатегорий
+        function updateSubcategorySelect() {
+            const select = document.getElementById('admin-location-subcategory');
+            if (!select) return;
+            
+            const country = document.getElementById('admin-location-country').value.trim();
+            const currentVal = select.value;
+            
+            let html = '<option value="">— Нет подкатегории —</option>';
+            
+            if (country) {
+                const filtered = subcategories.filter(s => s.country === country);
+                filtered.forEach(s => {
+                    html += `<option value="${s.name}">${s.name}</option>`;
+                });
+            }
+            
+            select.innerHTML = html;
+            select.value = currentVal;
+            
+            // Показываем кнопку удаления, если есть подкатегории
+            const deleteBtn = document.getElementById('delete-subcategory-btn');
+            if (deleteBtn) {
+                const hasSubs = subcategories.some(s => s.country === country);
+                deleteBtn.style.display = hasSubs ? 'inline-block' : 'none';
+            }
+        }
+
+        // Рендер списка подкатегорий
+        function renderSubcategoriesList() {
+            const container = document.getElementById('subcategories-list');
+            if (!container) return;
+            
+            if (!subcategories || subcategories.length === 0) {
+                container.innerHTML = '<div style="color:#444;font-style:italic;padding:20px;text-align:center;">Нет подкатегорий</div>';
+                return;
+            }
+            
+            let html = '';
+            const grouped = {};
+            subcategories.forEach(s => {
+                if (!grouped[s.country]) grouped[s.country] = [];
+                grouped[s.country].push(s);
+            });
+            
+            const sortedCountries = Object.keys(grouped).sort();
+            sortedCountries.forEach(country => {
+                html += `<div style="color:#888;font-size:11px;padding:4px 8px;font-weight:bold;border-bottom:1px solid #1a1a2a;">📁 ${country}</div>`;
+                grouped[country].forEach(sub => {
+                    const used = locations.some(l => l.country === country && l.subcategory === sub.name);
+                    html += `
+                        <div class="list-item" style="padding-left:20px;">
+                            <div class="item-info">
+                                <span class="name">${sub.name}</span>
+                                <span style="color:${used ? '#4caf50' : '#555'};font-size:10px;">${used ? '✅ используется' : '❌ не используется'}</span>
+                            </div>
+                            <div class="item-actions">
+                                ${!used ? `<button class="delete" onclick="deleteSubcategory(${sub.id})" title="Удалить">✕</button>` : '<span style="color:#555;font-size:10px;">🔒</span>'}
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+            container.innerHTML = html;
+        }
+
+        // Добавление новой подкатегории (кнопка в редакторе)
+        document.getElementById('add-subcategory-btn').addEventListener('click', function() {
+            const country = document.getElementById('admin-location-country').value.trim();
+            if (!country) {
+                alert('❌ Сначала введите название страны!');
+                document.getElementById('admin-location-country').focus();
+                return;
+            }
+            
+            const name = prompt('📝 Введите название подкатегории:', 'Новая подкатегория');
+            if (!name || name.trim() === '') return;
+            
+            const exists = subcategories.some(s => 
+                s.country === country && s.name === name.trim()
+            );
+            
+            if (exists) {
+                alert(`❌ Подкатегория "${name.trim()}" уже существует в "${country}"!`);
+                return;
+            }
+            
+            saveSubcategory(country, name.trim());
+        });
+
+        // Удаление подкатегории (кнопка в редакторе)
+        document.getElementById('delete-subcategory-btn').addEventListener('click', function() {
+            const country = document.getElementById('admin-location-country').value.trim();
+            if (!country) return;
+            
+            const select = document.getElementById('admin-location-subcategory');
+            const selected = select.value;
+            
+            if (!selected) {
+                alert('❌ Выберите подкатегорию для удаления');
+                return;
+            }
+            
+            const sub = subcategories.find(s => s.country === country && s.name === selected);
+            if (sub) {
+                deleteSubcategory(sub.id);
+            }
+        });
+
+        // Кнопка добавления подкатегории в отдельной вкладке
+        document.getElementById('subcat-add-btn').addEventListener('click', function() {
+            const country = prompt('📁 Введите название страны для подкатегории:');
+            if (!country || country.trim() === '') return;
+            
+            const name = prompt('📝 Введите название подкатегории:', 'Новая подкатегория');
+            if (!name || name.trim() === '') return;
+            
+            const trimmedCountry = country.trim();
+            const trimmedName = name.trim();
+            
+            const exists = subcategories.some(s => 
+                s.country === trimmedCountry && s.name === trimmedName
+            );
+            
+            if (exists) {
+                alert(`❌ Подкатегория "${trimmedName}" уже существует в "${trimmedCountry}"!`);
+                return;
+            }
+            
+            saveSubcategory(trimmedCountry, trimmedName);
+        });
+
+        document.getElementById('subcat-refresh-btn').addEventListener('click', function() {
+            loadSubcategories();
+        });
+
+        // Обновляем подкатегории при смене страны
+        document.getElementById('admin-location-country').addEventListener('input', function() {
+            updateSubcategorySelect();
+        });
+
+        document.getElementById('admin-location-country').addEventListener('change', function() {
+            updateSubcategorySelect();
+        });
+
+        // ============================================================
         //  МЕДИАТЕКА
         // ============================================================
         async function loadPhotosLibrary() {
@@ -2650,6 +2888,7 @@
             
             document.getElementById('modal-title').textContent = loc.name || 'Без названия';
             document.getElementById('modal-country').textContent = '🌍 ' + (loc.country || 'Без категории');
+            document.getElementById('modal-subcategory').textContent = '📁 ' + (loc.subcategory || 'Без подкатегории');
             document.getElementById('modal-subtitle').textContent = '📍 ' + (loc.subtitle || 'Подзаголовок');
             
             const descTextarea = document.getElementById('modal-description');
@@ -3036,6 +3275,7 @@
             editingId = null;
             document.getElementById('admin-location-name').value = '';
             document.getElementById('admin-location-country').value = '';
+            document.getElementById('admin-location-subcategory').value = '';
             document.getElementById('admin-location-desc').value = '';
             document.getElementById('admin-location-subtitle').value = '';
             document.getElementById('admin-photos-grid').innerHTML = '';
@@ -3053,6 +3293,7 @@
                 if (tabId === 'routes') renderAdminRoutesList();
                 if (tabId === 'labels') renderAdminLabelsList();
                 if (tabId === 'library') { loadPhotosLibrary(); }
+                if (tabId === 'subcategories') { loadSubcategories(); }
             });
         });
 
@@ -3070,6 +3311,7 @@
                 loadRoutes();
                 loadLabels();
                 loadPhotosLibrary();
+                loadSubcategories();
                 renderRoutes();
                 renderLabels();
             } else {
@@ -3097,6 +3339,7 @@
                 loadRoutes();
                 loadLabels();
                 loadPhotosLibrary();
+                loadSubcategories();
                 renderRoutes();
                 renderLabels();
             } catch (e) { errorEl.textContent = 'Ошибка входа'; errorEl.style.display = 'block'; }
@@ -3150,27 +3393,40 @@
                 return;
             }
             if (count) count.textContent = locations.length;
-            let html = '';
+            
+            // Группируем по странам
+            const grouped = {};
             locations.forEach(loc => {
-                const countPhotos = loc.photos ? loc.photos.length : 0;
-                const color = loc.markerColor || '#d4c08a';
-                const parent = loc.parent_country ? ` ← ${loc.parent_country}` : '';
-                const isSub = loc.parent_country ? 'style="padding-left:20px;color:#aaa;"' : '';
-                
-                html += `
-                    <div class="list-item" ${isSub}>
-                        <div class="item-info">
-                            <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0;"></span>
-                            <span class="name">${loc.name}</span>
-                            <span style="color:#555;font-size:10px;">${loc.country || 'Без категории'}${parent}</span>
-                            <span style="color:#555;font-size:10px;">📷${countPhotos}</span>
+                const key = loc.country || 'Без категории';
+                if (!grouped[key]) grouped[key] = [];
+                grouped[key].push(loc);
+            });
+            
+            const sortedKeys = Object.keys(grouped).sort();
+            let html = '';
+            sortedKeys.forEach(key => {
+                html += `<div style="color:#888;font-size:11px;padding:4px 8px;font-weight:bold;border-bottom:1px solid #1a1a2a;">📁 ${key}</div>`;
+                grouped[key].forEach(loc => {
+                    const countPhotos = loc.photos ? loc.photos.length : 0;
+                    const color = loc.markerColor || '#d4c08a';
+                    const sub = loc.subcategory ? ` [${loc.subcategory}]` : '';
+                    const isSub = loc.subcategory ? 'style="padding-left:20px;color:#aaa;"' : '';
+                    
+                    html += `
+                        <div class="list-item" ${isSub}>
+                            <div class="item-info">
+                                <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0;"></span>
+                                <span class="name">${loc.name}</span>
+                                <span style="color:#555;font-size:10px;">${sub}</span>
+                                <span style="color:#555;font-size:10px;">📷${countPhotos}</span>
+                            </div>
+                            <div class="item-actions">
+                                <button class="edit" onclick="editLocation(${loc.id})" title="Редактировать">✎</button>
+                                <button class="delete" onclick="deleteLocation(${loc.id})" title="Удалить">✕</button>
+                            </div>
                         </div>
-                        <div class="item-actions">
-                            <button class="edit" onclick="editLocation(${loc.id})" title="Редактировать">✎</button>
-                            <button class="delete" onclick="deleteLocation(${loc.id})" title="Удалить">✕</button>
-                        </div>
-                    </div>
-                `;
+                    `;
+                });
             });
             list.innerHTML = html;
         }
@@ -3194,16 +3450,18 @@
                 countryMsg += 'Или введите новую:';
                 const country = prompt(countryMsg) || 'Без категории';
                 
-                let parent = null;
-                if (countries.length > 0) {
-                    const parentMsg = 'Выберите родительскую страну (подкатегорию):\n' +
-                        '0 - Нет (основная категория)\n' +
-                        countries.map((c, i) => `${i+1} - ${c}`).join('\n');
-                    const parentInput = prompt(parentMsg, '0');
-                    if (parentInput !== null && parentInput !== '0') {
-                        const idx = parseInt(parentInput) - 1;
-                        if (idx >= 0 && idx < countries.length) {
-                            parent = countries[idx];
+                // Предложить выбрать подкатегорию из существующих
+                let subcategory = null;
+                const subs = subcategories.filter(s => s.country === country.trim());
+                if (subs.length > 0) {
+                    const subMsg = 'Выберите подкатегорию:\n' +
+                        '0 - Нет подкатегории\n' +
+                        subs.map((s, i) => `${i+1} - ${s.name}`).join('\n');
+                    const subInput = prompt(subMsg, '0');
+                    if (subInput !== null && subInput !== '0') {
+                        const idx = parseInt(subInput) - 1;
+                        if (idx >= 0 && idx < subs.length) {
+                            subcategory = subs[idx].name;
                         }
                     }
                 }
@@ -3217,7 +3475,7 @@
                     lng: parseFloat(lng),
                     name: name.trim(),
                     country: country.trim(),
-                    parent_country: parent,
+                    subcategory: subcategory,
                     description: desc?.trim() || 'Описание отсутствует',
                     subtitle: subtitle?.trim() || '',
                     description_long: '',
@@ -3233,7 +3491,7 @@
                 renderMarkers();
                 renderLocations();
                 updateCountryFilter();
-                updateParentSelect(country.trim());
+                updateSubcategorySelect();
                 if (country.trim() !== 'Без категории') {
                     document.getElementById('country-select').value = country.trim();
                     currentFilter = country.trim();
@@ -3251,8 +3509,8 @@
             document.getElementById('admin-location-desc').value = loc.description || '';
             document.getElementById('admin-location-subtitle').value = loc.subtitle || '';
             
-            updateParentSelect(loc.country);
-            document.getElementById('admin-location-parent').value = loc.parent_country || '';
+            updateSubcategorySelect();
+            document.getElementById('admin-location-subcategory').value = loc.subcategory || '';
 
             const grid = document.getElementById('admin-photos-grid');
             grid.innerHTML = '';
@@ -3333,6 +3591,7 @@
                     editingId = null;
                     document.getElementById('admin-location-name').value = '';
                     document.getElementById('admin-location-country').value = '';
+                    document.getElementById('admin-location-subcategory').value = '';
                     document.getElementById('admin-location-desc').value = '';
                     document.getElementById('admin-location-subtitle').value = '';
                     document.getElementById('admin-photos-grid').innerHTML = '';
@@ -3361,21 +3620,16 @@
             if (!loc) return;
             loc.name = document.getElementById('admin-location-name').value.trim() || 'Без названия';
             loc.country = document.getElementById('admin-location-country').value.trim() || 'Без категории';
-            loc.parent_country = document.getElementById('admin-location-parent').value || null;
+            loc.subcategory = document.getElementById('admin-location-subcategory').value || null;
             loc.description = document.getElementById('admin-location-desc').value.trim() || 'Описание отсутствует';
             loc.subtitle = document.getElementById('admin-location-subtitle').value.trim() || '';
-            
-            if (loc.parent_country === loc.country) {
-                alert('❌ Страна не может быть родителем самой себя!');
-                return;
-            }
             
             await saveAll();
             renderAdminList();
             renderMarkers();
             renderLocations();
             updateCountryFilter();
-            updateParentSelect(loc.country);
+            updateSubcategorySelect();
             alert('Локация сохранена!');
         });
 
@@ -3434,26 +3688,40 @@
             
             let filtered = locations;
             if (currentFilter !== 'all') {
-                filtered = locations.filter(l => 
-                    l.country === currentFilter || l.parent_country === currentFilter
-                );
+                filtered = locations.filter(l => l.country === currentFilter);
             }
             
+            // Группируем по подкатегориям
             let html = '';
+            const grouped = {};
+            
             filtered.forEach(loc => {
-                const count = loc.photos ? loc.photos.length : 0;
-                const isSubcategory = loc.parent_country ? true : false;
-                const prefix = isSubcategory ? '  └─ ' : '';
-                const style = isSubcategory ? 'padding-left:20px;color:#aaa;' : '';
-                
-                html += `
-                    <li data-id="${loc.id}" onclick="flyToLocation(${loc.id})" style="${style}">
-                        <span class="loc-name">${prefix}${loc.name}</span>
-                        <span class="loc-country">${loc.country || 'Без категории'}</span>
-                        <span class="loc-photos-count">${count}</span>
-                    </li>
-                `;
+                const key = loc.subcategory || 'Без категории';
+                if (!grouped[key]) grouped[key] = [];
+                grouped[key].push(loc);
             });
+            
+            const sortedKeys = Object.keys(grouped).sort();
+            
+            sortedKeys.forEach(key => {
+                if (key !== 'Без категории') {
+                    html += `<li style="color:#888;font-size:11px;padding:4px 12px;border-left:3px solid #d4c08a40;background:rgba(212,192,138,0.05);">📁 ${key}</li>`;
+                }
+                grouped[key].forEach(loc => {
+                    const count = loc.photos ? loc.photos.length : 0;
+                    const prefix = loc.subcategory ? '  └─ ' : '';
+                    const style = loc.subcategory ? 'padding-left:20px;color:#aaa;' : '';
+                    
+                    html += `
+                        <li data-id="${loc.id}" onclick="flyToLocation(${loc.id})" style="${style}">
+                            <span class="loc-name">${prefix}${loc.name}</span>
+                            <span class="loc-country">${loc.country || 'Без категории'}</span>
+                            <span class="loc-photos-count">${count}</span>
+                        </li>
+                    `;
+                });
+            });
+            
             list.innerHTML = html || '<li class="empty-msg">Нет локаций в этой категории</li>';
         }
 
@@ -3604,8 +3872,12 @@
         window.loadPhotosLibrary = loadPhotosLibrary;
         window.removePhotoFromLocation = removePhotoFromLocation;
         window.getCountries = getCountries;
-        window.getSubcategories = getSubcategories;
-        window.updateParentSelect = updateParentSelect;
+        window.getSubcategoriesByCountry = getSubcategoriesByCountry;
+        window.updateSubcategorySelect = updateSubcategorySelect;
+        window.loadSubcategories = loadSubcategories;
+        window.saveSubcategory = saveSubcategory;
+        window.deleteSubcategory = deleteSubcategory;
+        window.renderSubcategoriesList = renderSubcategoriesList;
 
         // ============================================================
         //  ЗАПУСК
@@ -3616,14 +3888,14 @@
             await loadRoutes();
             await loadLabels();
             await loadPhotosLibrary();
+            await loadSubcategories();
             console.log('✅ Атлас загружен');
             console.log('🎨 20 цветов для маркеров');
             console.log('🖼️ Медиатека со всеми фото');
-            console.log('📂 Фильтр по странам в сайдбаре');
+            console.log('📂 Подкатегории (пользовательские)');
             console.log('🔤 A+ / A- только в админ-панели');
             console.log('📐 Drag & Drop из медиатеки в модалку');
-            console.log('➕ Кнопки добавления стран');
-            console.log('📁 Подкатегории (родительские страны)');
+            console.log('➕ Кнопки добавления стран и подкатегорий');
         }
 
         startApp();
