@@ -51,8 +51,11 @@
             cursor: pointer;
             padding: 4px 8px;
             z-index: 101;
+            touch-action: manipulation;
+            line-height: 1;
         }
         .hamburger:hover { color: #d4c08a; }
+        .hamburger:active { color: #d4c08a; transform: scale(0.9); }
 
         .admin-toggle {
             color: #d4c08a;
@@ -97,8 +100,8 @@
         #main { display: flex; flex: 1; overflow: hidden; position: relative; }
 
         #sidebar {
-            width: 260px;
-            min-width: 260px;
+            width: 280px;
+            min-width: 280px;
             background: rgba(16, 16, 28, 0.95);
             border-right: 1px solid #1e1e30;
             padding: 12px;
@@ -107,7 +110,8 @@
             flex-direction: column;
             backdrop-filter: blur(4px);
             z-index: 99;
-            transition: transform 0.3s ease;
+            transition: left 0.3s ease;
+            position: relative;
         }
         #sidebar::-webkit-scrollbar { width: 4px; }
         #sidebar::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
@@ -131,8 +135,24 @@
             padding: 4px 8px;
             text-align: right;
             width: 100%;
+            touch-action: manipulation;
         }
         .close-sidebar:hover { color: #fff; }
+        .close-sidebar:active { color: #fff; transform: scale(0.9); }
+
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 98;
+        }
+        .sidebar-overlay.active {
+            display: block;
+        }
 
         #country-filter {
             display: flex;
@@ -173,20 +193,6 @@
             border-color: #d4c08a;
             color: #d4c08a;
             background: rgba(212, 192, 138, 0.05);
-        }
-
-        .sidebar-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.5);
-            z-index: 98;
-        }
-        .sidebar-overlay.active {
-            display: block;
         }
 
         #location-list { list-style: none; flex: 1; }
@@ -692,11 +698,6 @@
             text-align: center;
             padding: 20px 0;
             font-size: 13px;
-        }
-
-        @media (max-width: 1024px) {
-            .modal-left { width: 35%; min-width: 220px; }
-            .modal-right { width: 220px; min-width: 180px; }
         }
 
         .custom-label {
@@ -1368,13 +1369,13 @@
             #sidebar {
                 position: fixed;
                 top: 0;
-                left: -280px;
+                left: -300px;
                 width: 280px;
                 height: 100vh;
                 z-index: 99;
                 border-right: 1px solid #2a2a3e;
-                transition: left 0.3s ease;
-                transform: none;
+                transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                transform: none !important;
             }
             #sidebar.open {
                 left: 0;
@@ -1743,6 +1744,7 @@
         let userLabelsHidden = false;
         let currentLocationId = null;
         let currentFilter = 'all';
+        let sidebarOpen = false;
 
         // ============================================================
         //  ЦВЕТА ДЛЯ МАРКЕРОВ (20 цветов)
@@ -2980,7 +2982,7 @@
         });
 
         // ============================================================
-        //  ГАМБУРГЕР-МЕНЮ ДЛЯ ТЕЛЕФОНОВ
+        //  ГАМБУРГЕР-МЕНЮ ДЛЯ ТЕЛЕФОНОВ (ИСПРАВЛЕННЫЙ)
         // ============================================================
         const hamburgerBtn = document.getElementById('hamburger-btn');
         const sidebar = document.getElementById('sidebar');
@@ -2989,73 +2991,98 @@
 
         function toggleSidebar(open) {
             if (open === undefined) {
-                sidebar.classList.toggle('open');
-                sidebarOverlay.classList.toggle('active');
-            } else if (open) {
+                sidebarOpen = !sidebarOpen;
+            } else {
+                sidebarOpen = open;
+            }
+            
+            if (sidebarOpen) {
                 sidebar.classList.add('open');
                 sidebarOverlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
             } else {
                 sidebar.classList.remove('open');
                 sidebarOverlay.classList.remove('active');
+                document.body.style.overflow = '';
             }
         }
 
-        hamburgerBtn.addEventListener('click', function(e) {
-            e.stopPropagation();
-            toggleSidebar();
-        });
+        if (hamburgerBtn) {
+            hamburgerBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                toggleSidebar();
+            });
+        }
 
-        closeSidebarBtn.addEventListener('click', function() {
-            toggleSidebar(false);
-        });
+        if (closeSidebarBtn) {
+            closeSidebarBtn.addEventListener('click', function() {
+                toggleSidebar(false);
+            });
+        }
 
-        sidebarOverlay.addEventListener('click', function() {
-            toggleSidebar(false);
-        });
+        if (sidebarOverlay) {
+            sidebarOverlay.addEventListener('click', function() {
+                toggleSidebar(false);
+            });
+        }
 
         // Закрываем меню при клике на локацию (на телефонах)
-        document.getElementById('location-list').addEventListener('click', function(e) {
-            const li = e.target.closest('li');
-            if (li && window.innerWidth <= 768) {
-                toggleSidebar(false);
+        const locationList = document.getElementById('location-list');
+        if (locationList) {
+            locationList.addEventListener('click', function(e) {
+                const li = e.target.closest('li');
+                if (li && window.innerWidth <= 768) {
+                    toggleSidebar(false);
+                }
+            });
+        }
+
+        // Закрываем при клике вне меню (на телефонах)
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth <= 768 && sidebarOpen) {
+                const isSidebar = sidebar.contains(e.target);
+                const isHamburger = hamburgerBtn && hamburgerBtn.contains(e.target);
+                if (!isSidebar && !isHamburger) {
+                    toggleSidebar(false);
+                }
             }
         });
 
-        // Закрываем при клике вне меню
-        document.addEventListener('click', function(e) {
-            if (window.innerWidth <= 768) {
-                const isSidebar = sidebar.contains(e.target);
-                const isHamburger = hamburgerBtn.contains(e.target);
-                if (!isSidebar && !isHamburger && sidebar.classList.contains('open')) {
-                    toggleSidebar(false);
-                }
+        // Закрываем при нажатии Escape
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && sidebarOpen) {
+                toggleSidebar(false);
             }
         });
 
         // ============================================================
         //  КНОПКА "НАЗАД" В МОДАЛКЕ (ДЛЯ ТЕЛЕФОНОВ)
         // ============================================================
-        document.getElementById('modal-back-btn').addEventListener('click', function() {
-            document.getElementById('location-modal').classList.remove('active');
-            document.body.style.overflow = '';
-        });
+        const modalBackBtn = document.getElementById('modal-back-btn');
+        if (modalBackBtn) {
+            modalBackBtn.addEventListener('click', function() {
+                document.getElementById('location-modal').classList.remove('active');
+                document.body.style.overflow = '';
+            });
+        }
 
         // Свайп вниз для закрытия модалки
         let touchStartY = 0;
-        let touchEndY = 0;
+        const modalElement = document.getElementById('location-modal');
+        if (modalElement) {
+            modalElement.addEventListener('touchstart', function(e) {
+                touchStartY = e.changedTouches[0].screenY;
+            }, { passive: true });
 
-        document.getElementById('location-modal').addEventListener('touchstart', function(e) {
-            touchStartY = e.changedTouches[0].screenY;
-        }, { passive: true });
-
-        document.getElementById('location-modal').addEventListener('touchmove', function(e) {
-            touchEndY = e.changedTouches[0].screenY;
-            const diff = touchStartY - touchEndY;
-            if (diff < -80) {
-                document.getElementById('location-modal').classList.remove('active');
-                document.body.style.overflow = '';
-            }
-        }, { passive: true });
+            modalElement.addEventListener('touchmove', function(e) {
+                const touchEndY = e.changedTouches[0].screenY;
+                const diff = touchStartY - touchEndY;
+                if (diff < -80) {
+                    document.getElementById('location-modal').classList.remove('active');
+                    document.body.style.overflow = '';
+                }
+            }, { passive: true });
+        }
 
         // ============================================================
         //  МОДАЛКА
@@ -3856,18 +3883,22 @@
         });
 
         // ============================================================
-        //  ЛОКАЦИИ (список, перелёт)
+        //  ЛОКАЦИИ (список, перелёт) - ИСПРАВЛЕННАЯ ВЕРСИЯ
         // ============================================================
         function renderLocations() {
             const list = document.getElementById('location-list');
             if (!locations || locations.length === 0) {
                 list.innerHTML = '<li class="empty-msg">Нет локаций</li>';
+                console.log('⚠️ Нет локаций для отображения');
                 return;
             }
+            
+            console.log(`📝 Отображаем ${locations.length} локаций, фильтр: ${currentFilter}`);
             
             let filtered = locations;
             if (currentFilter !== 'all') {
                 filtered = locations.filter(l => l.country === currentFilter);
+                console.log(`📝 После фильтра по "${currentFilter}": ${filtered.length} локаций`);
             }
             
             let html = '';
