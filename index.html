@@ -1242,7 +1242,6 @@
             <button class="modal-close" id="modal-close-btn">✕</button>
             
             <div class="modal-body">
-                <!-- ЛЕВАЯ КОЛОНКА -->
                 <div class="modal-left" id="modal-left">
                     <div class="loc-title" id="modal-title">Название локации</div>
                     <div class="loc-subtitle" id="modal-subtitle">📍 Подзаголовок</div>
@@ -1265,13 +1264,11 @@
                     <button class="save-btn" id="modal-save-btn">💾 Сохранить изменения</button>
                 </div>
                 
-                <!-- ЦЕНТРАЛЬНАЯ КОЛОНКА -->
                 <div class="modal-center" id="modal-center">
                     <div class="gallery-grid" id="modal-gallery"></div>
                     <div id="modal-no-photos" class="empty-gallery">📷 Нет фотографий</div>
                 </div>
                 
-                <!-- ПРАВАЯ КОЛОНКА -->
                 <div class="modal-right" id="modal-right">
                     <div class="admin-label">🔧 Управление фото</div>
                     <button class="upload-btn" id="modal-upload-btn">📁 Загрузить фото</button>
@@ -2587,7 +2584,6 @@
             currentLocationId = id;
             modalIsAdmin = isAdmin;
             
-            // Заполняем левую колонку
             document.getElementById('modal-title').textContent = loc.name || 'Без названия';
             document.getElementById('modal-subtitle').textContent = loc.subtitle || '📍 Локация';
             
@@ -2596,25 +2592,14 @@
             descTextarea.readOnly = !isAdmin;
             descTextarea.style.borderColor = isAdmin ? '#d4c08a40' : 'transparent';
             
-            // Персонажи
             renderList('characters-list', loc.characters || [], 'character');
-            
-            // Особенности
             renderList('features-list', loc.features || [], 'feature');
             
-            // Сохраняем фото для админ-панели
             modalPhotos = loc.photos || [];
-            
-            // Рендерим галерею
             renderModalGallery(loc.photos || []);
-            
-            // Рендерим админ-список фото
             renderModalAdminPhotos(loc.photos || []);
             
-            // Показываем/скрываем админ-панель справа
             document.getElementById('modal-right').style.display = isAdmin ? 'block' : 'none';
-            
-            // Показываем/скрываем кнопку сохранения
             document.getElementById('modal-save-btn').style.display = isAdmin ? 'block' : 'none';
             
             document.getElementById('location-modal').classList.add('active');
@@ -2791,7 +2776,6 @@
             });
             container.innerHTML = html;
             
-            // Добавляем события drag & drop
             const items = container.querySelectorAll('.photo-admin-item');
             items.forEach(item => {
                 item.addEventListener('dragstart', handleDragStart);
@@ -2844,7 +2828,6 @@
             
             if (isNaN(fromIndex) || isNaN(toIndex)) return;
             
-            // Меняем порядок в массиве photos
             const loc = locations.find(l => l.id === currentLocationId);
             if (!loc || !loc.photos) return;
             
@@ -2852,11 +2835,9 @@
             const [movedItem] = photos.splice(fromIndex, 1);
             photos.splice(toIndex, 0, movedItem);
             
-            // Перерисовываем
             renderModalGallery(photos);
             renderModalAdminPhotos(photos);
             
-            // Автосохраняем порядок
             saveLocationData();
         }
 
@@ -2876,7 +2857,6 @@
                 loc.photos[index] = { url: photo, caption: value.trim() };
             }
             
-            // Обновляем галерею и список админа
             renderModalGallery(loc.photos);
             renderModalAdminPhotos(loc.photos);
         };
@@ -2903,15 +2883,9 @@
                 }
                 
                 loc.photos.splice(index, 1);
-                
-                // Сохраняем в БД
                 await saveLocationData();
-                
-                // Перерисовываем
                 renderModalGallery(loc.photos);
                 renderModalAdminPhotos(loc.photos);
-                
-                // Обновляем админ-панель
                 renderAdminList();
                 renderMarkers();
                 
@@ -2970,10 +2944,7 @@
                 }
             }
             
-            // Сохраняем в БД
             await saveLocationData();
-            
-            // Перерисовываем
             renderModalGallery(loc.photos);
             renderModalAdminPhotos(loc.photos);
             renderAdminList();
@@ -2996,13 +2967,11 @@
                 
                 if (error) throw error;
                 
-                // Обновляем глобальный массив
                 const idx = locations.findIndex(l => l.id === currentLocationId);
                 if (idx !== -1) {
                     locations[idx] = loc;
                 }
                 
-                // Обновляем маркеры и списки
                 renderMarkers();
                 renderLocations();
                 renderAdminList();
@@ -3016,17 +2985,13 @@
             }
         }
 
-        // Кнопка "Сохранить" в левой колонке
         document.getElementById('modal-save-btn').addEventListener('click', async function() {
             if (!isAdmin) return;
             
             const loc = locations.find(l => l.id === currentLocationId);
             if (!loc) return;
             
-            // Сохраняем описание
             loc.description_long = document.getElementById('modal-description').value;
-            
-            // Сохраняем (персонажи и особенности уже в массивах)
             await saveLocationData();
             
             this.textContent = '✅ Сохранено!';
@@ -3693,7 +3658,7 @@
         });
 
         // ============================================================
-        //  ГЛОБАЛЬНЫЕ ФУНКЦИИ
+        //  ГЛОБАЛЬНЫЕ ФУНКЦИИ - ВСЕ ФУНКЦИИ ЗДЕСЬ!
         // ============================================================
         window.changeMarkerColor = changeMarkerColor;
         window.editLabelPosition = editLabelPosition;
@@ -3707,8 +3672,8 @@
         window.openViewer = openViewer;
         window.openModal = openModal;
         window.flyToLocation = flyToLocation;
-        window.editPhotoCaption = editPhotoCaption;
-        window.deletePhoto = deletePhoto;
+        window.editPhotoCaption = editPhotoCaptionAdmin;
+        window.deletePhoto = deletePhotoAdmin;
         window.deleteLocation = deleteLocation;
         window.editLocation = editLocation;
         window.openViewerFromModal = openViewerFromModal;
@@ -3717,10 +3682,16 @@
         window.editListItem = editListItem;
         window.deleteListItem = deleteListItem;
         window.addRoutePointFromMarker = addRoutePointFromMarker;
-        window.toggleRouteVisibility = toggleRouteVisibility;
-        window.deleteRouteFromDB = deleteRouteFromDB;
         window.renderModalGallery = renderModalGallery;
         window.renderModalAdminPhotos = renderModalAdminPhotos;
+        window.editPhotoCaptionAdmin = editPhotoCaptionAdmin;
+        window.deletePhotoAdmin = deletePhotoAdmin;
+        window.saveAll = saveAll;
+        window.setAdminStatus = setAdminStatus;
+        window.renderAdminList = renderAdminList;
+        window.renderLocations = renderLocations;
+        window.renderMarkers = renderMarkers;
+        window.saveLocationData = saveLocationData;
 
         // ============================================================
         //  ЗАПУСК
@@ -3738,6 +3709,7 @@
             console.log('🎨 Цвет маркера меняется кликом по кружочкам (только админ)');
             console.log('🔤 Размер надписи меняется кнопками A+ / A- (только админ)');
             console.log('📐 Новая трёхколоночная модалка с drag & drop для фото');
+            console.log('✅ Все функции зарегистрированы глобально');
         }
 
         startApp();
