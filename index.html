@@ -238,7 +238,6 @@
         }
         .modal-close:hover { color: #fff; transform: rotate(90deg); }
 
-        /* ===== ТРИ КОЛОНКИ ===== */
         .modal-body {
             display: flex;
             flex: 1;
@@ -246,7 +245,6 @@
             padding-top: 8px;
         }
 
-        /* ЛЕВАЯ КОЛОНКА - ИНФОРМАЦИЯ */
         .modal-left {
             width: 30%;
             min-width: 280px;
@@ -375,7 +373,6 @@
             transform: none;
         }
 
-        /* ЦЕНТРАЛЬНАЯ КОЛОНКА - ГАЛЕРЕЯ */
         .modal-center {
             flex: 1;
             padding: 16px 20px;
@@ -433,7 +430,6 @@
             font-size: 14px;
         }
 
-        /* ПРАВАЯ КОЛОНКА - АДМИН-ПАНЕЛЬ ФОТО */
         .modal-right {
             width: 280px;
             min-width: 250px;
@@ -471,7 +467,6 @@
             background: rgba(212, 192, 138, 0.05);
         }
 
-        /* Список фото для админа (с drag & drop) */
         .modal-right .photo-admin-list {
             display: flex;
             flex-direction: column;
@@ -1457,6 +1452,8 @@
         let userLabelsHidden = false;
         let modalPhotos = [];
         let dragData = null;
+        let currentLocationId = null;
+        let modalIsAdmin = false;
 
         // ============================================================
         //  ЗАГРУЗКА ДАННЫХ
@@ -1552,7 +1549,7 @@
         }
 
         // ============================================================
-        //  МАРКЕРЫ С ВЫБОРОМ ЦВЕТА (ТОЛЬКО ДЛЯ АДМИНА)
+        //  МАРКЕРЫ
         // ============================================================
         function renderMarkers() {
             if (!mapInstance) return;
@@ -1649,7 +1646,7 @@
         }
 
         // ============================================================
-        //  СМЕНА ЦВЕТА МАРКЕРА (ТОЛЬКО ДЛЯ АДМИНА)
+        //  СМЕНА ЦВЕТА МАРКЕРА
         // ============================================================
         async function changeMarkerColor(locId, color) {
             if (!isAdmin) {
@@ -2224,9 +2221,8 @@
         }
 
         // ============================================================
-        //  ⭐ НАДПИСИ НА КАРТЕ
+        //  НАДПИСИ НА КАРТЕ
         // ============================================================
-
         async function loadLabels() {
             try {
                 const { data, error } = await supabaseClient
@@ -2584,9 +2580,6 @@
         // ============================================================
         //  НОВАЯ ТРЁХКОЛОНОЧНАЯ МОДАЛКА
         // ============================================================
-        let currentLocationId = null;
-        let modalIsAdmin = false;
-
         function openModal(id) {
             const loc = locations.find(l => l.id === id);
             if (!loc) return;
@@ -3559,8 +3552,25 @@
         }
 
         // ============================================================
-        //  ПОЛНОЭКРАННЫЙ ПРОСМОТР
+        //  ПОЛНОЭКРАННЫЙ ПРОСМОТР ФОТО
         // ============================================================
+        function openViewer(locId, index) {
+            const loc = locations.find(l => l.id === locId);
+            if (!loc || !loc.photos || loc.photos.length === 0) return;
+
+            viewerData.photos = loc.photos;
+            viewerData.index = index;
+            viewerData.locId = locId;
+            viewerData.locName = loc.name;
+            viewerData.locDesc = loc.description || '';
+
+            updateViewer();
+            document.getElementById('photo-viewer-overlay').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            touchStartX = 0;
+            touchEndX = 0;
+        }
+
         let touchStartX = 0;
         let touchEndX = 0;
 
@@ -3706,6 +3716,9 @@
         window.updatePhotoCaption = updatePhotoCaption;
         window.editListItem = editListItem;
         window.deleteListItem = deleteListItem;
+        window.addRoutePointFromMarker = addRoutePointFromMarker;
+        window.toggleRouteVisibility = toggleRouteVisibility;
+        window.deleteRouteFromDB = deleteRouteFromDB;
 
         // ============================================================
         //  ЗАПУСК
