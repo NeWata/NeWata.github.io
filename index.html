@@ -2734,20 +2734,20 @@
                 const div = document.createElement('div');
                 div.className = 'photo-card';
                 div.innerHTML = `
-                    <img src="${url}" loading="lazy" onclick="openViewerFromModal(${idx})">
+                    <img src="${url}" loading="lazy" onclick="openViewerFromModal(${currentLocationId}, ${idx})">
                     <div class="photo-label">${cap || 'Без подписи'}</div>
                 `;
                 gallery.appendChild(div);
             });
         }
 
-        function openViewerFromModal(index) {
-            const loc = locations.find(l => l.id === currentLocationId);
+        function openViewerFromModal(locId, index) {
+            const loc = locations.find(l => l.id === locId);
             if (!loc || !loc.photos || loc.photos.length === 0) return;
             
             viewerData.photos = loc.photos;
             viewerData.index = index;
-            viewerData.locId = currentLocationId;
+            viewerData.locId = locId;
             viewerData.locName = loc.name || 'Название локации';
             viewerData.locDesc = loc.description_long || '';
             
@@ -3719,6 +3719,8 @@
         window.addRoutePointFromMarker = addRoutePointFromMarker;
         window.toggleRouteVisibility = toggleRouteVisibility;
         window.deleteRouteFromDB = deleteRouteFromDB;
+        window.renderModalGallery = renderModalGallery;
+        window.renderModalAdminPhotos = renderModalAdminPhotos;
 
         // ============================================================
         //  ЗАПУСК
