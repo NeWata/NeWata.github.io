@@ -103,10 +103,13 @@
         }
 
         #country-filter {
+            display: flex;
+            gap: 6px;
             margin-bottom: 10px;
+            align-items: center;
         }
         #country-filter select {
-            width: 100%;
+            flex: 1;
             padding: 6px 10px;
             background: #0a0a12;
             color: #e0dcc8;
@@ -122,6 +125,22 @@
         #country-filter select option {
             background: #0a0a12;
             color: #e0dcc8;
+        }
+        #country-filter .add-country-btn {
+            padding: 6px 12px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid #3a3a50;
+            border-radius: 6px;
+            color: #888;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.3s;
+            white-space: nowrap;
+        }
+        #country-filter .add-country-btn:hover {
+            border-color: #d4c08a;
+            color: #d4c08a;
+            background: rgba(212, 192, 138, 0.05);
         }
 
         #location-list { list-style: none; flex: 1; }
@@ -503,7 +522,12 @@
             display: flex;
             flex-direction: column;
             gap: 6px;
+            max-height: 400px;
+            overflow-y: auto;
         }
+        .modal-right .photo-admin-list::-webkit-scrollbar { width: 4px; }
+        .modal-right .photo-admin-list::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
+
         .modal-right .photo-admin-item {
             display: flex;
             align-items: center;
@@ -586,8 +610,8 @@
         .modal-right .photo-admin-item .actions button:hover {
             background: rgba(255,255,255,0.05);
         }
+        .modal-right .photo-admin-item .actions .add-to-loc:hover { color: #4ecdc4; }
         .modal-right .photo-admin-item .actions .delete:hover { color: #ff5555; }
-        .modal-right .photo-admin-item .actions .edit-caption:hover { color: #4ecdc4; }
 
         .modal-right .empty-admin {
             color: #444;
@@ -609,6 +633,7 @@
             .modal-center { min-height: 30vh; }
             .modal-right { width: 100%; min-width: unset; max-width: unset; border-left: none; border-top: 1px solid #1e1e32; max-height: 40vh; }
             .modal-center .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+            .modal-right .photo-admin-list { max-height: 150px; }
         }
 
         .custom-label {
@@ -1286,6 +1311,7 @@
             .admin-scroll-list .list-item { flex-wrap: wrap; gap: 4px; }
             .admin-scroll-list .list-item .item-info { flex-wrap: wrap; }
             .photos-library-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+            .modal-right .photo-admin-list { max-height: 150px; }
         }
     </style>
 </head>
@@ -1310,6 +1336,7 @@
                 <select id="country-select">
                     <option value="all">🌍 Все страны</option>
                 </select>
+                <button class="add-country-btn" id="add-country-btn" title="Добавить новую страну">➕</button>
             </div>
             <ul id="location-list"><li class="empty-msg">Загрузка...</li></ul>
         </div>
@@ -1357,13 +1384,15 @@
                 </div>
                 
                 <div class="modal-right" id="modal-right">
-                    <div class="admin-label">🔧 Управление фото</div>
-                    <div style="font-size:10px;color:#444;margin-bottom:8px;">⬅️ Перетащи фото из медиатеки</div>
-                    <button class="upload-btn" id="modal-upload-btn">📁 Загрузить фото</button>
+                    <div class="admin-label">📚 Медиатека</div>
+                    <div style="font-size:10px;color:#444;margin-bottom:8px;">
+                        Все фото из библиотеки. Нажми ➕ чтобы добавить в локацию
+                    </div>
+                    <button class="upload-btn" id="modal-upload-btn">📁 Загрузить фото в медиатеку</button>
                     <input type="file" id="modal-file-input" accept="image/*" multiple style="display:none;">
                     
                     <div class="photo-admin-list" id="modal-photo-admin-list">
-                        <div class="empty-admin">Нет загруженных фото</div>
+                        <div class="empty-admin">📭 Загрузите фото во вкладке "Медиатека"</div>
                     </div>
                 </div>
             </div>
@@ -1433,6 +1462,7 @@
                 <div class="admin-tab-content active" id="tab-locations">
                     <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
                         <button class="btn btn-primary" id="admin-add-location" style="padding:4px 14px;font-size:12px;">➕ Добавить локацию</button>
+                        <button class="btn btn-secondary" id="admin-add-country" style="padding:4px 14px;font-size:12px;">🏷️ Новая страна</button>
                         <span style="font-size:12px;color:#555;align-self:center;">Всего: <span id="loc-count">0</span></span>
                     </div>
 
@@ -2561,6 +2591,9 @@
             if (!loc) return;
             currentLocationId = id;
             
+            // Загружаем медиатеку при открытии модалки
+            loadPhotosLibrary();
+            
             document.getElementById('modal-title').textContent = loc.name || 'Без названия';
             document.getElementById('modal-country').textContent = '🌍 ' + (loc.country || 'Без категории');
             document.getElementById('modal-subtitle').textContent = '📍 ' + (loc.subtitle || 'Подзаголовок');
@@ -2690,72 +2723,75 @@
         function renderModalAdminPhotos(photos) {
             const container = document.getElementById('modal-photo-admin-list');
             if (!container) return;
-            if (!photos || photos.length === 0) {
-                container.innerHTML = '<div class="empty-admin">Нет загруженных фото</div>';
+            
+            // ✅ Показываем ВСЕ фото из медиатеки
+            const allPhotos = photosLibrary || [];
+            
+            if (allPhotos.length === 0) {
+                container.innerHTML = '<div class="empty-admin">📭 Нет фото в медиатеке. Загрузите фото во вкладке "Медиатека"</div>';
                 return;
             }
+            
             let html = '';
-            photos.forEach((photo, idx) => {
-                const url = typeof photo === 'object' && photo.url ? photo.url : photo;
-                const cap = typeof photo === 'object' && photo.caption ? photo.caption : '';
-                if (!url) return;
+            allPhotos.forEach((photo) => {
+                const url = photo.url;
+                const cap = photo.caption || '';
+                // Проверяем, есть ли уже это фото в локации
+                const isInLocation = photos && photos.some(p => {
+                    const pUrl = typeof p === 'object' && p.url ? p.url : p;
+                    return pUrl === url;
+                });
+                
                 html += `
-                    <div class="photo-admin-item" draggable="true" data-index="${idx}">
+                    <div class="photo-admin-item" draggable="true" data-url="${url}" data-caption="${cap}">
                         <span class="drag-handle">⠿</span>
                         <img class="preview" src="${url}" loading="lazy" onerror="this.style.display='none'">
                         <div class="info">
                             <div class="name">${cap || 'Без подписи'}</div>
-                            <input class="caption-input" type="text" value="${cap}" placeholder="Подпись..." 
-                                   onchange="updatePhotoCaption(${currentLocationId}, ${idx}, this.value)">
+                            ${isInLocation ? '<span style="color:#4ecdc4;font-size:9px;">✅ в локации</span>' : ''}
                         </div>
                         <div class="actions">
-                            <button class="delete" onclick="deletePhotoFromModal(${currentLocationId}, ${idx})" title="Удалить фото">✕</button>
+                            ${!isInLocation ? `<button class="add-to-loc" onclick="addPhotoToCurrentLocation('${url}', '${cap}')" title="Добавить в локацию">➕</button>` : ''}
+                            <button class="delete" onclick="removePhotoFromLocation(${currentLocationId}, '${url}')" title="Убрать из локации" style="${isInLocation ? 'color:#ff6b6b;' : 'color:#555;pointer-events:none;'}">✕</button>
                         </div>
                     </div>
                 `;
             });
             container.innerHTML = html;
             
-            let draggedItem = null;
+            // Добавляем drag & drop
             container.querySelectorAll('.photo-admin-item').forEach(item => {
                 item.addEventListener('dragstart', function(e) {
-                    draggedItem = this;
                     this.classList.add('dragging');
-                    e.dataTransfer.effectAllowed = 'move';
-                    e.dataTransfer.setData('text/plain', this.dataset.index);
+                    e.dataTransfer.effectAllowed = 'copy';
+                    e.dataTransfer.setData('text/plain', JSON.stringify({
+                        url: this.dataset.url,
+                        caption: this.dataset.caption
+                    }));
                 });
                 item.addEventListener('dragend', function(e) {
                     this.classList.remove('dragging');
-                    draggedItem = null;
-                });
-                item.addEventListener('dragover', function(e) {
-                    e.preventDefault();
-                    e.dataTransfer.dropEffect = 'move';
-                });
-                item.addEventListener('dragenter', function(e) {
-                    e.preventDefault();
-                    if (this !== draggedItem) this.classList.add('drag-over');
-                });
-                item.addEventListener('dragleave', function(e) {
-                    this.classList.remove('drag-over');
-                });
-                item.addEventListener('drop', function(e) {
-                    e.preventDefault();
-                    this.classList.remove('drag-over');
-                    if (this === draggedItem) return;
-                    const fromIndex = parseInt(draggedItem.dataset.index);
-                    const toIndex = parseInt(this.dataset.index);
-                    if (isNaN(fromIndex) || isNaN(toIndex)) return;
-                    const loc = locations.find(l => l.id === currentLocationId);
-                    if (!loc || !loc.photos) return;
-                    const photos = loc.photos;
-                    const [movedItem] = photos.splice(fromIndex, 1);
-                    photos.splice(toIndex, 0, movedItem);
-                    renderModalGallery(photos);
-                    renderModalAdminPhotos(photos);
-                    saveLocationData();
                 });
             });
+        }
+
+        function removePhotoFromLocation(locId, url) {
+            if (!isAdmin) return;
+            if (!confirm('🗑️ Убрать это фото из локации?')) return;
+            
+            const loc = locations.find(l => l.id === locId);
+            if (!loc || !loc.photos) return;
+            
+            loc.photos = loc.photos.filter(p => {
+                const pUrl = typeof p === 'object' && p.url ? p.url : p;
+                return pUrl !== url;
+            });
+            
+            saveLocationData();
+            renderModalGallery(loc.photos);
+            renderModalAdminPhotos(loc.photos);
+            renderAdminList();
+            renderMarkers();
         }
 
         window.updatePhotoCaption = function(locId, index, value) {
@@ -2858,6 +2894,67 @@
                 document.getElementById('location-modal').classList.remove('active');
                 document.body.style.overflow = '';
             }
+        });
+
+        // ============================================================
+        //  ДОБАВЛЕНИЕ НОВОЙ СТРАНЫ
+        // ============================================================
+
+        // Кнопка в админ-панели
+        document.getElementById('admin-add-country').addEventListener('click', function() {
+            if (!isAdmin) {
+                alert('⛔ Только админ может добавлять страны');
+                return;
+            }
+            
+            const countryName = prompt('🏷️ Введите название новой страны/категории:');
+            if (!countryName || countryName.trim() === '') return;
+            
+            const trimmed = countryName.trim();
+            
+            // Проверяем, есть ли уже такая страна
+            const exists = locations.some(l => l.country === trimmed);
+            if (exists) {
+                alert(`❌ Страна "${trimmed}" уже существует!`);
+                return;
+            }
+            
+            alert(`✅ Страна "${trimmed}" добавлена! Теперь вы можете создать локацию в этой стране.`);
+            
+            // Обновляем фильтр
+            updateCountryFilter();
+            // Выбираем новую страну в фильтре
+            document.getElementById('country-select').value = trimmed;
+            currentFilter = trimmed;
+            renderLocations();
+        });
+
+        // Кнопка в сайдбаре (фильтр)
+        document.getElementById('add-country-btn').addEventListener('click', function() {
+            if (!isAdmin) {
+                alert('⛔ Только админ может добавлять страны');
+                return;
+            }
+            
+            const countryName = prompt('🏷️ Введите название новой страны/категории:');
+            if (!countryName || countryName.trim() === '') return;
+            
+            const trimmed = countryName.trim();
+            
+            // Проверяем, есть ли уже такая страна
+            const exists = locations.some(l => l.country === trimmed);
+            if (exists) {
+                alert(`❌ Страна "${trimmed}" уже существует!`);
+                return;
+            }
+            
+            alert(`✅ Страна "${trimmed}" добавлена! Теперь вы можете создать локацию в этой стране.`);
+            
+            // Обновляем фильтр
+            updateCountryFilter();
+            document.getElementById('country-select').value = trimmed;
+            currentFilter = trimmed;
+            renderLocations();
         });
 
         // ============================================================
@@ -3039,7 +3136,19 @@
                 const lat = e.latlng.lat.toFixed(3), lng = e.latlng.lng.toFixed(3);
                 const name = prompt('Название новой локации:');
                 if (!name) return;
-                const country = prompt('Страна / Категория:') || 'Без категории';
+                
+                // ✅ Предлагаем выбрать существующую страну или создать новую
+                const existingCountries = [...new Set(locations.map(l => l.country).filter(c => c && c !== 'Без категории'))];
+                let countryOptions = 'Введите название страны (можно новую):\n\n';
+                if (existingCountries.length > 0) {
+                    countryOptions += 'Существующие страны:\n';
+                    existingCountries.forEach(c => countryOptions += `  - ${c}\n`);
+                    countryOptions += '\n';
+                }
+                countryOptions += 'Или введите новую страну:';
+                
+                const country = prompt(countryOptions) || 'Без категории';
+                
                 const desc = prompt('Краткое описание:');
                 const subtitle = prompt('Подзаголовок (например: Столица Сильванора):');
                 const newLoc = {
@@ -3056,6 +3165,10 @@
                 renderMarkers();
                 renderLocations();
                 updateCountryFilter();
+                if (country.trim() !== 'Без категории') {
+                    document.getElementById('country-select').value = country.trim();
+                    currentFilter = country.trim();
+                }
                 alert('Локация добавлена!');
             });
         });
@@ -3401,6 +3514,7 @@
         window.addPhotoToCurrentLocation = addPhotoToCurrentLocation;
         window.deletePhotoFromLibrary = deletePhotoFromLibrary;
         window.loadPhotosLibrary = loadPhotosLibrary;
+        window.removePhotoFromLocation = removePhotoFromLocation;
 
         // ============================================================
         //  ЗАПУСК
@@ -3417,6 +3531,7 @@
             console.log('📂 Фильтр по странам в сайдбаре');
             console.log('🔤 A+ / A- только в админ-панели');
             console.log('📐 Drag & Drop из медиатеки в модалку');
+            console.log('➕ Кнопки добавления стран');
         }
 
         startApp();
