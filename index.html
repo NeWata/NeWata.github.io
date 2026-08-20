@@ -663,8 +663,8 @@
             white-space: nowrap;
             cursor: default;
             user-select: none;
+            pointer-events: none;
             transition: all 0.2s ease;
-            pointer-events: all;
             line-height: 1.2;
         }
         .custom-label:hover {
@@ -675,21 +675,7 @@
                 2px 2px 4px rgba(0, 0, 0, 0.9);
         }
         .custom-label .label-text { display: inline-block; }
-        .custom-label .label-edit,
-        .custom-label .label-del,
-        .custom-label .label-drag-handle {
-            display: none;
-        }
-        .custom-label.admin-mode .label-edit,
-        .custom-label.admin-mode .label-del,
-        .custom-label.admin-mode .label-drag-handle {
-            display: inline-block;
-            background: rgba(0,0,0,0.5);
-            padding: 0 4px;
-            border-radius: 4px;
-        }
         .custom-label.hidden-label { display: none !important; }
-        .custom-label.dragging { opacity: 0.6; transform: scale(0.95); }
 
         .custom-marker {
             background: none;
@@ -2278,7 +2264,7 @@
         });
 
         // ============================================================
-        //  НАДПИСИ НА КАРТЕ
+        //  НАДПИСИ НА КАРТЕ (ТОЛЬКО ТЕКСТ, БЕЗ КНОПОК УПРАВЛЕНИЯ)
         // ============================================================
         async function loadLabels() {
             try {
@@ -2341,29 +2327,23 @@
                 if (typeof label.lat !== 'number' || typeof label.lng !== 'number') return;
                 const isHidden = labelsHidden || shouldHide;
                 if (isHidden) return;
+                
                 const fontSize = label.font_size || 18;
+                // Только текст, без кнопок управления
                 let labelHtml = `<span class="label-text" style="font-size:${fontSize}px;">${label.text}</span>`;
-                if (isAdmin) {
-                    labelHtml += `
-                        <span class="label-edit" onclick="editLabelText('${label.id}')" style="display:inline-block;margin-left:4px;color:#4ecdc4;font-size:14px;cursor:pointer;background:rgba(0,0,0,0.5);border:none;padding:0 4px;border-radius:4px;">✎</span>
-                        <span class="label-del" onclick="deleteLabel('${label.id}')" style="display:inline-block;margin-left:2px;color:#ff5555;font-size:14px;cursor:pointer;background:rgba(0,0,0,0.5);border:none;padding:0 4px;border-radius:4px;">✕</span>
-                        <span class="label-drag-handle" style="display:inline-block;margin-left:4px;color:#666;font-size:12px;cursor:grab;user-select:none;background:rgba(0,0,0,0.5);padding:0 4px;border-radius:4px;">⠿</span>
-                    `;
-                }
+                
                 const marker = L.marker([label.lat, label.lng], {
                     icon: L.divIcon({
-                        className: isAdmin ? 'custom-label admin-mode' : 'custom-label',
-                        html: labelHtml, iconSize: [0, 0], iconAnchor: [0, 0]
+                        className: 'custom-label',
+                        html: labelHtml,
+                        iconSize: [0, 0],
+                        iconAnchor: [0, 0]
                     }),
-                    interactive: isAdmin ? true : false, keyboard: false, draggable: isAdmin ? true : false
+                    interactive: false,
+                    keyboard: false,
+                    draggable: false
                 }).addTo(mapInstance);
-                if (isAdmin) {
-                    marker.on('dragstart', function(e) { const el = e.target._icon; if (el) el.classList.add('dragging'); });
-                    marker.on('dragend', function(e) {
-                        const pos = e.target.getLatLng(); const el = e.target._icon; if (el) el.classList.remove('dragging');
-                        updateLabelInDB(label.id, { lat: pos.lat, lng: pos.lng });
-                    });
-                }
+                
                 labelLayers[label.id] = { marker };
             });
         }
@@ -2479,7 +2459,6 @@
         //  ПОДКАТЕГОРИИ (ПОЛЬЗОВАТЕЛЬСКИЕ)
         // ============================================================
 
-        // Загрузка подкатегорий
         async function loadSubcategories() {
             try {
                 const { data, error } = await supabaseClient
@@ -2500,7 +2479,6 @@
             }
         }
 
-        // Сохранение подкатегории
         async function saveSubcategory(country, name) {
             try {
                 const { data, error } = await supabaseClient
@@ -2522,7 +2500,6 @@
             }
         }
 
-        // Удаление подкатегории
         async function deleteSubcategory(id) {
             const sub = subcategories.find(s => s.id === id);
             if (!sub) return;
@@ -2556,7 +2533,6 @@
             }
         }
 
-        // Обновление выпадающего списка подкатегорий
         function updateSubcategorySelect() {
             const select = document.getElementById('admin-location-subcategory');
             if (!select) return;
@@ -2576,7 +2552,6 @@
             select.innerHTML = html;
             select.value = currentVal;
             
-            // Показываем кнопку удаления, если есть подкатегории
             const deleteBtn = document.getElementById('delete-subcategory-btn');
             if (deleteBtn) {
                 const hasSubs = subcategories.some(s => s.country === country);
@@ -2584,7 +2559,6 @@
             }
         }
 
-        // Рендер списка подкатегорий
         function renderSubcategoriesList() {
             const container = document.getElementById('subcategories-list');
             if (!container) return;
@@ -2622,7 +2596,6 @@
             container.innerHTML = html;
         }
 
-        // Добавление новой подкатегории (кнопка в редакторе)
         document.getElementById('add-subcategory-btn').addEventListener('click', function() {
             const country = document.getElementById('admin-location-country').value.trim();
             if (!country) {
@@ -2646,7 +2619,6 @@
             saveSubcategory(country, name.trim());
         });
 
-        // Удаление подкатегории (кнопка в редакторе)
         document.getElementById('delete-subcategory-btn').addEventListener('click', function() {
             const country = document.getElementById('admin-location-country').value.trim();
             if (!country) return;
@@ -2665,7 +2637,6 @@
             }
         });
 
-        // Кнопка добавления подкатегории в отдельной вкладке
         document.getElementById('subcat-add-btn').addEventListener('click', function() {
             const country = prompt('📁 Введите название страны для подкатегории:');
             if (!country || country.trim() === '') return;
@@ -2692,7 +2663,6 @@
             loadSubcategories();
         });
 
-        // Обновляем подкатегории при смене страны
         document.getElementById('admin-location-country').addEventListener('input', function() {
             updateSubcategorySelect();
         });
@@ -3394,7 +3364,6 @@
             }
             if (count) count.textContent = locations.length;
             
-            // Группируем по странам
             const grouped = {};
             locations.forEach(loc => {
                 const key = loc.country || 'Без категории';
@@ -3450,7 +3419,6 @@
                 countryMsg += 'Или введите новую:';
                 const country = prompt(countryMsg) || 'Без категории';
                 
-                // Предложить выбрать подкатегорию из существующих
                 let subcategory = null;
                 const subs = subcategories.filter(s => s.country === country.trim());
                 if (subs.length > 0) {
@@ -3691,7 +3659,6 @@
                 filtered = locations.filter(l => l.country === currentFilter);
             }
             
-            // Группируем по подкатегориям
             let html = '';
             const grouped = {};
             
@@ -3896,6 +3863,7 @@
             console.log('🔤 A+ / A- только в админ-панели');
             console.log('📐 Drag & Drop из медиатеки в модалку');
             console.log('➕ Кнопки добавления стран и подкатегорий');
+            console.log('🏷️ Надписи на карте только текст, управление в админке');
         }
 
         startApp();
