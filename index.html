@@ -1476,6 +1476,12 @@
                             <input id="admin-location-country" placeholder="Например: Аурион, Сильванор, ...">
                         </div>
                         <div class="form-group">
+                            <label>Родительская страна (подкатегория)</label>
+                            <select id="admin-location-parent">
+                                <option value="">— Нет (основная категория) —</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
                             <label>Описание (краткое)</label>
                             <textarea id="admin-location-desc" placeholder="Краткое описание для попапа"></textarea>
                         </div>
@@ -1640,21 +1646,70 @@
         }
 
         // ============================================================
-        //  ФИЛЬТР ПО СТРАНАМ
+        //  ФУНКЦИИ ДЛЯ РАБОТЫ СО СТРАНАМИ И ПОДКАТЕГОРИЯМИ
         // ============================================================
-        function updateCountryFilter() {
-            const select = document.getElementById('country-select');
+        function getCountries() {
             const countries = new Set();
             locations.forEach(loc => {
                 if (loc.country && loc.country !== 'Без категории') {
                     countries.add(loc.country);
                 }
             });
+            return [...countries].sort();
+        }
+
+        function getSubcategories(country) {
+            return locations
+                .filter(l => l.parent_country === country)
+                .sort((a, b) => a.name.localeCompare(b.name));
+        }
+
+        function getLocationsByCountry(country) {
+            if (country === 'all') return locations;
+            return locations.filter(l => 
+                l.country === country || l.parent_country === country
+            );
+        }
+
+        function updateParentSelect(selectedCountry) {
+            const select = document.getElementById('admin-location-parent');
+            if (!select) return;
+            
+            const countries = getCountries();
+            let html = '<option value="">— Нет (основная категория) —</option>';
+            
+            countries.forEach(c => {
+                if (c === selectedCountry) return;
+                const subcats = getSubcategories(c);
+                if (subcats.length > 0 || c !== selectedCountry) {
+                    html += `<option value="${c}">${c}</option>`;
+                }
+            });
+            
+            select.innerHTML = html;
+        }
+
+        // ============================================================
+        //  ФИЛЬТР ПО СТРАНАМ (С ПОДКАТЕГОРИЯМИ)
+        // ============================================================
+        function updateCountryFilter() {
+            const select = document.getElementById('country-select');
+            const countries = getCountries();
             
             let html = '<option value="all">🌍 Все страны</option>';
-            [...countries].sort().forEach(c => {
-                html += `<option value="${c}">${c}</option>`;
+            
+            countries.forEach(c => {
+                const subcats = getSubcategories(c);
+                if (subcats.length > 0) {
+                    html += `<option value="${c}" style="font-weight:bold;">📁 ${c}</option>`;
+                    subcats.forEach(sub => {
+                        html += `<option value="${sub.country}" style="padding-left:20px;color:#888;">  └─ ${sub.name}</option>`;
+                    });
+                } else {
+                    html += `<option value="${c}">${c}</option>`;
+                }
             });
+            
             select.innerHTML = html;
             select.value = currentFilter;
         }
@@ -2591,7 +2646,6 @@
             if (!loc) return;
             currentLocationId = id;
             
-            // Загружаем медиатеку при открытии модалки
             loadPhotosLibrary();
             
             document.getElementById('modal-title').textContent = loc.name || 'Без названия';
@@ -2724,7 +2778,6 @@
             const container = document.getElementById('modal-photo-admin-list');
             if (!container) return;
             
-            // ✅ Показываем ВСЕ фото из медиатеки
             const allPhotos = photosLibrary || [];
             
             if (allPhotos.length === 0) {
@@ -2736,7 +2789,6 @@
             allPhotos.forEach((photo) => {
                 const url = photo.url;
                 const cap = photo.caption || '';
-                // Проверяем, есть ли уже это фото в локации
                 const isInLocation = photos && photos.some(p => {
                     const pUrl = typeof p === 'object' && p.url ? p.url : p;
                     return pUrl === url;
@@ -2759,7 +2811,6 @@
             });
             container.innerHTML = html;
             
-            // Добавляем drag & drop
             container.querySelectorAll('.photo-admin-item').forEach(item => {
                 item.addEventListener('dragstart', function(e) {
                     this.classList.add('dragging');
@@ -2900,7 +2951,6 @@
         //  ДОБАВЛЕНИЕ НОВОЙ СТРАНЫ
         // ============================================================
 
-        // Кнопка в админ-панели
         document.getElementById('admin-add-country').addEventListener('click', function() {
             if (!isAdmin) {
                 alert('⛔ Только админ может добавлять страны');
@@ -2912,7 +2962,6 @@
             
             const trimmed = countryName.trim();
             
-            // Проверяем, есть ли уже такая страна
             const exists = locations.some(l => l.country === trimmed);
             if (exists) {
                 alert(`❌ Страна "${trimmed}" уже существует!`);
@@ -2921,15 +2970,12 @@
             
             alert(`✅ Страна "${trimmed}" добавлена! Теперь вы можете создать локацию в этой стране.`);
             
-            // Обновляем фильтр
             updateCountryFilter();
-            // Выбираем новую страну в фильтре
             document.getElementById('country-select').value = trimmed;
             currentFilter = trimmed;
             renderLocations();
         });
 
-        // Кнопка в сайдбаре (фильтр)
         document.getElementById('add-country-btn').addEventListener('click', function() {
             if (!isAdmin) {
                 alert('⛔ Только админ может добавлять страны');
@@ -2941,7 +2987,6 @@
             
             const trimmed = countryName.trim();
             
-            // Проверяем, есть ли уже такая страна
             const exists = locations.some(l => l.country === trimmed);
             if (exists) {
                 alert(`❌ Страна "${trimmed}" уже существует!`);
@@ -2950,7 +2995,6 @@
             
             alert(`✅ Страна "${trimmed}" добавлена! Теперь вы можете создать локацию в этой стране.`);
             
-            // Обновляем фильтр
             updateCountryFilter();
             document.getElementById('country-select').value = trimmed;
             currentFilter = trimmed;
@@ -3110,12 +3154,15 @@
             locations.forEach(loc => {
                 const countPhotos = loc.photos ? loc.photos.length : 0;
                 const color = loc.markerColor || '#d4c08a';
+                const parent = loc.parent_country ? ` ← ${loc.parent_country}` : '';
+                const isSub = loc.parent_country ? 'style="padding-left:20px;color:#aaa;"' : '';
+                
                 html += `
-                    <div class="list-item">
+                    <div class="list-item" ${isSub}>
                         <div class="item-info">
                             <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0;"></span>
                             <span class="name">${loc.name}</span>
-                            <span style="color:#555;font-size:10px;">${loc.country || 'Без категории'}</span>
+                            <span style="color:#555;font-size:10px;">${loc.country || 'Без категории'}${parent}</span>
                             <span style="color:#555;font-size:10px;">📷${countPhotos}</span>
                         </div>
                         <div class="item-actions">
@@ -3137,34 +3184,56 @@
                 const name = prompt('Название новой локации:');
                 if (!name) return;
                 
-                // ✅ Предлагаем выбрать существующую страну или создать новую
-                const existingCountries = [...new Set(locations.map(l => l.country).filter(c => c && c !== 'Без категории'))];
-                let countryOptions = 'Введите название страны (можно новую):\n\n';
-                if (existingCountries.length > 0) {
-                    countryOptions += 'Существующие страны:\n';
-                    existingCountries.forEach(c => countryOptions += `  - ${c}\n`);
-                    countryOptions += '\n';
+                const countries = getCountries();
+                let countryMsg = 'Введите название страны (можно новую):\n\n';
+                if (countries.length > 0) {
+                    countryMsg += 'Существующие страны:\n';
+                    countries.forEach(c => countryMsg += `  - ${c}\n`);
+                    countryMsg += '\n';
                 }
-                countryOptions += 'Или введите новую страну:';
+                countryMsg += 'Или введите новую:';
+                const country = prompt(countryMsg) || 'Без категории';
                 
-                const country = prompt(countryOptions) || 'Без категории';
+                let parent = null;
+                if (countries.length > 0) {
+                    const parentMsg = 'Выберите родительскую страну (подкатегорию):\n' +
+                        '0 - Нет (основная категория)\n' +
+                        countries.map((c, i) => `${i+1} - ${c}`).join('\n');
+                    const parentInput = prompt(parentMsg, '0');
+                    if (parentInput !== null && parentInput !== '0') {
+                        const idx = parseInt(parentInput) - 1;
+                        if (idx >= 0 && idx < countries.length) {
+                            parent = countries[idx];
+                        }
+                    }
+                }
                 
                 const desc = prompt('Краткое описание:');
                 const subtitle = prompt('Подзаголовок (например: Столица Сильванора):');
+                
                 const newLoc = {
-                    id: Date.now(), lat: parseFloat(lat), lng: parseFloat(lng),
-                    name: name.trim(), country: country.trim(),
+                    id: Date.now(),
+                    lat: parseFloat(lat),
+                    lng: parseFloat(lng),
+                    name: name.trim(),
+                    country: country.trim(),
+                    parent_country: parent,
                     description: desc?.trim() || 'Описание отсутствует',
                     subtitle: subtitle?.trim() || '',
-                    description_long: '', characters: [], features: [], photos: [],
+                    description_long: '',
+                    characters: [],
+                    features: [],
+                    photos: [],
                     markerColor: '#d4c08a'
                 };
+                
                 locations.push(newLoc);
                 await saveAll();
                 renderAdminList();
                 renderMarkers();
                 renderLocations();
                 updateCountryFilter();
+                updateParentSelect(country.trim());
                 if (country.trim() !== 'Без категории') {
                     document.getElementById('country-select').value = country.trim();
                     currentFilter = country.trim();
@@ -3181,6 +3250,9 @@
             document.getElementById('admin-location-country').value = loc.country || '';
             document.getElementById('admin-location-desc').value = loc.description || '';
             document.getElementById('admin-location-subtitle').value = loc.subtitle || '';
+            
+            updateParentSelect(loc.country);
+            document.getElementById('admin-location-parent').value = loc.parent_country || '';
 
             const grid = document.getElementById('admin-photos-grid');
             grid.innerHTML = '';
@@ -3289,13 +3361,21 @@
             if (!loc) return;
             loc.name = document.getElementById('admin-location-name').value.trim() || 'Без названия';
             loc.country = document.getElementById('admin-location-country').value.trim() || 'Без категории';
+            loc.parent_country = document.getElementById('admin-location-parent').value || null;
             loc.description = document.getElementById('admin-location-desc').value.trim() || 'Описание отсутствует';
             loc.subtitle = document.getElementById('admin-location-subtitle').value.trim() || '';
+            
+            if (loc.parent_country === loc.country) {
+                alert('❌ Страна не может быть родителем самой себя!');
+                return;
+            }
+            
             await saveAll();
             renderAdminList();
             renderMarkers();
             renderLocations();
             updateCountryFilter();
+            updateParentSelect(loc.country);
             alert('Локация сохранена!');
         });
 
@@ -3351,16 +3431,24 @@
                 list.innerHTML = '<li class="empty-msg">Нет локаций</li>';
                 return;
             }
+            
             let filtered = locations;
             if (currentFilter !== 'all') {
-                filtered = locations.filter(l => l.country === currentFilter);
+                filtered = locations.filter(l => 
+                    l.country === currentFilter || l.parent_country === currentFilter
+                );
             }
+            
             let html = '';
             filtered.forEach(loc => {
                 const count = loc.photos ? loc.photos.length : 0;
+                const isSubcategory = loc.parent_country ? true : false;
+                const prefix = isSubcategory ? '  └─ ' : '';
+                const style = isSubcategory ? 'padding-left:20px;color:#aaa;' : '';
+                
                 html += `
-                    <li data-id="${loc.id}" onclick="flyToLocation(${loc.id})">
-                        <span class="loc-name">${loc.name}</span>
+                    <li data-id="${loc.id}" onclick="flyToLocation(${loc.id})" style="${style}">
+                        <span class="loc-name">${prefix}${loc.name}</span>
                         <span class="loc-country">${loc.country || 'Без категории'}</span>
                         <span class="loc-photos-count">${count}</span>
                     </li>
@@ -3515,6 +3603,9 @@
         window.deletePhotoFromLibrary = deletePhotoFromLibrary;
         window.loadPhotosLibrary = loadPhotosLibrary;
         window.removePhotoFromLocation = removePhotoFromLocation;
+        window.getCountries = getCountries;
+        window.getSubcategories = getSubcategories;
+        window.updateParentSelect = updateParentSelect;
 
         // ============================================================
         //  ЗАПУСК
@@ -3532,6 +3623,7 @@
             console.log('🔤 A+ / A- только в админ-панели');
             console.log('📐 Drag & Drop из медиатеки в модалку');
             console.log('➕ Кнопки добавления стран');
+            console.log('📁 Подкатегории (родительские страны)');
         }
 
         startApp();
