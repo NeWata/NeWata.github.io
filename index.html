@@ -743,7 +743,6 @@
             box-shadow: 0 0 12px rgba(255,255,255,0.3);
         }
 
-        /* ===== МЕДИАТЕКА ===== */
         .photos-library-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -813,44 +812,6 @@
         }
         .photos-library-grid .lib-photo .lib-actions .add-to-location:hover { color: #4ecdc4; }
         .photos-library-grid .lib-photo .lib-actions .delete-lib:hover { color: #ff5555; }
-
-        .photos-library-grid .lib-photo .lib-check {
-            position: absolute;
-            top: 4px;
-            left: 4px;
-            width: 20px;
-            height: 20px;
-            background: rgba(0,0,0,0.7);
-            border-radius: 50%;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            color: #4ecdc4;
-            font-size: 12px;
-        }
-        .photos-library-grid .lib-photo.selected .lib-check {
-            display: flex;
-        }
-        .photos-library-grid .lib-photo.selected {
-            border-color: #4ecdc4;
-            box-shadow: 0 0 20px rgba(78, 205, 196, 0.2);
-        }
-
-        .library-upload-area {
-            border: 2px dashed #3a3a50;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            color: #666;
-            cursor: pointer;
-            transition: 0.3s;
-            margin-bottom: 12px;
-        }
-        .library-upload-area:hover {
-            border-color: #d4c08a;
-            color: #aaa;
-            background: rgba(212, 192, 138, 0.05);
-        }
 
         .admin-overlay {
             position: fixed;
@@ -1112,7 +1073,6 @@
         .admin-scroll-list .list-item .item-actions .edit:hover { color: #4ecdc4; }
         .admin-scroll-list .list-item .item-actions .delete:hover { color: #ff5555; }
         .admin-scroll-list .list-item .item-actions .eye:hover { color: #f9ca24; }
-        .admin-scroll-list .list-item .item-actions .pin:hover { color: #4ecdc4; }
 
         .admin-editor {
             background: rgba(10, 10, 18, 0.5);
@@ -1582,7 +1542,6 @@
         let markerMap = new Map();
         let routeLayers = {};
         let labelLayers = {};
-        let currentModalId = null;
         let editingId = null;
         let isAdmin = false;
         let selectedFiles = [];
@@ -1595,7 +1554,6 @@
         let labelsHidden = false;
         let userLabelsHidden = false;
         let currentLocationId = null;
-        let modalIsAdmin = false;
         let currentFilter = 'all';
 
         // ============================================================
@@ -1857,7 +1815,7 @@
         }
 
         // ============================================================
-        //  МАРШРУТЫ (сокращено для экономии места, но полный функционал)
+        //  МАРШРУТЫ
         // ============================================================
         async function loadRoutes() {
             try {
@@ -1933,6 +1891,89 @@
                 console.error('❌ Ошибка удаления маршрута:', e);
                 alert('❌ Ошибка удаления маршрута: ' + e.message);
                 return false;
+            }
+        }
+
+        // ============================================================
+        //  РЕДАКТИРОВАНИЕ ПОЗИЦИИ ПОДПИСИ НА МАРШРУТЕ
+        // ============================================================
+        async function editLabelPosition(routeId) {
+            const route = routes.find(r => r.id === routeId);
+            if (!route) return;
+
+            const pointsCount = route.points ? route.points.length : 0;
+            if (pointsCount < 2) {
+                alert('❌ В маршруте должно быть минимум 2 точки');
+                return;
+            }
+
+            const currentPos = route.labelposition !== undefined ? route.labelposition : Math.floor(pointsCount / 2);
+            
+            const input = prompt(`Выберите номер точки для подписи (от 1 до ${pointsCount}, текущая: ${currentPos + 1}):`);
+            if (input === null) return;
+
+            const parsed = parseInt(input);
+            if (isNaN(parsed) || parsed < 1 || parsed > pointsCount) {
+                alert(`❌ Некорректный номер. Введите число от 1 до ${pointsCount}`);
+                return;
+            }
+
+            const newPosition = parsed - 1;
+            
+            try {
+                const { error } = await supabaseClient
+                    .from('routes')
+                    .update({ labelposition: newPosition })
+                    .eq('id', routeId);
+
+                if (error) throw error;
+
+                route.labelposition = newPosition;
+                renderRoutes();
+                renderRoutesLegend();
+                renderAdminRoutesList();
+                
+                alert(`✅ Подпись перемещена на точку ${parsed}`);
+            } catch (e) {
+                console.error('Ошибка обновления:', e);
+                alert('❌ Ошибка обновления: ' + e.message);
+            }
+        }
+
+        // ============================================================
+        //  РЕДАКТИРОВАНИЕ РАЗМЕРА ПОДПИСИ НА МАРШРУТЕ
+        // ============================================================
+        async function editLabelSize(routeId) {
+            const route = routes.find(r => r.id === routeId);
+            if (!route) return;
+
+            const currentSize = route.labelsize || 11;
+            const input = prompt(`Введите размер шрифта для подписи (в пикселях, от 8 до 30, текущий: ${currentSize}px):`);
+            if (input === null) return;
+
+            const parsed = parseInt(input);
+            if (isNaN(parsed) || parsed < 8 || parsed > 30) {
+                alert(`❌ Некорректный размер. Введите число от 8 до 30`);
+                return;
+            }
+
+            try {
+                const { error } = await supabaseClient
+                    .from('routes')
+                    .update({ labelsize: parsed })
+                    .eq('id', routeId);
+
+                if (error) throw error;
+
+                route.labelsize = parsed;
+                renderRoutes();
+                renderRoutesLegend();
+                renderAdminRoutesList();
+                
+                alert(`✅ Размер подписи изменён на ${parsed}px`);
+            } catch (e) {
+                console.error('Ошибка обновления:', e);
+                alert('❌ Ошибка обновления: ' + e.message);
             }
         }
 
@@ -2140,7 +2181,7 @@
         });
 
         // ============================================================
-        //  НАДПИСИ НА КАРТЕ (A+ / A- ТОЛЬКО В АДМИН-ПАНЕЛИ)
+        //  НАДПИСИ НА КАРТЕ
         // ============================================================
         async function loadLabels() {
             try {
@@ -2471,7 +2512,6 @@
         // ============================================================
         //  МОДАЛКА С DRAG & DROP ИЗ МЕДИАТЕКИ
         // ============================================================
-        // Drop зона для правой колонки
         document.getElementById('modal-right').addEventListener('dragover', function(e) {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'copy';
@@ -2497,7 +2537,6 @@
             }
         });
 
-        // Drop зона для центральной галереи
         document.getElementById('modal-center').addEventListener('dragover', function(e) {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'copy';
@@ -2515,13 +2554,12 @@
         });
 
         // ============================================================
-        //  ОСТАЛЬНЫЕ ФУНКЦИИ (модалка, админ-панель, сохранение)
+        //  МОДАЛКА
         // ============================================================
         function openModal(id) {
             const loc = locations.find(l => l.id === id);
             if (!loc) return;
             currentLocationId = id;
-            modalIsAdmin = isAdmin;
             
             document.getElementById('modal-title').textContent = loc.name || 'Без названия';
             document.getElementById('modal-country').textContent = '🌍 ' + (loc.country || 'Без категории');
@@ -2678,16 +2716,29 @@
             });
             container.innerHTML = html;
             
+            let draggedItem = null;
             container.querySelectorAll('.photo-admin-item').forEach(item => {
                 item.addEventListener('dragstart', function(e) {
+                    draggedItem = this;
                     this.classList.add('dragging');
                     e.dataTransfer.effectAllowed = 'move';
                     e.dataTransfer.setData('text/plain', this.dataset.index);
                 });
-                item.addEventListener('dragend', function(e) { this.classList.remove('dragging'); });
-                item.addEventListener('dragover', function(e) { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; });
-                item.addEventListener('dragenter', function(e) { e.preventDefault(); if (this !== draggedItem) this.classList.add('drag-over'); });
-                item.addEventListener('dragleave', function(e) { this.classList.remove('drag-over'); });
+                item.addEventListener('dragend', function(e) {
+                    this.classList.remove('dragging');
+                    draggedItem = null;
+                });
+                item.addEventListener('dragover', function(e) {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                });
+                item.addEventListener('dragenter', function(e) {
+                    e.preventDefault();
+                    if (this !== draggedItem) this.classList.add('drag-over');
+                });
+                item.addEventListener('dragleave', function(e) {
+                    this.classList.remove('drag-over');
+                });
                 item.addEventListener('drop', function(e) {
                     e.preventDefault();
                     this.classList.remove('drag-over');
@@ -2706,8 +2757,6 @@
                 });
             });
         }
-
-        let draggedItem = null;
 
         window.updatePhotoCaption = function(locId, index, value) {
             if (!isAdmin) return;
