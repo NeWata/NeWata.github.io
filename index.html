@@ -1531,10 +1531,11 @@
                 
                 <div class="modal-right" id="modal-right">
                     <div class="admin-label">📚 Медиатека</div>
-                    <div style="font-size:10px;color:#444;margin-bottom:8px;">
-                        Все фото из библиотеки. Нажми ➕ чтобы добавить в локацию
+                    <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;">
+                        <button class="upload-btn" id="modal-upload-btn" style="flex:1;">📁 Загрузить фото</button>
+                        <button class="upload-btn" id="modal-check-btn" style="flex:0; padding:8px 12px;" title="Проверить фото">🔍</button>
+                        <button class="upload-btn" id="modal-refresh-btn" style="flex:0; padding:8px 12px;" title="Обновить галерею">🔄</button>
                     </div>
-                    <button class="upload-btn" id="modal-upload-btn">📁 Загрузить фото в медиатеку</button>
                     <input type="file" id="modal-file-input" accept="image/*" multiple style="display:none;">
                     
                     <div class="photo-admin-list" id="modal-photo-admin-list">
@@ -1696,6 +1697,7 @@
                     <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
                         <button class="btn btn-primary" id="lib-upload-btn" style="padding:4px 14px;font-size:12px;">📤 Загрузить фото</button>
                         <button class="btn btn-secondary" id="lib-refresh-btn" style="padding:4px 14px;font-size:12px;">🔄 Обновить</button>
+                        <button class="btn btn-danger" id="lib-clean-btn" style="padding:4px 14px;font-size:12px;">🧹 Очистить битые</button>
                         <span style="font-size:12px;color:#555;align-self:center;">Всего: <span id="lib-count">0</span> фото</span>
                         <span style="font-size:12px;color:#555;align-self:center;margin-left:auto;">
                             <span style="color:#4ecdc4;">⬅️ Перетащи</span> фото в модалку локации
@@ -2047,7 +2049,7 @@
         }
 
         // ============================================================
-        //  МАРШРУТЫ (полный функционал)
+        //  МАРШРУТЫ
         // ============================================================
         async function loadRoutes() {
             try {
@@ -2905,15 +2907,30 @@
             setAdminStatus('⏳ Загрузка в медиатеку...', 'syncing');
             for (const file of files) {
                 try {
-                    const fileExt = file.name.split('.').pop();
-                    const fileName = `library/${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
-                    const { error: uploadError } = await supabaseClient.storage.from('photos').upload(fileName, file);
+                    const timestamp = Date.now();
+                    const random = Math.random().toString(36).substring(2, 8);
+                    const fileName = `${timestamp}_${random}.${file.name.split('.').pop()}`;
+                    
+                    const { error: uploadError } = await supabaseClient.storage
+                        .from('photos')
+                        .upload(fileName, file);
+                    
                     if (uploadError) throw uploadError;
-                    const { data: urlData } = supabaseClient.storage.from('photos').getPublicUrl(fileName);
-                    const { error: dbError } = await supabaseClient.from('photos_library').insert({
-                        url: urlData.publicUrl, caption: '', uploaded_at: new Date().toISOString()
-                    });
+                    
+                    const { data: urlData } = supabaseClient.storage
+                        .from('photos')
+                        .getPublicUrl(fileName);
+                    
+                    const { error: dbError } = await supabaseClient
+                        .from('photos_library')
+                        .insert({
+                            url: urlData.publicUrl,
+                            caption: file.name,
+                            uploaded_at: new Date().toISOString()
+                        });
+                    
                     if (dbError) throw dbError;
+                    
                 } catch (err) {
                     console.error('Ошибка загрузки в медиатеку:', err);
                     alert('❌ Ошибка загрузки: ' + err.message);
@@ -2922,6 +2939,38 @@
             await loadPhotosLibrary();
             document.getElementById('lib-file-input').value = '';
             setAdminStatus('✅ Фото загружены в медиатеку', 'ok');
+        });
+
+        // ============================================================
+        //  ОЧИСТКА БИТЫХ ФОТО
+        // ============================================================
+        document.getElementById('lib-clean-btn').addEventListener('click', async function() {
+            if (!confirm('🧹 Удалить все битые фото из медиатеки?')) return;
+            
+            let deleted = 0;
+            for (const photo of photosLibrary) {
+                try {
+                    const response = await fetch(photo.url, { method: 'HEAD' });
+                    if (!response.ok) {
+                        const { error } = await supabaseClient
+                            .from('photos_library')
+                            .delete()
+                            .eq('id', photo.id);
+                        if (error) throw error;
+                        deleted++;
+                    }
+                } catch (e) {
+                    const { error } = await supabaseClient
+                        .from('photos_library')
+                        .delete()
+                        .eq('id', photo.id);
+                    if (!error) deleted++;
+                }
+            }
+            
+            await loadPhotosLibrary();
+            setAdminStatus(`✅ Удалено ${deleted} битых фото`, 'ok');
+            alert(`✅ Удалено ${deleted} битых фото`);
         });
 
         async function deletePhotoFromLibrary(photoId) {
@@ -2995,7 +3044,72 @@
         });
 
         // ============================================================
-        //  ГАМБУРГЕР-МЕНЮ ДЛЯ ТЕЛЕФОНОВ (ИСПРАВЛЕННЫЙ)
+        //  ПРОВЕРКА ФОТО В ЛОКАЦИИ
+        // ============================================================
+        async function checkLocationPhotos(locId) {
+            const loc = locations.find(l => l.id === locId);
+            if (!loc || !loc.photos || loc.photos.length === 0) {
+                alert('📭 В этой локации нет фото');
+                return;
+            }
+            
+            let results = [];
+            for (let i = 0; i < loc.photos.length; i++) {
+                const photo = loc.photos[i];
+                const url = typeof photo === 'object' && photo.url ? photo.url : photo;
+                
+                try {
+                    const response = await fetch(url, { method: 'HEAD' });
+                    if (response.ok) {
+                        results.push(`✅ Фото ${i+1}: доступно`);
+                    } else {
+                        results.push(`❌ Фото ${i+1}: НЕ ДОСТУПНО (${response.status})`);
+                    }
+                } catch (e) {
+                    results.push(`❌ Фото ${i+1}: ошибка загрузки`);
+                }
+            }
+            
+            alert(results.join('\n'));
+        }
+
+        // ============================================================
+        //  ВОССТАНОВЛЕНИЕ БИТЫХ ССЫЛОК
+        // ============================================================
+        async function fixBrokenPhotos(locId) {
+            const loc = locations.find(l => l.id === locId);
+            if (!loc) return;
+            
+            let fixed = 0;
+            for (let i = 0; i < loc.photos.length; i++) {
+                const photo = loc.photos[i];
+                const url = typeof photo === 'object' && photo.url ? photo.url : photo;
+                
+                try {
+                    const response = await fetch(url, { method: 'HEAD' });
+                    if (!response.ok) {
+                        const fileName = url.split('/').pop();
+                        const found = photosLibrary.find(p => p.url.includes(fileName));
+                        if (found) {
+                            loc.photos[i] = { url: found.url, caption: found.caption || '' };
+                            fixed++;
+                        }
+                    }
+                } catch (e) {}
+            }
+            
+            if (fixed > 0) {
+                await saveLocationData();
+                renderModalGallery(loc.photos);
+                renderModalAdminPhotos(loc.photos);
+                alert(`✅ Восстановлено ${fixed} фото`);
+            } else {
+                alert('ℹ️ Все фото в порядке, либо не найдены');
+            }
+        }
+
+        // ============================================================
+        //  ГАМБУРГЕР-МЕНЮ ДЛЯ ТЕЛЕФОНОВ
         // ============================================================
         const hamburgerBtn = document.getElementById('hamburger-btn');
         const sidebar = document.getElementById('sidebar');
@@ -3039,7 +3153,6 @@
             });
         }
 
-        // Закрываем меню при клике на локацию (на телефонах)
         const locationList = document.getElementById('location-list');
         if (locationList) {
             locationList.addEventListener('click', function(e) {
@@ -3050,7 +3163,6 @@
             });
         }
 
-        // Закрываем при клике вне меню (на телефонах)
         document.addEventListener('click', function(e) {
             if (window.innerWidth <= 768 && sidebarOpen) {
                 const isSidebar = sidebar.contains(e.target);
@@ -3061,7 +3173,6 @@
             }
         });
 
-        // Закрываем при нажатии Escape
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && sidebarOpen) {
                 toggleSidebar(false);
@@ -3069,7 +3180,7 @@
         });
 
         // ============================================================
-        //  КНОПКА "НАЗАД" В МОДАЛКЕ (ДЛЯ ТЕЛЕФОНОВ)
+        //  КНОПКА "НАЗАД" В МОДАЛКЕ
         // ============================================================
         const modalBackBtn = document.getElementById('modal-back-btn');
         if (modalBackBtn) {
@@ -3079,7 +3190,6 @@
             });
         }
 
-        // Свайп вниз для закрытия модалки
         let touchStartY = 0;
         const modalElement = document.getElementById('location-modal');
         if (modalElement) {
@@ -3096,6 +3206,32 @@
                 }
             }, { passive: true });
         }
+
+        // ============================================================
+        //  КНОПКИ В МОДАЛКЕ
+        // ============================================================
+        document.getElementById('modal-check-btn').addEventListener('click', function() {
+            if (!currentLocationId) {
+                alert('Сначала откройте локацию');
+                return;
+            }
+            checkLocationPhotos(currentLocationId);
+        });
+
+        document.getElementById('modal-refresh-btn').addEventListener('click', function() {
+            if (!currentLocationId) {
+                alert('Сначала откройте локацию');
+                return;
+            }
+            const loc = locations.find(l => l.id === currentLocationId);
+            if (!loc) return;
+            
+            renderModalGallery(loc.photos || []);
+            renderModalAdminPhotos(loc.photos || []);
+            
+            this.textContent = '✅';
+            setTimeout(() => { this.textContent = '🔄'; }, 1500);
+        });
 
         // ============================================================
         //  МОДАЛКА
@@ -3214,7 +3350,9 @@
                 const div = document.createElement('div');
                 div.className = 'photo-card';
                 div.innerHTML = `
-                    <img src="${url}" loading="lazy" onclick="openViewerFromModal(${currentLocationId}, ${idx})">
+                    <img src="${url}" loading="lazy" 
+                         onerror="this.parentElement.style.display='none'; console.warn('❌ Фото не загрузилось:', '${url}')"
+                         onclick="openViewerFromModal(${currentLocationId}, ${idx})">
                     <div class="photo-label">${cap || 'Без подписи'}</div>
                 `;
                 gallery.appendChild(div);
@@ -3354,13 +3492,25 @@
             if (!Array.isArray(loc.photos)) loc.photos = [];
             for (const file of files) {
                 try {
-                    const fileExt = file.name.split('.').pop();
-                    const fileName = `locations/${currentLocationId}/${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
-                    const { error: uploadError } = await supabaseClient.storage.from('photos').upload(fileName, file);
+                    const timestamp = Date.now();
+                    const random = Math.random().toString(36).substring(2, 8);
+                    const fileName = `${timestamp}_${random}.${file.name.split('.').pop()}`;
+                    
+                    const { error: uploadError } = await supabaseClient.storage
+                        .from('photos')
+                        .upload(fileName, file);
+                    
                     if (uploadError) throw uploadError;
-                    const { data: urlData } = supabaseClient.storage.from('photos').getPublicUrl(fileName);
-                    loc.photos.push({ url: urlData.publicUrl, caption: '' });
-                } catch (err) { console.error('Ошибка загрузки фото:', err); alert('❌ Ошибка: ' + err.message); }
+                    
+                    const { data: urlData } = supabaseClient.storage
+                        .from('photos')
+                        .getPublicUrl(fileName);
+                    
+                    loc.photos.push({ url: urlData.publicUrl, caption: file.name });
+                } catch (err) {
+                    console.error('Ошибка загрузки фото:', err);
+                    alert('❌ Ошибка: ' + err.message);
+                }
             }
             await saveLocationData();
             renderModalGallery(loc.photos);
@@ -3875,13 +4025,25 @@
             setAdminStatus('⏳ Загрузка...', 'syncing');
             for (const file of selectedFiles) {
                 try {
-                    const fileExt = file.name.split('.').pop();
-                    const fileName = `locations/${editingId}/${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
-                    const { error: uploadError } = await supabaseClient.storage.from('photos').upload(fileName, file);
+                    const timestamp = Date.now();
+                    const random = Math.random().toString(36).substring(2, 8);
+                    const fileName = `${timestamp}_${random}.${file.name.split('.').pop()}`;
+                    
+                    const { error: uploadError } = await supabaseClient.storage
+                        .from('photos')
+                        .upload(fileName, file);
+                    
                     if (uploadError) throw uploadError;
-                    const { data: urlData } = supabaseClient.storage.from('photos').getPublicUrl(fileName);
-                    loc.photos.push({ url: urlData.publicUrl, caption: '' });
-                } catch (err) { console.error('Ошибка загрузки фото:', err); alert('Ошибка: ' + err.message); }
+                    
+                    const { data: urlData } = supabaseClient.storage
+                        .from('photos')
+                        .getPublicUrl(fileName);
+                    
+                    loc.photos.push({ url: urlData.publicUrl, caption: file.name });
+                } catch (err) {
+                    console.error('Ошибка загрузки фото:', err);
+                    alert('Ошибка: ' + err.message);
+                }
             }
             await saveAll();
             renderAdminList();
@@ -3896,7 +4058,7 @@
         });
 
         // ============================================================
-        //  ЛОКАЦИИ (список, перелёт) - ИСПРАВЛЕННАЯ ВЕРСИЯ
+        //  ЛОКАЦИИ (список, перелёт)
         // ============================================================
         function renderLocations() {
             const list = document.getElementById('location-list');
@@ -4101,6 +4263,8 @@
         window.deleteSubcategory = deleteSubcategory;
         window.renderSubcategoriesList = renderSubcategoriesList;
         window.toggleSidebar = toggleSidebar;
+        window.checkLocationPhotos = checkLocationPhotos;
+        window.fixBrokenPhotos = fixBrokenPhotos;
 
         // ============================================================
         //  ЗАПУСК
@@ -4122,6 +4286,9 @@
             console.log('🏷️ Надписи на карте только текст, управление в админке');
             console.log('📱 Гамбургер-меню для телефонов');
             console.log('⬅️ Кнопка "Назад" в модалке для телефонов');
+            console.log('🔍 Проверка фото в локациях');
+            console.log('🔄 Обновление фото');
+            console.log('🧹 Очистка битых фото');
         }
 
         startApp();
