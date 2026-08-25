@@ -1604,6 +1604,7 @@
                     <button class="admin-tab" data-tab="routes">🗺️ Маршруты</button>
                     <button class="admin-tab" data-tab="labels">🏷️ Надписи</button>
                     <button class="admin-tab" data-tab="library">🖼️ Медиатека</button>
+                    <button class="admin-tab" data-tab="location-photos">📸 Фото локаций</button>
                     <button class="admin-tab" data-tab="subcategories">📂 Подкатегории</button>
                 </div>
 
@@ -1710,6 +1711,25 @@
                     </div>
                 </div>
 
+                <div class="admin-tab-content" id="tab-location-photos">
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
+                        <button class="btn btn-primary" id="loc-photos-check-all" style="padding:4px 14px;font-size:12px;">🔍 Проверить все</button>
+                        <button class="btn btn-danger" id="loc-photos-clean-all" style="padding:4px 14px;font-size:12px;">🧹 Удалить битые</button>
+                        <span style="font-size:12px;color:#555;align-self:center;">Всего: <span id="loc-photos-count">0</span> фото</span>
+                    </div>
+                    
+                    <div style="margin-bottom:12px;">
+                        <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Выберите локацию</label>
+                        <select id="loc-photos-select" style="width:100%;padding:6px 10px;background:#0a0a12;color:#e0dcc8;border:1px solid #2a2a3e;border-radius:6px;outline:none;">
+                            <option value="">— Выберите локацию —</option>
+                        </select>
+                    </div>
+                    
+                    <div class="admin-scroll-list" id="loc-photos-list" style="max-height:400px;">
+                        <div style="color:#444;font-style:italic;padding:20px;text-align:center;">Выберите локацию для просмотра фото</div>
+                    </div>
+                </div>
+
                 <div class="admin-tab-content" id="tab-subcategories">
                     <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
                         <button class="btn btn-primary" id="subcat-add-btn" style="padding:4px 14px;font-size:12px;">➕ Добавить подкатегорию</button>
@@ -1790,6 +1810,7 @@
                 updateCountryFilter();
                 renderLocations();
                 renderMarkers();
+                populateLocationSelect();
                 document.getElementById('sync-status').textContent = '✅ Синхронизировано';
                 document.getElementById('sync-status').style.color = '#4caf50';
                 return true;
@@ -3058,6 +3079,194 @@
             }
         }
 
+        function populateLocationSelect() {
+            const select = document.getElementById('loc-photos-select');
+            if (!select) return;
+            
+            let html = '<option value="">— Выберите локацию —</option>';
+            locations.sort((a, b) => a.name.localeCompare(b.name)).forEach(loc => {
+                const count = loc.photos ? loc.photos.length : 0;
+                html += `<option value="${loc.id}">${loc.name} (${count} фото)</option>`;
+            });
+            select.innerHTML = html;
+        }
+
+        function renderLocationPhotos(locId) {
+            const container = document.getElementById('loc-photos-list');
+            const countEl = document.getElementById('loc-photos-count');
+            if (!container) return;
+            
+            const loc = locations.find(l => l.id == locId);
+            if (!loc || !loc.photos || loc.photos.length === 0) {
+                container.innerHTML = '<div style="color:#444;font-style:italic;padding:20px;text-align:center;">📭 В этой локации нет фото</div>';
+                if (countEl) countEl.textContent = '0';
+                return;
+            }
+            
+            if (countEl) countEl.textContent = loc.photos.length;
+            
+            let html = '';
+            loc.photos.forEach((photo, idx) => {
+                const url = typeof photo === 'object' && photo.url ? photo.url : photo;
+                const cap = typeof photo === 'object' && photo.caption ? photo.caption : 'Без подписи';
+                if (!url) return;
+                
+                html += `
+                    <div class="list-item" style="padding:8px 12px;">
+                        <div class="item-info" style="gap:12px;">
+                            <img src="${url}" style="width:50px;height:50px;object-fit:cover;border-radius:4px;background:#0a0a12;" 
+                                 onerror="this.style.border='2px solid #ff5555'; this.title='❌ Фото недоступно'">
+                            <div style="flex:1;min-width:0;">
+                                <div class="name" style="font-weight:500;">${cap}</div>
+                                <div style="font-size:10px;color:#555;word-break:break-all;">${url}</div>
+                                <div style="font-size:10px;margin-top:4px;">
+                                    <span id="photo-status-${loc.id}-${idx}" style="color:#888;">⏳ Проверка...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="item-actions">
+                            <button class="edit" onclick="checkSinglePhoto(${loc.id}, ${idx})" title="Проверить фото">🔍</button>
+                            <button class="delete" onclick="removePhotoFromLocation(${loc.id}, '${url}')" title="Удалить из локации">✕</button>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+            
+            checkAllPhotosInLocation(locId);
+        }
+
+        async function checkAllPhotosInLocation(locId) {
+            const loc = locations.find(l => l.id == locId);
+            if (!loc || !loc.photos) return;
+            
+            for (let i = 0; i < loc.photos.length; i++) {
+                const photo = loc.photos[i];
+                const url = typeof photo === 'object' && photo.url ? photo.url : photo;
+                const statusEl = document.getElementById(`photo-status-${locId}-${i}`);
+                if (!statusEl) continue;
+                
+                try {
+                    const response = await fetch(url, { method: 'HEAD' });
+                    if (response.ok) {
+                        statusEl.textContent = '✅ Доступно';
+                        statusEl.style.color = '#4caf50';
+                    } else {
+                        statusEl.textContent = `❌ Ошибка ${response.status}`;
+                        statusEl.style.color = '#ff5555';
+                    }
+                } catch (e) {
+                    statusEl.textContent = '❌ Недоступно';
+                    statusEl.style.color = '#ff5555';
+                }
+            }
+        }
+
+        async function checkSinglePhoto(locId, idx) {
+            const loc = locations.find(l => l.id == locId);
+            if (!loc || !loc.photos || !loc.photos[idx]) return;
+            
+            const photo = loc.photos[idx];
+            const url = typeof photo === 'object' && photo.url ? photo.url : photo;
+            const statusEl = document.getElementById(`photo-status-${locId}-${idx}`);
+            if (!statusEl) return;
+            
+            try {
+                const response = await fetch(url, { method: 'HEAD' });
+                if (response.ok) {
+                    statusEl.textContent = '✅ Доступно';
+                    statusEl.style.color = '#4caf50';
+                    alert('✅ Фото доступно');
+                } else {
+                    statusEl.textContent = `❌ Ошибка ${response.status}`;
+                    statusEl.style.color = '#ff5555';
+                    alert(`❌ Фото недоступно (${response.status})`);
+                }
+            } catch (e) {
+                statusEl.textContent = '❌ Недоступно';
+                statusEl.style.color = '#ff5555';
+                alert('❌ Фото недоступно');
+            }
+        }
+
+        document.getElementById('loc-photos-check-all').addEventListener('click', async function() {
+            let total = 0, broken = 0;
+            
+            for (const loc of locations) {
+                if (!loc.photos || loc.photos.length === 0) continue;
+                for (const photo of loc.photos) {
+                    total++;
+                    const url = typeof photo === 'object' && photo.url ? photo.url : photo;
+                    try {
+                        const response = await fetch(url, { method: 'HEAD' });
+                        if (!response.ok) broken++;
+                    } catch (e) {
+                        broken++;
+                    }
+                }
+            }
+            
+            alert(`📊 Проверка завершена:\nВсего фото: ${total}\nБитых фото: ${broken}`);
+            
+            const select = document.getElementById('loc-photos-select');
+            if (select.value) {
+                renderLocationPhotos(select.value);
+            }
+        });
+
+        document.getElementById('loc-photos-clean-all').addEventListener('click', async function() {
+            if (!confirm('🧹 Удалить все битые фото из ВСЕХ локаций?')) return;
+            
+            let total = 0, deleted = 0;
+            
+            for (const loc of locations) {
+                if (!loc.photos || loc.photos.length === 0) continue;
+                const originalLength = loc.photos.length;
+                const validPhotos = [];
+                
+                for (const photo of loc.photos) {
+                    total++;
+                    const url = typeof photo === 'object' && photo.url ? photo.url : photo;
+                    try {
+                        const response = await fetch(url, { method: 'HEAD' });
+                        if (response.ok) {
+                            validPhotos.push(photo);
+                        } else {
+                            deleted++;
+                        }
+                    } catch (e) {
+                        deleted++;
+                    }
+                }
+                
+                if (validPhotos.length !== originalLength) {
+                    loc.photos = validPhotos;
+                    await saveLocationData(loc.id);
+                }
+            }
+            
+            await saveAll();
+            renderAdminList();
+            renderMarkers();
+            renderLocations();
+            
+            const select = document.getElementById('loc-photos-select');
+            if (select.value) {
+                renderLocationPhotos(select.value);
+            }
+            
+            alert(`✅ Готово!\nПроверено: ${total} фото\nУдалено: ${deleted} битых фото`);
+        });
+
+        document.getElementById('loc-photos-select').addEventListener('change', function() {
+            if (this.value) {
+                renderLocationPhotos(this.value);
+            } else {
+                document.getElementById('loc-photos-list').innerHTML = '<div style="color:#444;font-style:italic;padding:20px;text-align:center;">Выберите локацию для просмотра фото</div>';
+                document.getElementById('loc-photos-count').textContent = '0';
+            }
+        });
+
         const hamburgerBtn = document.getElementById('hamburger-btn');
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebar-overlay');
@@ -3362,11 +3571,29 @@
             });
         }
 
+        async function saveLocationData(locId) {
+            const loc = locations.find(l => l.id == locId);
+            if (!loc) return;
+            try {
+                const { error } = await supabaseClient.from('locations').upsert(loc, { onConflict: 'id' });
+                if (error) throw error;
+                const idx = locations.findIndex(l => l.id == locId);
+                if (idx !== -1) locations[idx] = loc;
+                renderMarkers();
+                renderLocations();
+                renderAdminList();
+                return true;
+            } catch (e) {
+                console.error('Ошибка сохранения:', e);
+                return false;
+            }
+        }
+
         function removePhotoFromLocation(locId, url) {
             if (!isAdmin) return;
             if (!confirm('🗑️ Убрать это фото из локации?')) return;
             
-            const loc = locations.find(l => l.id === locId);
+            const loc = locations.find(l => l.id == locId);
             if (!loc || !loc.photos) return;
             
             loc.photos = loc.photos.filter(p => {
@@ -3374,7 +3601,7 @@
                 return pUrl !== url;
             });
             
-            saveLocationData();
+            saveLocationData(locId);
             renderModalGallery(loc.photos);
             renderModalAdminPhotos(loc.photos);
             renderAdminList();
@@ -3405,7 +3632,7 @@
                     if (urlParts.length > 1) await supabaseClient.storage.from('photos').remove([urlParts[1]]);
                 }
                 loc.photos.splice(index, 1);
-                await saveLocationData();
+                await saveLocationData(locId);
                 renderModalGallery(loc.photos);
                 renderModalAdminPhotos(loc.photos);
                 renderAdminList();
@@ -3450,7 +3677,7 @@
                     alert('❌ Ошибка: ' + err.message);
                 }
             }
-            await saveLocationData();
+            await saveLocationData(currentLocationId);
             renderModalGallery(loc.photos);
             renderModalAdminPhotos(loc.photos);
             renderAdminList();
@@ -3458,27 +3685,12 @@
             document.getElementById('modal-file-input').value = '';
         });
 
-        async function saveLocationData() {
-            const loc = locations.find(l => l.id === currentLocationId);
-            if (!loc) return;
-            try {
-                const { error } = await supabaseClient.from('locations').upsert(loc, { onConflict: 'id' });
-                if (error) throw error;
-                const idx = locations.findIndex(l => l.id === currentLocationId);
-                if (idx !== -1) locations[idx] = loc;
-                renderMarkers();
-                renderLocations();
-                renderAdminList();
-                return true;
-            } catch (e) { console.error('❌ Ошибка сохранения:', e); alert('❌ Ошибка: ' + e.message); return false; }
-        }
-
         document.getElementById('modal-save-btn').addEventListener('click', async function() {
             if (!isAdmin) return;
             const loc = locations.find(l => l.id === currentLocationId);
             if (!loc) return;
             loc.description_long = document.getElementById('modal-description').value;
-            await saveLocationData();
+            await saveLocationData(currentLocationId);
             this.textContent = '✅ Сохранено!';
             setTimeout(() => { this.textContent = '💾 Сохранить изменения'; }, 2000);
         });
@@ -3595,6 +3807,11 @@
                 if (tabId === 'routes') renderAdminRoutesList();
                 if (tabId === 'labels') renderAdminLabelsList();
                 if (tabId === 'library') { loadPhotosLibrary(); }
+                if (tabId === 'location-photos') { 
+                    populateLocationSelect();
+                    const select = document.getElementById('loc-photos-select');
+                    if (select.value) renderLocationPhotos(select.value);
+                }
                 if (tabId === 'subcategories') { loadSubcategories(); }
             });
         });
@@ -3714,6 +3931,7 @@
                                 <span class="name">${loc.name}</span>
                                 <span style="color:#555;font-size:10px;">${sub}</span>
                                 <span style="color:#555;font-size:10px;">📷${countPhotos}</span>
+                                ${countPhotos > 0 ? `<span style="color:#4ecdc4;font-size:10px;">✅</span>` : ''}
                             </div>
                             <div class="item-actions">
                                 <button class="edit" onclick="editLocation(${loc.id})" title="Редактировать">✎</button>
@@ -3724,6 +3942,8 @@
                 });
             });
             list.innerHTML = html;
+            
+            populateLocationSelect();
         }
 
         document.getElementById('admin-add-location').addEventListener('click', function() {
@@ -4177,6 +4397,10 @@
         window.toggleSidebar = toggleSidebar;
         window.checkLocationPhotos = checkLocationPhotos;
         window.fixBrokenPhotos = fixBrokenPhotos;
+        window.populateLocationSelect = populateLocationSelect;
+        window.renderLocationPhotos = renderLocationPhotos;
+        window.checkAllPhotosInLocation = checkAllPhotosInLocation;
+        window.checkSinglePhoto = checkSinglePhoto;
 
         async function startApp() {
             await loadLocations();
