@@ -1698,6 +1698,7 @@
                         <button class="btn btn-primary" id="lib-upload-btn" style="padding:4px 14px;font-size:12px;">📤 Загрузить фото</button>
                         <button class="btn btn-secondary" id="lib-refresh-btn" style="padding:4px 14px;font-size:12px;">🔄 Обновить</button>
                         <button class="btn btn-danger" id="lib-clean-btn" style="padding:4px 14px;font-size:12px;">🧹 Очистить битые</button>
+                        <button class="btn btn-secondary" id="lib-check-btn" style="padding:4px 14px;font-size:12px;">🔍 Проверить</button>
                         <span style="font-size:12px;color:#555;align-self:center;">Всего: <span id="lib-count">0</span> фото</span>
                         <span style="font-size:12px;color:#555;align-self:center;margin-left:auto;">
                             <span style="color:#4ecdc4;">⬅️ Перетащи</span> фото в модалку локации
@@ -1725,17 +1726,11 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // ============================================================
-        //  КОНФИГУРАЦИЯ
-        // ============================================================
         const SUPABASE_URL = 'https://ufekhgjpxnnoutiikkjk.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmZWtoZ2pweG5ub3V0aWlra2prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNzIwNTYsImV4cCI6MjEwMjY0ODA1Nn0.Wc5_W5sD6VAVZVCg5hBlj2zvQCE72gTdX5KUXo0mqvs';
         const MAP_IMAGE_URL = 'image.png';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // ============================================================
-        //  СОСТОЯНИЕ
-        // ============================================================
         let locations = [];
         let routes = [];
         let labels = [];
@@ -1761,9 +1756,6 @@
         let currentFilter = 'all';
         let sidebarOpen = false;
 
-        // ============================================================
-        //  ЦВЕТА ДЛЯ МАРКЕРОВ (20 цветов)
-        // ============================================================
         const popupColors = [
             { name: 'Золотой', value: '#d4c08a' },
             { name: 'Красный', value: '#ff6b6b' },
@@ -1787,18 +1779,13 @@
             { name: 'Серый', value: '#b2bec3' }
         ];
 
-        // ============================================================
-        //  ЗАГРУЗКА ДАННЫХ
-        // ============================================================
         async function loadLocations() {
             try {
                 const { data, error } = await supabaseClient
                     .from('locations')
                     .select('*')
                     .order('id', { ascending: true });
-
                 if (error) throw error;
-
                 locations = data || [];
                 updateCountryFilter();
                 renderLocations();
@@ -1814,9 +1801,6 @@
             }
         }
 
-        // ============================================================
-        //  ФУНКЦИИ ДЛЯ РАБОТЫ СО СТРАНАМИ И ПОДКАТЕГОРИЯМИ
-        // ============================================================
         function getCountries() {
             const countries = new Set();
             locations.forEach(loc => {
@@ -1831,9 +1815,6 @@
             return subcategories.filter(s => s.country === country);
         }
 
-        // ============================================================
-        //  ФИЛЬТР ПО СТРАНАМ
-        // ============================================================
         function updateCountryFilter() {
             const select = document.getElementById('country-select');
             const countries = getCountries();
@@ -1868,9 +1849,6 @@
             }
         });
 
-        // ============================================================
-        //  КАРТА
-        // ============================================================
         function initMap() {
             mapInstance = L.map('map', {
                 center: [0, 0],
@@ -1892,7 +1870,6 @@
                 }).addTo(mapInstance);
                 mapInstance.fitBounds(bounds);
                 mapInstance.setMaxBounds(bounds);
-                console.log('Карта загружена');
             };
             img.onerror = function() {
                 alert('Файл "image.png" не найден! Положите картинку рядом с index.html');
@@ -1914,9 +1891,6 @@
             });
         }
 
-        // ============================================================
-        //  ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ ДЛЯ ЦВЕТОВ
-        // ============================================================
         function lightenColor(hex, percent) {
             const num = parseInt(hex.replace('#', ''), 16);
             const amt = Math.round(2.55 * percent);
@@ -1935,9 +1909,6 @@
             return brightness < 128;
         }
 
-        // ============================================================
-        //  МАРКЕРЫ (20 цветов)
-        // ============================================================
         function renderMarkers() {
             if (!mapInstance) return;
             markerMap.forEach(m => mapInstance.removeLayer(m));
@@ -2019,9 +1990,6 @@
             });
         }
 
-        // ============================================================
-        //  СМЕНА ЦВЕТА МАРКЕРА
-        // ============================================================
         async function changeMarkerColor(locId, color) {
             if (!isAdmin) {
                 alert('⛔ Только админ может менять цвет');
@@ -2040,24 +2008,18 @@
                 if (marker) {
                     marker.openPopup();
                 }
-                
-                console.log(`✅ Цвет маркера для "${loc.name}" изменён на ${color}`);
             } catch (e) {
                 console.error('Ошибка смены цвета:', e);
                 alert('❌ Ошибка смены цвета: ' + e.message);
             }
         }
 
-        // ============================================================
-        //  МАРШРУТЫ
-        // ============================================================
         async function loadRoutes() {
             try {
                 const { data, error } = await supabaseClient
                     .from('routes')
                     .select('*')
                     .order('created_at', { ascending: true });
-
                 if (error) throw error;
                 routes = data || [];
                 
@@ -2071,7 +2033,6 @@
                 renderRoutes();
                 renderRoutesLegend();
                 renderAdminRoutesList();
-                console.log('✅ Маршруты загружены:', routes.length);
                 return true;
             } catch (e) {
                 console.error('❌ Ошибка загрузки маршрутов:', e);
@@ -2095,7 +2056,6 @@
                     .insert(dataToInsert)
                     .select()
                     .single();
-
                 if (error) throw error;
                 
                 if (typeof data.points === 'string') data.points = JSON.parse(data.points);
@@ -2128,9 +2088,6 @@
             }
         }
 
-        // ============================================================
-        //  РЕДАКТИРОВАНИЕ ПОЗИЦИИ ПОДПИСИ НА МАРШРУТЕ
-        // ============================================================
         async function editLabelPosition(routeId) {
             const route = routes.find(r => r.id === routeId);
             if (!route) return;
@@ -2159,7 +2116,6 @@
                     .from('routes')
                     .update({ labelposition: newPosition })
                     .eq('id', routeId);
-
                 if (error) throw error;
 
                 route.labelposition = newPosition;
@@ -2174,9 +2130,6 @@
             }
         }
 
-        // ============================================================
-        //  РЕДАКТИРОВАНИЕ РАЗМЕРА ПОДПИСИ НА МАРШРУТЕ
-        // ============================================================
         async function editLabelSize(routeId) {
             const route = routes.find(r => r.id === routeId);
             if (!route) return;
@@ -2196,7 +2149,6 @@
                     .from('routes')
                     .update({ labelsize: parsed })
                     .eq('id', routeId);
-
                 if (error) throw error;
 
                 route.labelsize = parsed;
@@ -2414,9 +2366,6 @@
             renderAdminRoutesList();
         });
 
-        // ============================================================
-        //  НАДПИСИ НА КАРТЕ (ТОЛЬКО ТЕКСТ, БЕЗ КНОПОК УПРАВЛЕНИЯ)
-        // ============================================================
         async function loadLabels() {
             try {
                 const { data, error } = await supabaseClient.from('labels').select('*').order('created_at', { ascending: true });
@@ -2605,10 +2554,6 @@
             }, 2000);
         });
 
-        // ============================================================
-        //  ПОДКАТЕГОРИИ (ПОЛЬЗОВАТЕЛЬСКИЕ)
-        // ============================================================
-
         async function loadSubcategories() {
             try {
                 const { data, error } = await supabaseClient
@@ -2616,7 +2561,6 @@
                     .select('*')
                     .order('country', { ascending: true })
                     .order('name', { ascending: true });
-
                 if (error) throw error;
                 subcategories = data || [];
                 updateSubcategorySelect();
@@ -2636,7 +2580,6 @@
                     .insert({ country: country.trim(), name: name.trim() })
                     .select()
                     .single();
-
                 if (error) throw error;
                 subcategories.push(data);
                 updateSubcategorySelect();
@@ -2670,7 +2613,6 @@
                     .from('subcategories')
                     .delete()
                     .eq('id', id);
-
                 if (error) throw error;
                 subcategories = subcategories.filter(s => s.id !== id);
                 updateSubcategorySelect();
@@ -2821,16 +2763,12 @@
             updateSubcategorySelect();
         });
 
-        // ============================================================
-        //  МЕДИАТЕКА
-        // ============================================================
         async function loadPhotosLibrary() {
             try {
                 const { data, error } = await supabaseClient
                     .from('photos_library')
                     .select('*')
                     .order('uploaded_at', { ascending: false });
-
                 if (error) throw error;
                 photosLibrary = data || [];
                 renderPhotosLibrary();
@@ -2941,9 +2879,6 @@
             setAdminStatus('✅ Фото загружены в медиатеку', 'ok');
         });
 
-        // ============================================================
-        //  ОЧИСТКА БИТЫХ ФОТО
-        // ============================================================
         document.getElementById('lib-clean-btn').addEventListener('click', async function() {
             if (!confirm('🧹 Удалить все битые фото из медиатеки?')) return;
             
@@ -2973,6 +2908,30 @@
             alert(`✅ Удалено ${deleted} битых фото`);
         });
 
+        document.getElementById('lib-check-btn').addEventListener('click', async function() {
+            if (photosLibrary.length === 0) {
+                alert('📭 В медиатеке нет фото');
+                return;
+            }
+            
+            let results = [];
+            for (let i = 0; i < photosLibrary.length; i++) {
+                const photo = photosLibrary[i];
+                try {
+                    const response = await fetch(photo.url, { method: 'HEAD' });
+                    if (response.ok) {
+                        results.push(`✅ Фото ${i+1}: доступно`);
+                    } else {
+                        results.push(`❌ Фото ${i+1}: НЕ ДОСТУПНО (${response.status})`);
+                    }
+                } catch (e) {
+                    results.push(`❌ Фото ${i+1}: ошибка загрузки`);
+                }
+            }
+            
+            alert(results.join('\n'));
+        });
+
         async function deletePhotoFromLibrary(photoId) {
             if (!confirm('🗑️ Удалить это фото из медиатеки?')) return;
             const photo = photosLibrary.find(p => p.id === photoId);
@@ -2999,9 +2958,6 @@
             setAdminStatus('✅ Медиатека обновлена', 'ok');
         });
 
-        // ============================================================
-        //  МОДАЛКА С DRAG & DROP ИЗ МЕДИАТЕКИ
-        // ============================================================
         document.getElementById('modal-right').addEventListener('dragover', function(e) {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'copy';
@@ -3043,9 +2999,6 @@
             }
         });
 
-        // ============================================================
-        //  ПРОВЕРКА ФОТО В ЛОКАЦИИ
-        // ============================================================
         async function checkLocationPhotos(locId) {
             const loc = locations.find(l => l.id === locId);
             if (!loc || !loc.photos || loc.photos.length === 0) {
@@ -3073,9 +3026,6 @@
             alert(results.join('\n'));
         }
 
-        // ============================================================
-        //  ВОССТАНОВЛЕНИЕ БИТЫХ ССЫЛОК
-        // ============================================================
         async function fixBrokenPhotos(locId) {
             const loc = locations.find(l => l.id === locId);
             if (!loc) return;
@@ -3108,9 +3058,6 @@
             }
         }
 
-        // ============================================================
-        //  ГАМБУРГЕР-МЕНЮ ДЛЯ ТЕЛЕФОНОВ
-        // ============================================================
         const hamburgerBtn = document.getElementById('hamburger-btn');
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebar-overlay');
@@ -3179,9 +3126,6 @@
             }
         });
 
-        // ============================================================
-        //  КНОПКА "НАЗАД" В МОДАЛКЕ
-        // ============================================================
         const modalBackBtn = document.getElementById('modal-back-btn');
         if (modalBackBtn) {
             modalBackBtn.addEventListener('click', function() {
@@ -3207,9 +3151,6 @@
             }, { passive: true });
         }
 
-        // ============================================================
-        //  КНОПКИ В МОДАЛКЕ
-        // ============================================================
         document.getElementById('modal-check-btn').addEventListener('click', function() {
             if (!currentLocationId) {
                 alert('Сначала откройте локацию');
@@ -3233,9 +3174,6 @@
             setTimeout(() => { this.textContent = '🔄'; }, 1500);
         });
 
-        // ============================================================
-        //  МОДАЛКА
-        // ============================================================
         function openModal(id) {
             const loc = locations.find(l => l.id === id);
             if (!loc) return;
@@ -3351,7 +3289,7 @@
                 div.className = 'photo-card';
                 div.innerHTML = `
                     <img src="${url}" loading="lazy" 
-                         onerror="this.parentElement.style.display='none'; console.warn('❌ Фото не загрузилось:', '${url}')"
+                         onerror="this.parentElement.style.display='none'"
                          onclick="openViewerFromModal(${currentLocationId}, ${idx})">
                     <div class="photo-label">${cap || 'Без подписи'}</div>
                 `;
@@ -3557,10 +3495,6 @@
             }
         });
 
-        // ============================================================
-        //  ДОБАВЛЕНИЕ НОВОЙ СТРАНЫ
-        // ============================================================
-
         document.getElementById('admin-add-country').addEventListener('click', function() {
             if (!isAdmin) {
                 alert('⛔ Только админ может добавлять страны');
@@ -3611,9 +3545,6 @@
             renderLocations();
         });
 
-        // ============================================================
-        //  АДМИН-ПАНЕЛЬ
-        // ============================================================
         const adminOverlay = document.getElementById('admin-overlay');
         const adminToggleBtn = document.getElementById('admin-toggle-btn');
         const adminCloseBtn = document.getElementById('admin-close-btn');
@@ -3668,9 +3599,6 @@
             });
         });
 
-        // ============================================================
-        //  АВТОРИЗАЦИЯ
-        // ============================================================
         async function checkAdminAuth() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
@@ -3733,9 +3661,6 @@
             renderLabels();
         });
 
-        // ============================================================
-        //  АДМИН-УПРАВЛЕНИЕ ЛОКАЦИЯМИ
-        // ============================================================
         async function loadAdminLocations() {
             try {
                 const { data, error } = await supabaseClient.from('locations').select('*').order('id', { ascending: true });
@@ -4057,23 +3982,16 @@
             alert('Фото загружены!');
         });
 
-        // ============================================================
-        //  ЛОКАЦИИ (список, перелёт)
-        // ============================================================
         function renderLocations() {
             const list = document.getElementById('location-list');
             if (!locations || locations.length === 0) {
                 list.innerHTML = '<li class="empty-msg">Нет локаций</li>';
-                console.log('⚠️ Нет локаций для отображения');
                 return;
             }
-            
-            console.log(`📝 Отображаем ${locations.length} локаций, фильтр: ${currentFilter}`);
             
             let filtered = locations;
             if (currentFilter !== 'all') {
                 filtered = locations.filter(l => l.country === currentFilter);
-                console.log(`📝 После фильтра по "${currentFilter}": ${filtered.length} локаций`);
             }
             
             let html = '';
@@ -4117,9 +4035,6 @@
             if (marker) setTimeout(() => marker.openPopup(), 400);
         }
 
-        // ============================================================
-        //  ПОЛНОЭКРАННЫЙ ПРОСМОТР ФОТО
-        // ============================================================
         function openViewer(locId, index) {
             const loc = locations.find(l => l.id === locId);
             if (!loc || !loc.photos || loc.photos.length === 0) return;
@@ -4216,9 +4131,6 @@
             }
         });
 
-        // ============================================================
-        //  ГЛОБАЛЬНЫЕ ФУНКЦИИ
-        // ============================================================
         window.changeMarkerColor = changeMarkerColor;
         window.editLabelPosition = editLabelPosition;
         window.editLabelSize = editLabelSize;
@@ -4266,9 +4178,6 @@
         window.checkLocationPhotos = checkLocationPhotos;
         window.fixBrokenPhotos = fixBrokenPhotos;
 
-        // ============================================================
-        //  ЗАПУСК
-        // ============================================================
         async function startApp() {
             await loadLocations();
             initMap();
@@ -4276,19 +4185,6 @@
             await loadLabels();
             await loadPhotosLibrary();
             await loadSubcategories();
-            console.log('✅ Атлас загружен');
-            console.log('🎨 20 цветов для маркеров');
-            console.log('🖼️ Медиатека со всеми фото');
-            console.log('📂 Подкатегории (пользовательские)');
-            console.log('🔤 A+ / A- только в админ-панели');
-            console.log('📐 Drag & Drop из медиатеки в модалку');
-            console.log('➕ Кнопки добавления стран и подкатегорий');
-            console.log('🏷️ Надписи на карте только текст, управление в админке');
-            console.log('📱 Гамбургер-меню для телефонов');
-            console.log('⬅️ Кнопка "Назад" в модалке для телефонов');
-            console.log('🔍 Проверка фото в локациях');
-            console.log('🔄 Обновление фото');
-            console.log('🧹 Очистка битых фото');
         }
 
         startApp();
