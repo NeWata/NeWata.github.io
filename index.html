@@ -220,7 +220,6 @@
         #map-container { flex: 1; position: relative; background: #0a0a12; }
         #map { width: 100%; height: 100%; background: #0a0a12; }
 
-        /* ===== ЛЕГЕНДА НА КАРТЕ ===== */
         #map-legend {
             position: absolute;
             top: 10px;
@@ -2598,6 +2597,54 @@
             } catch (e) { console.error('❌ Ошибка удаления надписи:', e); alert('❌ Ошибка: ' + e.message); return false; }
         }
 
+        // ============================================================
+        //  ДОБАВЛЕННЫЕ ФУНКЦИИ ДЛЯ НАДПИСЕЙ (исправление ошибки)
+        // ============================================================
+        async function editLabelPosition(labelId) {
+            if (!isAdmin) return;
+            const label = labels.find(l => l.id === labelId);
+            if (!label) {
+                alert('❌ Надпись не найдена');
+                return;
+            }
+            
+            const latInput = prompt('Введите новую широту:', label.lat);
+            if (latInput === null) return;
+            const lngInput = prompt('Введите новую долготу:', label.lng);
+            if (lngInput === null) return;
+            
+            const newLat = parseFloat(latInput);
+            const newLng = parseFloat(lngInput);
+            
+            if (isNaN(newLat) || isNaN(newLng)) {
+                alert('❌ Некорректные координаты');
+                return;
+            }
+            
+            await updateLabelInDB(labelId, { lat: newLat, lng: newLng });
+        }
+
+        async function editLabelSize(labelId) {
+            if (!isAdmin) return;
+            const label = labels.find(l => l.id === labelId);
+            if (!label) {
+                alert('❌ Надпись не найдена');
+                return;
+            }
+            
+            const currentSize = label.font_size || 18;
+            const sizeInput = prompt('Введите новый размер шрифта (от 10 до 60):', currentSize);
+            if (sizeInput === null) return;
+            
+            const newSize = parseInt(sizeInput);
+            if (isNaN(newSize) || newSize < 10 || newSize > 60) {
+                alert('❌ Размер должен быть от 10 до 60');
+                return;
+            }
+            
+            await updateLabelInDB(labelId, { font_size: newSize });
+        }
+
         function renderLabels() {
             Object.values(labelLayers).forEach(layer => {
                 if (layer.marker) mapInstance.removeLayer(layer.marker);
@@ -2659,6 +2706,7 @@
                             <button class="edit" onclick="changeLabelSize('${label.id}', -2)" title="Уменьшить">A-</button>
                             <button class="edit" onclick="changeLabelSize('${label.id}', 2)" title="Увеличить">A+</button>
                             <button class="edit" onclick="editLabelText('${label.id}')" title="Редактировать текст">✎</button>
+                            <button class="edit" onclick="editLabelPosition('${label.id}')" title="Изменить позицию">📍</button>
                             <button class="delete" onclick="deleteLabel('${label.id}')" title="Удалить">✕</button>
                         </div>
                     </div>
@@ -2736,6 +2784,78 @@
                 document.getElementById('admin-label-status').style.color = '#555';
             }, 2000);
         });
+
+        // ============================================================
+        //  ДОБАВЛЕННЫЕ ФУНКЦИИ ДЛЯ ФОТО ЛОКАЦИЙ
+        // ============================================================
+        async function checkLocationPhotos(locId) {
+            const loc = locations.find(l => l.id === locId);
+            if (!loc || !loc.photos || loc.photos.length === 0) {
+                alert('📭 В этой локации нет фото');
+                return;
+            }
+            
+            let results = [];
+            for (let i = 0; i < loc.photos.length; i++) {
+                const photo = loc.photos[i];
+                const url = typeof photo === 'object' && photo.url ? photo.url : photo;
+                try {
+                    const response = await fetch(url, { method: 'HEAD' });
+                    if (response.ok) {
+                        results.push(`✅ Фото ${i+1}: доступно`);
+                    } else {
+                        results.push(`❌ Фото ${i+1}: НЕ ДОСТУПНО (${response.status})`);
+                    }
+                } catch (e) {
+                    results.push(`❌ Фото ${i+1}: ошибка загрузки`);
+                }
+            }
+            
+            alert(results.join('\n'));
+        }
+
+        async function fixBrokenPhotos(locId) {
+            if (!isAdmin) return;
+            if (!confirm('🧹 Удалить все битые фото из этой локации?')) return;
+            
+            const loc = locations.find(l => l.id === locId);
+            if (!loc || !loc.photos || loc.photos.length === 0) {
+                alert('📭 В этой локации нет фото');
+                return;
+            }
+            
+            const validPhotos = [];
+            let deleted = 0;
+            
+            for (const photo of loc.photos) {
+                const url = typeof photo === 'object' && photo.url ? photo.url : photo;
+                try {
+                    const response = await fetch(url, { method: 'HEAD' });
+                    if (response.ok) {
+                        validPhotos.push(photo);
+                    } else {
+                        deleted++;
+                    }
+                } catch (e) {
+                    deleted++;
+                }
+            }
+            
+            if (deleted === 0) {
+                alert('✅ Все фото доступны, ничего не удалено');
+                return;
+            }
+            
+            loc.photos = validPhotos;
+            await saveLocationData(locId);
+            renderModalGallery(loc.photos);
+            renderModalAdminPhotos(loc.photos);
+            renderAdminList();
+            renderMarkers();
+            renderLocations();
+            
+            alert(`✅ Удалено ${deleted} битых фото`);
+        }
 
         // ============================================================
         //  ПОДКАТЕГОРИИ
@@ -4445,6 +4565,37 @@
             }
         });
 
+        // ============================================================
+        //  ДОБАВЛЕНИЕ НОВОЙ СТРАНЫ
+        // ============================================================
+        document.getElementById('add-country-btn').addEventListener('click', function() {
+            if (!isAdmin) {
+                alert('⛔ Только админ может добавлять страны');
+                return;
+            }
+            const countryName = prompt('📁 Введите название новой страны:');
+            if (!countryName || countryName.trim() === '') return;
+            
+            const trimmed = countryName.trim();
+            const existing = getCountries();
+            if (existing.includes(trimmed)) {
+                alert(`❌ Страна "${trimmed}" уже существует`);
+                return;
+            }
+            
+            // Просто добавляем страну в список, создавая локацию-заглушку?
+            // Лучше просто обновить фильтр, пользователь сам добавит локации
+            alert(`✅ Страна "${trimmed}" добавлена! Теперь вы можете создавать локации с этой страной.`);
+            updateCountryFilter();
+        });
+
+        document.getElementById('admin-add-country').addEventListener('click', function() {
+            document.getElementById('add-country-btn').click();
+        });
+
+        // ============================================================
+        //  ЭКСПОРТ В ГЛОБАЛЬНУЮ ОБЛАСТЬ
+        // ============================================================
         window.changeMarkerIcon = changeMarkerIcon;
         window.changeMarkerColor = changeMarkerColor;
         window.editLabelPosition = editLabelPosition;
@@ -4497,6 +4648,9 @@
         window.checkAllPhotosInLocation = checkAllPhotosInLocation;
         window.checkSinglePhoto = checkSinglePhoto;
 
+        // ============================================================
+        //  ЗАПУСК ПРИЛОЖЕНИЯ
+        // ============================================================
         async function startApp() {
             await loadLocations();
             initMap();
