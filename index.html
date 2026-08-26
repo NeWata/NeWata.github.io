@@ -273,6 +273,9 @@
         #map-legend .legend-item .legend-dot.grass { background: #b8860b; border-color: #b8860b; }
         #map-legend .legend-item .legend-dot.moon { background: #f5f5dc; border-color: #f5f5dc; }
         #map-legend .legend-item .legend-dot.star { background: #ffd700; border-color: #ffd700; }
+        #map-legend .legend-item .legend-dot.skull { background: #808080; border-color: #808080; }
+        #map-legend .legend-item .legend-dot.book { background: #4169e1; border-color: #4169e1; }
+        #map-legend .legend-item .legend-dot.shield { background: #c0c0c0; border-color: #c0c0c0; }
 
         @media (max-width: 768px) {
             #map-legend {
@@ -1614,15 +1617,59 @@
                 </div>
                 <div class="legend-item" style="margin-top:4px;border-top:1px solid #1a1a2a;padding-top:4px;">
                     <span class="legend-dot flower"></span>
-                    <span>🌸 Цветы</span>
+                    <span>🌸 Цветок</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot blossom"></span>
+                    <span>🌼 Цветок</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot rose"></span>
+                    <span>🌺 Цветок</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot rose2"></span>
+                    <span>🌹 Цветок</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot wilted"></span>
+                    <span>🥀 Погибающие места</span>
                 </div>
                 <div class="legend-item">
                     <span class="legend-dot tree"></span>
-                    <span>🌳 Природа</span>
+                    <span>🌳 Дерево</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot pine"></span>
+                    <span>🌲 Дерево</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot maple"></span>
+                    <span>🍁 Необычные рощи</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot grass"></span>
+                    <span>🌾 Злаки / Поле</span>
                 </div>
                 <div class="legend-item">
                     <span class="legend-dot moon"></span>
-                    <span>🌙 Небесные</span>
+                    <span>🌙 Луна</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot star"></span>
+                    <span>🌟 Звезда</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot skull"></span>
+                    <span>💀 Смерть</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot book"></span>
+                    <span>📖 Учебное учреждение</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot shield"></span>
+                    <span>⚔ Места охраняемые группами лиц</span>
                 </div>
             </div>
             
@@ -1790,21 +1837,32 @@
                                 <option value="capital">👑 Столица</option>
                                 <option value="inactive">◌ Не действующая</option>
                                 <optgroup label="🌸 Цветы">
-                                    <option value="flower">🌸 Цветок сакуры</option>
+                                    <option value="flower">🌸 Цветок</option>
                                     <option value="blossom">🌼 Цветок</option>
-                                    <option value="rose">🌺 Роза</option>
-                                    <option value="rose2">🌹 Красная роза</option>
-                                    <option value="wilted">🥀 Увядший цветок</option>
+                                    <option value="rose">🌺 Цветок</option>
+                                    <option value="rose2">🌹 Цветок</option>
+                                    <option value="wilted">🥀 Погибающие места</option>
                                 </optgroup>
-                                <optgroup label="🌳 Природа">
+                                <optgroup label="🌳 Деревья">
                                     <option value="tree">🌳 Дерево</option>
-                                    <option value="pine">🌲 Сосна</option>
-                                    <option value="maple">🍁 Кленовый лист</option>
+                                    <option value="pine">🌲 Дерево</option>
+                                </optgroup>
+                                <optgroup label="🍁 Природа">
+                                    <option value="maple">🍁 Необычные рощи</option>
                                     <option value="grass">🌾 Злаки / Поле</option>
                                 </optgroup>
                                 <optgroup label="🌙 Небесные">
                                     <option value="moon">🌙 Луна</option>
                                     <option value="star">🌟 Звезда</option>
+                                </optgroup>
+                                <optgroup label="💀 Смерть">
+                                    <option value="skull">💀 Смерть</option>
+                                </optgroup>
+                                <optgroup label="📖 Учебные учреждения">
+                                    <option value="book">📖 Учебное учреждение</option>
+                                </optgroup>
+                                <optgroup label="⚔ Охраняемые места">
+                                    <option value="shield">⚔ Места охраняемые группами лиц</option>
                                 </optgroup>
                             </select>
                         </div>
@@ -1944,7 +2002,7 @@
                             <!-- Цветы -->
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #ff69b460;display:flex;align-items:center;gap:10px;">
                                 <span style="font-size:20px;">🌸</span>
-                                <span style="color:#ccc;font-size:13px;">Цветок сакуры</span>
+                                <span style="color:#ccc;font-size:13px;">Цветок</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #ffd70060;display:flex;align-items:center;gap:10px;">
                                 <span style="font-size:20px;">🌼</span>
@@ -1952,28 +2010,29 @@
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #ff149360;display:flex;align-items:center;gap:10px;">
                                 <span style="font-size:20px;">🌺</span>
-                                <span style="color:#ccc;font-size:13px;">Роза</span>
+                                <span style="color:#ccc;font-size:13px;">Цветок</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #dc143c60;display:flex;align-items:center;gap:10px;">
                                 <span style="font-size:20px;">🌹</span>
-                                <span style="color:#ccc;font-size:13px;">Красная роза</span>
+                                <span style="color:#ccc;font-size:13px;">Цветок</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #8b451360;display:flex;align-items:center;gap:10px;">
                                 <span style="font-size:20px;">🥀</span>
-                                <span style="color:#ccc;font-size:13px;">Увядший цветок</span>
+                                <span style="color:#ccc;font-size:13px;">Погибающие места</span>
                             </div>
-                            <!-- Природа -->
+                            <!-- Деревья -->
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #228b2260;display:flex;align-items:center;gap:10px;">
                                 <span style="font-size:20px;">🌳</span>
                                 <span style="color:#ccc;font-size:13px;">Дерево</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #00640060;display:flex;align-items:center;gap:10px;">
                                 <span style="font-size:20px;">🌲</span>
-                                <span style="color:#ccc;font-size:13px;">Сосна</span>
+                                <span style="color:#ccc;font-size:13px;">Дерево</span>
                             </div>
+                            <!-- Природа -->
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #ff450060;display:flex;align-items:center;gap:10px;">
                                 <span style="font-size:20px;">🍁</span>
-                                <span style="color:#ccc;font-size:13px;">Кленовый лист</span>
+                                <span style="color:#ccc;font-size:13px;">Необычные рощи</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #b8860b60;display:flex;align-items:center;gap:10px;">
                                 <span style="font-size:20px;">🌾</span>
@@ -1987,6 +2046,21 @@
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #ffd70060;display:flex;align-items:center;gap:10px;">
                                 <span style="font-size:20px;">🌟</span>
                                 <span style="color:#ccc;font-size:13px;">Звезда</span>
+                            </div>
+                            <!-- Смерть -->
+                            <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #80808060;display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:20px;">💀</span>
+                                <span style="color:#ccc;font-size:13px;">Смерть</span>
+                            </div>
+                            <!-- Учебные учреждения -->
+                            <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #4169e160;display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:20px;">📖</span>
+                                <span style="color:#ccc;font-size:13px;">Учебное учреждение</span>
+                            </div>
+                            <!-- Охраняемые места -->
+                            <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #c0c0c060;display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:20px;">⚔</span>
+                                <span style="color:#ccc;font-size:13px;">Места охраняемые группами лиц</span>
                             </div>
                         </div>
                     </div>
@@ -2014,7 +2088,7 @@
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // ============================================================
-        //  ИКОНКИ МАРКЕРОВ (с новыми иконками)
+        //  ИКОНКИ МАРКЕРОВ (полный список)
         // ============================================================
         const MARKER_ICONS = {
             default: { emoji: '●', color: '#d4c08a', label: 'Обычная' },
@@ -2022,18 +2096,27 @@
             hero: { emoji: '⭐', color: '#ff6b6b', label: 'Главные герои' },
             capital: { emoji: '👑', color: '#d4c08a', label: 'Столица' },
             inactive: { emoji: '◌', color: '#888', label: 'Не действующая' },
-            // НОВЫЕ ИКОНКИ:
-            flower: { emoji: '🌸', color: '#ff69b4', label: 'Цветок сакуры' },
+            // Цветы
+            flower: { emoji: '🌸', color: '#ff69b4', label: 'Цветок' },
             blossom: { emoji: '🌼', color: '#ffd700', label: 'Цветок' },
-            rose: { emoji: '🌺', color: '#ff1493', label: 'Роза' },
-            rose2: { emoji: '🌹', color: '#dc143c', label: 'Красная роза' },
-            wilted: { emoji: '🥀', color: '#8b4513', label: 'Увядший цветок' },
+            rose: { emoji: '🌺', color: '#ff1493', label: 'Цветок' },
+            rose2: { emoji: '🌹', color: '#dc143c', label: 'Цветок' },
+            wilted: { emoji: '🥀', color: '#8b4513', label: 'Погибающие места' },
+            // Деревья
             tree: { emoji: '🌳', color: '#228b22', label: 'Дерево' },
-            pine: { emoji: '🌲', color: '#006400', label: 'Сосна' },
-            maple: { emoji: '🍁', color: '#ff4500', label: 'Кленовый лист' },
+            pine: { emoji: '🌲', color: '#006400', label: 'Дерево' },
+            // Природа
+            maple: { emoji: '🍁', color: '#ff4500', label: 'Необычные рощи' },
             grass: { emoji: '🌾', color: '#b8860b', label: 'Злаки / Поле' },
+            // Небесные
             moon: { emoji: '🌙', color: '#f5f5dc', label: 'Луна' },
-            star: { emoji: '🌟', color: '#ffd700', label: 'Звезда' }
+            star: { emoji: '🌟', color: '#ffd700', label: 'Звезда' },
+            // Смерть
+            skull: { emoji: '💀', color: '#808080', label: 'Смерть' },
+            // Учебные учреждения
+            book: { emoji: '📖', color: '#4169e1', label: 'Учебное учреждение' },
+            // Охраняемые места
+            shield: { emoji: '⚔', color: '#c0c0c0', label: 'Места охраняемые группами лиц' }
         };
 
         let locations = [];
@@ -2701,7 +2784,7 @@
         }
 
         // ============================================================
-        //  ФУНКЦИИ ДЛЯ НАДПИСЕЙ (исправление ошибки)
+        //  ФУНКЦИИ ДЛЯ НАДПИСЕЙ
         // ============================================================
         async function editLabelPosition(labelId) {
             if (!isAdmin) return;
@@ -4282,7 +4365,7 @@
                 const iconOptions = Object.keys(MARKER_ICONS).map((key, i) => 
                     `${i+1} - ${MARKER_ICONS[key].emoji} ${MARKER_ICONS[key].label}`
                 ).join('\n');
-                const iconChoice = prompt(`Выберите тип иконки:\n${iconOptions}\n\nВведите номер (1-16):`, '1');
+                const iconChoice = prompt(`Выберите тип иконки:\n${iconOptions}\n\nВведите номер (1-18):`, '1');
                 let iconKey = 'default';
                 if (iconChoice !== null) {
                     const idx = parseInt(iconChoice) - 1;
