@@ -220,6 +220,7 @@
         #map-container { flex: 1; position: relative; background: #0a0a12; }
         #map { width: 100%; height: 100%; background: #0a0a12; }
 
+        /* ===== ЛЕГЕНДА НА КАРТЕ ===== */
         #map-legend {
             position: absolute;
             top: 10px;
@@ -228,21 +229,54 @@
             backdrop-filter: blur(8px);
             border: 1px solid #2a2a40;
             border-radius: 10px;
-            padding: 10px 14px;
+            padding: 8px 12px;
             z-index: 1000;
-            min-width: 180px;
+            min-width: 150px;
             max-width: 220px;
             font-size: 11px;
             color: #ccc;
-            pointer-events: none;
+            pointer-events: auto;
+        }
+        #map-legend .legend-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            padding: 2px 0;
+            transition: 0.2s;
+        }
+        #map-legend .legend-header:hover {
+            opacity: 0.8;
         }
         #map-legend .legend-title {
             font-size: 10px;
             text-transform: uppercase;
             letter-spacing: 1px;
             color: #666;
-            margin-bottom: 6px;
-            text-align: center;
+            margin: 0;
+            text-align: left;
+        }
+        #map-legend .legend-toggle {
+            font-size: 12px;
+            color: #666;
+            transition: transform 0.3s ease;
+            display: inline-block;
+        }
+        #map-legend .legend-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+        #map-legend .legend-body {
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            max-height: 500px;
+            opacity: 1;
+        }
+        #map-legend .legend-body.collapsed {
+            max-height: 0;
+            opacity: 0;
+            padding-top: 0;
+            margin-top: 0;
         }
         #map-legend .legend-item {
             display: flex;
@@ -276,17 +310,111 @@
         #map-legend .legend-item .legend-dot.skull { background: #808080; border-color: #808080; }
         #map-legend .legend-item .legend-dot.book { background: #4169e1; border-color: #4169e1; }
         #map-legend .legend-item .legend-dot.shield { background: #c0c0c0; border-color: #c0c0c0; }
+        #map-legend .legend-item .legend-dot.sun { background: #f39c12; border-color: #f39c12; }
+        #map-legend .legend-item .legend-dot.mountain { background: #5d6d7e; border-color: #5d6d7e; }
 
-        @media (max-width: 768px) {
-            #map-legend {
-                top: 8px;
-                right: 8px;
-                padding: 6px 10px;
-                min-width: 140px;
-                font-size: 10px;
-            }
-            #map-legend .legend-item { padding: 1px 0; }
-            #map-legend .legend-item .legend-dot { width: 12px; height: 12px; }
+        /* ===== КОНТАКТНАЯ ИНФОРМАЦИЯ ===== */
+        #contact-info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(16, 16, 28, 0.92);
+            backdrop-filter: blur(8px);
+            border: 1px solid #2a2a40;
+            border-radius: 10px;
+            padding: 8px 12px;
+            z-index: 1000;
+            min-width: 150px;
+            max-width: 220px;
+            font-size: 11px;
+            color: #ccc;
+            pointer-events: auto;
+        }
+        #contact-info .contact-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            padding: 2px 0;
+            transition: 0.2s;
+        }
+        #contact-info .contact-header:hover {
+            opacity: 0.8;
+        }
+        #contact-info .contact-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #666;
+            margin: 0;
+        }
+        #contact-info .contact-toggle {
+            font-size: 12px;
+            color: #666;
+            transition: transform 0.3s ease;
+            display: inline-block;
+        }
+        #contact-info .contact-toggle.collapsed {
+            transform: rotate(-90deg);
+        }
+        #contact-info .contact-body {
+            overflow: hidden;
+            transition: max-height 0.3s ease, opacity 0.3s ease;
+            max-height: 300px;
+            opacity: 1;
+        }
+        #contact-info .contact-body.collapsed {
+            max-height: 0;
+            opacity: 0;
+            padding-top: 0;
+            margin-top: 0;
+        }
+        #contact-info .contact-body .contact-content {
+            padding: 4px 0;
+            font-size: 12px;
+            color: #ccc;
+            line-height: 1.6;
+            word-break: break-word;
+        }
+        #contact-info .contact-body .contact-content a {
+            color: #d4c08a;
+            text-decoration: none;
+        }
+        #contact-info .contact-body .contact-content a:hover {
+            text-decoration: underline;
+        }
+        #contact-info .contact-edit-btn {
+            width: 100%;
+            margin-top: 6px;
+            padding: 4px 12px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid #3a3a50;
+            border-radius: 12px;
+            color: #888;
+            cursor: pointer;
+            font-size: 11px;
+            transition: 0.2s;
+        }
+        #contact-info .contact-edit-btn:hover {
+            border-color: #d4c08a;
+            color: #d4c08a;
+        }
+        #contact-info .contact-editor textarea {
+            width: 100%;
+            padding: 6px 10px;
+            background: #0a0a12;
+            color: #e0dcc8;
+            border: 1px solid #2a2a3e;
+            border-radius: 6px;
+            outline: none;
+            resize: vertical;
+            min-height: 80px;
+            font-size: 12px;
+            font-family: inherit;
+        }
+        #contact-info .contact-editor textarea:focus {
+            border-color: #d4c08a;
         }
 
         #routes-legend {
@@ -337,24 +465,6 @@
             font-size: 12px;
         }
         #routes-legend .route-toggle:hover { color: #d4c08a; }
-        #routes-legend .show-all-btn {
-            display: block;
-            width: 100%;
-            padding: 4px 0;
-            margin-top: 6px;
-            background: none;
-            border: 1px solid #3a3a50;
-            color: #d4c08a;
-            border-radius: 12px;
-            cursor: pointer;
-            font-size: 11px;
-            transition: 0.2s;
-            text-align: center;
-        }
-        #routes-legend .show-all-btn:hover {
-            background: #d4c08a20;
-            border-color: #d4c08a;
-        }
 
         .modal-overlay {
             position: fixed;
@@ -1551,9 +1661,22 @@
                 padding: 6px 10px;
                 min-width: 140px;
                 font-size: 10px;
+                max-height: none !important;
             }
             #map-legend .legend-item { padding: 1px 0; }
             #map-legend .legend-item .legend-dot { width: 12px; height: 12px; }
+            #map-legend .legend-body { max-height: 300px; }
+            #map-legend .legend-body.collapsed { max-height: 0; }
+            
+            #contact-info {
+                bottom: 8px;
+                left: 8px;
+                padding: 6px 10px;
+                min-width: 120px;
+                font-size: 10px;
+            }
+            #contact-info .contact-body { max-height: 200px; }
+            #contact-info .contact-body.collapsed { max-height: 0; }
         }
 
         @media (max-width: 500px) {
@@ -1593,83 +1716,115 @@
         </div>
         
         <div id="map-container">
+            <!-- ===== ЛЕГЕНДА ===== -->
             <div id="map-legend">
-                <div class="legend-title">📌 Легенда</div>
-                <div class="legend-item">
-                    <span class="legend-dot black"></span>
-                    <span>Вымершие / Опасные</span>
+                <div class="legend-header" onclick="toggleLegend()">
+                    <span class="legend-title">📌 Легенда</span>
+                    <span class="legend-toggle" id="legend-toggle-btn">▼</span>
                 </div>
-                <div class="legend-item">
-                    <span class="legend-dot red"></span>
-                    <span>Главные герои</span>
+                <div class="legend-body" id="legend-body">
+                    <div class="legend-item">
+                        <span class="legend-dot black"></span>
+                        <span>Вымершие / Опасные</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot red"></span>
+                        <span>Главные герои</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot gold"></span>
+                        <span>Столицы стран</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot gray"></span>
+                        <span>Не действующие</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot default"></span>
+                        <span>Обычные локации</span>
+                    </div>
+                    <div class="legend-item" style="margin-top:4px;border-top:1px solid #1a1a2a;padding-top:4px;">
+                        <span class="legend-dot flower"></span>
+                        <span>🌸 Цветок</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot blossom"></span>
+                        <span>🌼 Цветок</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot rose"></span>
+                        <span>🌺 Цветок</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot rose2"></span>
+                        <span>🌹 Цветок</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot wilted"></span>
+                        <span>🥀 Погибающие места</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot tree"></span>
+                        <span>🌳 Дерево</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot pine"></span>
+                        <span>🌲 Дерево</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot maple"></span>
+                        <span>🍁 Необычные рощи</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot grass"></span>
+                        <span>🌾 Злаки / Поле</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot moon"></span>
+                        <span>🌙 Луна</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot star"></span>
+                        <span>🌟 Звезда</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot skull"></span>
+                        <span>💀 Смерть</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot book"></span>
+                        <span>📖 Учебное учреждение</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot shield"></span>
+                        <span>⚔ Места охраняемые группами лиц</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot sun"></span>
+                        <span>🌞 Знойные места</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-dot mountain"></span>
+                        <span>⛰️ Горы / Скалы</span>
+                    </div>
                 </div>
-                <div class="legend-item">
-                    <span class="legend-dot gold"></span>
-                    <span>Столицы стран</span>
+            </div>
+            
+            <!-- ===== КОНТАКТНАЯ ИНФОРМАЦИЯ ===== -->
+            <div id="contact-info">
+                <div class="contact-header" onclick="toggleContact()">
+                    <span class="contact-title">📞 Контакты</span>
+                    <span class="contact-toggle" id="contact-toggle-btn">▼</span>
                 </div>
-                <div class="legend-item">
-                    <span class="legend-dot gray"></span>
-                    <span>Не действующие</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-dot default"></span>
-                    <span>Обычные локации</span>
-                </div>
-                <div class="legend-item" style="margin-top:4px;border-top:1px solid #1a1a2a;padding-top:4px;">
-                    <span class="legend-dot flower"></span>
-                    <span>🌸 Цветок</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-dot blossom"></span>
-                    <span>🌼 Цветок</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-dot rose"></span>
-                    <span>🌺 Цветок</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-dot rose2"></span>
-                    <span>🌹 Цветок</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-dot wilted"></span>
-                    <span>🥀 Погибающие места</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-dot tree"></span>
-                    <span>🌳 Дерево</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-dot pine"></span>
-                    <span>🌲 Дерево</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-dot maple"></span>
-                    <span>🍁 Необычные рощи</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-dot grass"></span>
-                    <span>🌾 Злаки / Поле</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-dot moon"></span>
-                    <span>🌙 Луна</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-dot star"></span>
-                    <span>🌟 Звезда</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-dot skull"></span>
-                    <span>💀 Смерть</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-dot book"></span>
-                    <span>📖 Учебное учреждение</span>
-                </div>
-                <div class="legend-item">
-                    <span class="legend-dot shield"></span>
-                    <span>⚔ Места охраняемые группами лиц</span>
+                <div class="contact-body" id="contact-body">
+                    <div id="contact-content">
+                        <div style="color:#666;font-style:italic;text-align:center;padding:10px 0;">📭 Нет контактной информации</div>
+                    </div>
+                    <div class="contact-editor" id="contact-editor" style="display:none;margin-top:8px;">
+                        <textarea id="contact-textarea" placeholder="Введите контактную информацию..."></textarea>
+                        <button onclick="saveContactInfo()" style="width:100%;padding:4px 12px;margin-top:6px;background:#d4c08a;color:#0a0a12;border:none;border-radius:12px;cursor:pointer;font-size:12px;">💾 Сохранить</button>
+                    </div>
+                    <button class="contact-edit-btn" id="contact-edit-btn" onclick="toggleContactEditor()" style="display:none;">✏️ Редактировать</button>
                 </div>
             </div>
             
@@ -1797,6 +1952,7 @@
                     <button class="admin-tab" data-tab="location-photos">📸 Фото локаций</button>
                     <button class="admin-tab" data-tab="subcategories">📂 Подкатегории</button>
                     <button class="admin-tab" data-tab="marker-icons">🎨 Иконки маркеров</button>
+                    <button class="admin-tab" data-tab="contacts">📞 Контакты</button>
                 </div>
 
                 <div class="admin-tab-content active" id="tab-locations">
@@ -1863,6 +2019,12 @@
                                 </optgroup>
                                 <optgroup label="⚔ Охраняемые места">
                                     <option value="shield">⚔ Места охраняемые группами лиц</option>
+                                </optgroup>
+                                <optgroup label="🌞 Погода">
+                                    <option value="sun">🌞 Знойные места</option>
+                                </optgroup>
+                                <optgroup label="⛰️ Ландшафт">
+                                    <option value="mountain">⛰️ Горы / Скалы</option>
                                 </optgroup>
                             </select>
                         </div>
@@ -1978,7 +2140,6 @@
                     <div style="margin-bottom:12px;">
                         <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Доступные иконки</label>
                         <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:8px; margin-top:8px;">
-                            <!-- Основные -->
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #2a2a40;display:flex;align-items:center;gap:10px;">
                                 <span style="font-size:20px;">●</span>
                                 <span style="color:#ccc;font-size:13px;">Обычная</span>
@@ -1999,7 +2160,6 @@
                                 <span style="font-size:20px;">◌</span>
                                 <span style="color:#ccc;font-size:13px;">Не действующая</span>
                             </div>
-                            <!-- Цветы -->
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #ff69b460;display:flex;align-items:center;gap:10px;">
                                 <span style="font-size:20px;">🌸</span>
                                 <span style="color:#ccc;font-size:13px;">Цветок</span>
@@ -2020,7 +2180,6 @@
                                 <span style="font-size:20px;">🥀</span>
                                 <span style="color:#ccc;font-size:13px;">Погибающие места</span>
                             </div>
-                            <!-- Деревья -->
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #228b2260;display:flex;align-items:center;gap:10px;">
                                 <span style="font-size:20px;">🌳</span>
                                 <span style="color:#ccc;font-size:13px;">Дерево</span>
@@ -2029,7 +2188,6 @@
                                 <span style="font-size:20px;">🌲</span>
                                 <span style="color:#ccc;font-size:13px;">Дерево</span>
                             </div>
-                            <!-- Природа -->
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #ff450060;display:flex;align-items:center;gap:10px;">
                                 <span style="font-size:20px;">🍁</span>
                                 <span style="color:#ccc;font-size:13px;">Необычные рощи</span>
@@ -2038,7 +2196,6 @@
                                 <span style="font-size:20px;">🌾</span>
                                 <span style="color:#ccc;font-size:13px;">Злаки / Поле</span>
                             </div>
-                            <!-- Небесные -->
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #f5f5dc60;display:flex;align-items:center;gap:10px;">
                                 <span style="font-size:20px;">🌙</span>
                                 <span style="color:#ccc;font-size:13px;">Луна</span>
@@ -2047,20 +2204,25 @@
                                 <span style="font-size:20px;">🌟</span>
                                 <span style="color:#ccc;font-size:13px;">Звезда</span>
                             </div>
-                            <!-- Смерть -->
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #80808060;display:flex;align-items:center;gap:10px;">
                                 <span style="font-size:20px;">💀</span>
                                 <span style="color:#ccc;font-size:13px;">Смерть</span>
                             </div>
-                            <!-- Учебные учреждения -->
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #4169e160;display:flex;align-items:center;gap:10px;">
                                 <span style="font-size:20px;">📖</span>
                                 <span style="color:#ccc;font-size:13px;">Учебное учреждение</span>
                             </div>
-                            <!-- Охраняемые места -->
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #c0c0c060;display:flex;align-items:center;gap:10px;">
                                 <span style="font-size:20px;">⚔</span>
                                 <span style="color:#ccc;font-size:13px;">Места охраняемые группами лиц</span>
+                            </div>
+                            <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #f39c1260;display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:20px;">🌞</span>
+                                <span style="color:#ccc;font-size:13px;">Знойные места</span>
+                            </div>
+                            <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #5d6d7e60;display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:20px;">⛰️</span>
+                                <span style="color:#ccc;font-size:13px;">Горы / Скалы</span>
                             </div>
                         </div>
                     </div>
@@ -2076,6 +2238,24 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="admin-tab-content" id="tab-contacts">
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
+                        <span style="font-size:12px;color:#555;align-self:center;">📞 Управление контактной информацией</span>
+                    </div>
+                    
+                    <div style="margin-bottom:12px;">
+                        <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Контактная информация</label>
+                        <textarea id="admin-contact-textarea" style="width:100%;padding:8px 12px;background:#0a0a12;color:#e0dcc8;border:1px solid #2a2a3e;border-radius:6px;outline:none;resize:vertical;min-height:100px;font-size:14px;font-family:inherit;" placeholder="Введите контактную информацию...&#10;Например:&#10;Email: example@mail.com&#10;Telegram: @username&#10;Discord: username#1234"></textarea>
+                    </div>
+                    
+                    <button class="btn btn-primary" id="admin-save-contacts" style="padding:6px 18px;font-size:13px;">💾 Сохранить контакты</button>
+                    
+                    <div style="margin-top:12px;">
+                        <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Предпросмотр</label>
+                        <div style="background:rgba(10,10,18,0.5);border-radius:8px;padding:12px;border:1px solid #1a1a2a;min-height:50px;color:#ccc;font-size:13px;" id="admin-contact-preview"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -2088,7 +2268,7 @@
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         // ============================================================
-        //  ИКОНКИ МАРКЕРОВ (полный список)
+        //  ИКОНКИ МАРКЕРОВ
         // ============================================================
         const MARKER_ICONS = {
             default: { emoji: '●', color: '#d4c08a', label: 'Обычная' },
@@ -2096,27 +2276,22 @@
             hero: { emoji: '⭐', color: '#ff6b6b', label: 'Главные герои' },
             capital: { emoji: '👑', color: '#d4c08a', label: 'Столица' },
             inactive: { emoji: '◌', color: '#888', label: 'Не действующая' },
-            // Цветы
             flower: { emoji: '🌸', color: '#ff69b4', label: 'Цветок' },
             blossom: { emoji: '🌼', color: '#ffd700', label: 'Цветок' },
             rose: { emoji: '🌺', color: '#ff1493', label: 'Цветок' },
             rose2: { emoji: '🌹', color: '#dc143c', label: 'Цветок' },
             wilted: { emoji: '🥀', color: '#8b4513', label: 'Погибающие места' },
-            // Деревья
             tree: { emoji: '🌳', color: '#228b22', label: 'Дерево' },
             pine: { emoji: '🌲', color: '#006400', label: 'Дерево' },
-            // Природа
             maple: { emoji: '🍁', color: '#ff4500', label: 'Необычные рощи' },
             grass: { emoji: '🌾', color: '#b8860b', label: 'Злаки / Поле' },
-            // Небесные
             moon: { emoji: '🌙', color: '#f5f5dc', label: 'Луна' },
             star: { emoji: '🌟', color: '#ffd700', label: 'Звезда' },
-            // Смерть
             skull: { emoji: '💀', color: '#808080', label: 'Смерть' },
-            // Учебные учреждения
             book: { emoji: '📖', color: '#4169e1', label: 'Учебное учреждение' },
-            // Охраняемые места
-            shield: { emoji: '⚔', color: '#c0c0c0', label: 'Места охраняемые группами лиц' }
+            shield: { emoji: '⚔', color: '#c0c0c0', label: 'Места охраняемые группами лиц' },
+            sun: { emoji: '🌞', color: '#f39c12', label: 'Знойные места' },
+            mountain: { emoji: '⛰️', color: '#5d6d7e', label: 'Горы / Скалы' }
         };
 
         let locations = [];
@@ -2143,6 +2318,7 @@
         let currentLocationId = null;
         let currentFilter = 'all';
         let sidebarOpen = false;
+        let contactInfo = '';
 
         const popupColors = [
             { name: 'Золотой', value: '#d4c08a' },
@@ -2180,6 +2356,146 @@
             });
         }
 
+        // ============================================================
+        //  ЛЕГЕНДА - СВОРАЧИВАНИЕ
+        // ============================================================
+        let legendCollapsed = false;
+
+        function toggleLegend() {
+            legendCollapsed = !legendCollapsed;
+            const body = document.getElementById('legend-body');
+            const btn = document.getElementById('legend-toggle-btn');
+            
+            if (legendCollapsed) {
+                body.classList.add('collapsed');
+                btn.classList.add('collapsed');
+                btn.textContent = '▶';
+            } else {
+                body.classList.remove('collapsed');
+                btn.classList.remove('collapsed');
+                btn.textContent = '▼';
+            }
+        }
+
+        // ============================================================
+        //  КОНТАКТНАЯ ИНФОРМАЦИЯ
+        // ============================================================
+        let contactCollapsed = false;
+
+        async function loadContactInfo() {
+            try {
+                const { data, error } = await supabaseClient
+                    .from('settings')
+                    .select('value')
+                    .eq('key', 'contact_info')
+                    .single();
+                
+                if (error && error.code !== 'PGRST116') throw error;
+                
+                if (data) {
+                    contactInfo = data.value || '';
+                } else {
+                    await supabaseClient
+                        .from('settings')
+                        .insert({ key: 'contact_info', value: '' });
+                    contactInfo = '';
+                }
+                
+                renderContactInfo();
+                
+                // Обновляем админ-панель
+                document.getElementById('admin-contact-textarea').value = contactInfo || '';
+                document.getElementById('admin-contact-preview').innerHTML = (contactInfo || '').replace(/\n/g, '<br>') || '<span style="color:#666;font-style:italic;">Пусто</span>';
+            } catch (e) {
+                console.error('Ошибка загрузки контактов:', e);
+                document.getElementById('contact-content').innerHTML = '<div style="color:#666;font-style:italic;text-align:center;padding:10px 0;">❌ Ошибка загрузки</div>';
+            }
+        }
+
+        function renderContactInfo() {
+            const container = document.getElementById('contact-content');
+            const editBtn = document.getElementById('contact-edit-btn');
+            const textarea = document.getElementById('contact-textarea');
+            
+            if (!contactInfo || contactInfo.trim() === '') {
+                container.innerHTML = '<div style="color:#666;font-style:italic;text-align:center;padding:10px 0;">📭 Нет контактной информации</div>';
+            } else {
+                const formatted = contactInfo.replace(/\n/g, '<br>');
+                container.innerHTML = `<div class="contact-content">${formatted}</div>`;
+            }
+            
+            textarea.value = contactInfo || '';
+            
+            if (isAdmin) {
+                editBtn.style.display = 'block';
+            } else {
+                editBtn.style.display = 'none';
+            }
+        }
+
+        function toggleContact() {
+            contactCollapsed = !contactCollapsed;
+            const body = document.getElementById('contact-body');
+            const btn = document.getElementById('contact-toggle-btn');
+            
+            if (contactCollapsed) {
+                body.classList.add('collapsed');
+                btn.classList.add('collapsed');
+                btn.textContent = '▶';
+            } else {
+                body.classList.remove('collapsed');
+                btn.classList.remove('collapsed');
+                btn.textContent = '▼';
+            }
+        }
+
+        function toggleContactEditor() {
+            const editor = document.getElementById('contact-editor');
+            const editBtn = document.getElementById('contact-edit-btn');
+            
+            if (editor.style.display === 'none') {
+                editor.style.display = 'block';
+                editBtn.textContent = '✕ Закрыть редактор';
+                document.getElementById('contact-textarea').value = contactInfo || '';
+            } else {
+                editor.style.display = 'none';
+                editBtn.textContent = '✏️ Редактировать';
+            }
+        }
+
+        async function saveContactInfo() {
+            const textarea = document.getElementById('contact-textarea');
+            const newValue = textarea.value.trim();
+            
+            try {
+                const { error } = await supabaseClient
+                    .from('settings')
+                    .update({ value: newValue })
+                    .eq('key', 'contact_info');
+                
+                if (error) throw error;
+                
+                contactInfo = newValue;
+                renderContactInfo();
+                
+                const editor = document.getElementById('contact-editor');
+                const editBtn = document.getElementById('contact-edit-btn');
+                editor.style.display = 'none';
+                editBtn.textContent = '✏️ Редактировать';
+                
+                document.getElementById('admin-contact-textarea').value = contactInfo || '';
+                document.getElementById('admin-contact-preview').innerHTML = (contactInfo || '').replace(/\n/g, '<br>') || '<span style="color:#666;font-style:italic;">Пусто</span>';
+                
+                alert('✅ Контактная информация сохранена!');
+            } catch (e) {
+                console.error('Ошибка сохранения контактов:', e);
+                alert('❌ Ошибка сохранения: ' + e.message);
+            }
+        }
+
+        // ============================================================
+        //  ОСТАЛЬНОЙ КОД (загрузка локаций, маршрутов, и т.д.)
+        // ============================================================
         async function loadLocations() {
             try {
                 const { data, error } = await supabaseClient
@@ -2783,9 +3099,6 @@
             } catch (e) { console.error('❌ Ошибка удаления надписи:', e); alert('❌ Ошибка: ' + e.message); return false; }
         }
 
-        // ============================================================
-        //  ФУНКЦИИ ДЛЯ НАДПИСЕЙ
-        // ============================================================
         async function editLabelPosition(labelId) {
             if (!isAdmin) return;
             const label = labels.find(l => l.id === labelId);
@@ -4194,6 +4507,10 @@
                     if (select.value) renderLocationPhotos(select.value);
                 }
                 if (tabId === 'subcategories') { loadSubcategories(); }
+                if (tabId === 'contacts') {
+                    document.getElementById('admin-contact-textarea').value = contactInfo || '';
+                    document.getElementById('admin-contact-preview').innerHTML = (contactInfo || '').replace(/\n/g, '<br>') || '<span style="color:#666;font-style:italic;">Пусто</span>';
+                }
             });
         });
 
@@ -4211,12 +4528,14 @@
                 loadSubcategories();
                 renderRoutes();
                 renderLabels();
+                renderContactInfo();
             } else {
                 isAdmin = false;
                 document.getElementById('admin-login').style.display = 'block';
                 document.getElementById('admin-panel-content').style.display = 'none';
                 renderRoutes();
                 renderLabels();
+                renderContactInfo();
             }
         }
 
@@ -4239,6 +4558,7 @@
                 loadSubcategories();
                 renderRoutes();
                 renderLabels();
+                renderContactInfo();
             } catch (e) { errorEl.textContent = 'Ошибка входа'; errorEl.style.display = 'block'; }
         });
 
@@ -4257,6 +4577,7 @@
             editingId = null;
             renderRoutes();
             renderLabels();
+            renderContactInfo();
         });
 
         async function loadAdminLocations() {
@@ -4365,7 +4686,7 @@
                 const iconOptions = Object.keys(MARKER_ICONS).map((key, i) => 
                     `${i+1} - ${MARKER_ICONS[key].emoji} ${MARKER_ICONS[key].label}`
                 ).join('\n');
-                const iconChoice = prompt(`Выберите тип иконки:\n${iconOptions}\n\nВведите номер (1-18):`, '1');
+                const iconChoice = prompt(`Выберите тип иконки:\n${iconOptions}\n\nВведите номер (1-21):`, '1');
                 let iconKey = 'default';
                 if (iconChoice !== null) {
                     const idx = parseInt(iconChoice) - 1;
@@ -4778,6 +5099,30 @@
         });
 
         // ============================================================
+        //  АДМИН-ПАНЕЛЬ - СОХРАНЕНИЕ КОНТАКТОВ
+        // ============================================================
+        document.getElementById('admin-save-contacts').addEventListener('click', async function() {
+            const value = document.getElementById('admin-contact-textarea').value.trim();
+            
+            try {
+                const { error } = await supabaseClient
+                    .from('settings')
+                    .update({ value: value })
+                    .eq('key', 'contact_info');
+                
+                if (error) throw error;
+                
+                contactInfo = value;
+                renderContactInfo();
+                document.getElementById('admin-contact-preview').innerHTML = value.replace(/\n/g, '<br>') || '<span style="color:#666;font-style:italic;">Пусто</span>';
+                alert('✅ Контактная информация сохранена!');
+            } catch (e) {
+                console.error('Ошибка сохранения:', e);
+                alert('❌ Ошибка: ' + e.message);
+            }
+        });
+
+        // ============================================================
         //  ЭКСПОРТ В ГЛОБАЛЬНУЮ ОБЛАСТЬ
         // ============================================================
         window.changeMarkerIcon = changeMarkerIcon;
@@ -4831,17 +5176,39 @@
         window.renderLocationPhotos = renderLocationPhotos;
         window.checkAllPhotosInLocation = checkAllPhotosInLocation;
         window.checkSinglePhoto = checkSinglePhoto;
+        window.toggleLegend = toggleLegend;
+        window.toggleContact = toggleContact;
+        window.toggleContactEditor = toggleContactEditor;
+        window.saveContactInfo = saveContactInfo;
 
         // ============================================================
         //  ЗАПУСК ПРИЛОЖЕНИЯ
         // ============================================================
         async function startApp() {
             await loadLocations();
+            await loadContactInfo();
             initMap();
             await loadRoutes();
             await loadLabels();
             await loadPhotosLibrary();
             await loadSubcategories();
+            
+            // На мобильных устройствах легенда и контакты свернуты по умолчанию
+            if (window.innerWidth <= 768) {
+                const legendBody = document.getElementById('legend-body');
+                const legendBtn = document.getElementById('legend-toggle-btn');
+                legendBody.classList.add('collapsed');
+                legendBtn.classList.add('collapsed');
+                legendBtn.textContent = '▶';
+                legendCollapsed = true;
+                
+                const contactBody = document.getElementById('contact-body');
+                const contactBtn = document.getElementById('contact-toggle-btn');
+                contactBody.classList.add('collapsed');
+                contactBtn.classList.add('collapsed');
+                contactBtn.textContent = '▶';
+                contactCollapsed = true;
+            }
         }
 
         startApp();
