@@ -223,14 +223,14 @@
         /* ===== КНОПКА КОНТАКТОВ ===== */
         #contact-toggle-btn-main {
             position: absolute;
-            top: 10px;
-            left: 10px;
+            top: 5px;
+            right: 10px;
             background: rgba(16, 16, 28, 0.92);
             backdrop-filter: blur(8px);
             border: 1px solid #2a2a40;
             border-radius: 10px;
-            padding: 6px 12px;
-            z-index: 1000;
+            padding: 5px 12px;
+            z-index: 1001;
             color: #ccc;
             font-size: 11px;
             cursor: pointer;
@@ -240,6 +240,7 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
         }
         #contact-toggle-btn-main:hover {
             border-color: #d4c08a;
@@ -257,6 +258,9 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
+        }
+        #contact-toggle-btn-main .badge.has-info {
+            background: #4caf50;
         }
 
         /* ===== МОДАЛЬНОЕ ОКНО КОНТАКТОВ ===== */
@@ -384,7 +388,7 @@
         /* ===== ЛЕГЕНДА ===== */
         #map-legend {
             position: absolute;
-            top: 50px;
+            top: 45px;
             right: 10px;
             background: rgba(16, 16, 28, 0.92);
             backdrop-filter: blur(8px);
@@ -489,6 +493,7 @@
         #map-legend .legend-item .legend-dot.castle { background: #8e44ad; border-color: #8e44ad; }
         #map-legend .legend-item .legend-dot.bulb { background: #f1c40f; border-color: #f1c40f; }
         #map-legend .legend-item .legend-dot.jungle { background: #1e8449; border-color: #1e8449; }
+        #map-legend .legend-item .legend-dot.wind { background: #85c1e9; border-color: #85c1e9; }
 
         #routes-legend {
             position: absolute;
@@ -1729,7 +1734,7 @@
             }
             
             #map-legend {
-                top: 45px;
+                top: 42px;
                 right: 8px;
                 padding: 6px 10px;
                 min-width: 130px;
@@ -1742,8 +1747,8 @@
             #map-legend .legend-body.collapsed { max-height: 0; }
             
             #contact-toggle-btn-main {
-                top: 8px;
-                left: 8px;
+                top: 4px;
+                right: 8px;
                 padding: 4px 10px;
                 font-size: 10px;
             }
@@ -1801,7 +1806,7 @@
         </div>
         
         <div id="map-container">
-            <!-- ===== КНОПКА КОНТАКТОВ ===== -->
+            <!-- ===== КНОПКА КОНТАКТОВ (СВЕРХУ СПРАВА) ===== -->
             <button id="contact-toggle-btn-main" onclick="openContactModal()">
                 📞 Контакты
                 <span class="badge" id="contact-badge">!</span>
@@ -1830,12 +1835,14 @@
                     <div class="legend-item"><span class="legend-dot pine"></span><span>🌲 Дерево</span></div>
                     <div class="legend-item"><span class="legend-dot maple"></span><span>🍁 Необычные рощи</span></div>
                     <div class="legend-item"><span class="legend-dot grass"></span><span>🌾 Злаки / Поле</span></div>
+                    <div class="legend-item"><span class="legend-dot jungle"></span><span>🌿 Непроходимая чаща</span></div>
                     <div class="legend-item"><span class="legend-dot moon"></span><span>🌙 Луна</span></div>
                     <div class="legend-item"><span class="legend-dot star"></span><span>🌟 Звезда</span></div>
                     <div class="legend-item"><span class="legend-dot skull"></span><span>💀 Смерть</span></div>
                     <div class="legend-item"><span class="legend-dot book"></span><span>📖 Учебное учреждение</span></div>
                     <div class="legend-item"><span class="legend-dot shield"></span><span>⚔ Места охраняемые группами лиц</span></div>
                     <div class="legend-item"><span class="legend-dot sun"></span><span>🌞 Знойные места</span></div>
+                    <div class="legend-item"><span class="legend-dot wind"></span><span>💨 Ветра / Туман</span></div>
                     <div class="legend-item"><span class="legend-dot mountain"></span><span>⛰️ Горы / Скалы</span></div>
                     <div class="legend-item"><span class="legend-dot heels"></span><span>👠 Бардели</span></div>
                     <div class="legend-item"><span class="legend-dot beer"></span><span>🍺 Таверны</span></div>
@@ -1843,7 +1850,6 @@
                     <div class="legend-item"><span class="legend-dot dollar"></span><span>💰 Торговые зоны</span></div>
                     <div class="legend-item"><span class="legend-dot castle"></span><span>🏰 Данжи</span></div>
                     <div class="legend-item"><span class="legend-dot bulb"></span><span>💡 Мануфактура</span></div>
-                    <div class="legend-item"><span class="legend-dot jungle"></span><span>🌿 Непроходимая чаща</span></div>
                 </div>
             </div>
             
@@ -2058,6 +2064,7 @@
                                 </optgroup>
                                 <optgroup label="🌞 Погода">
                                     <option value="sun">🌞 Знойные места</option>
+                                    <option value="wind">💨 Ветра / Туман</option>
                                 </optgroup>
                                 <optgroup label="⛰️ Ландшафт">
                                     <option value="mountain">⛰️ Горы / Скалы</option>
@@ -2253,6 +2260,9 @@
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #f39c1260;display:flex;align-items:center;gap:10px;">
                                 <span style="font-size:20px;">🌞</span><span style="color:#ccc;font-size:13px;">Знойные места</span>
                             </div>
+                            <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #85c1e960;display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:20px;">💨</span><span style="color:#ccc;font-size:13px;">Ветра / Туман</span>
+                            </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #5d6d7e60;display:flex;align-items:center;gap:10px;">
                                 <span style="font-size:20px;">⛰️</span><span style="color:#ccc;font-size:13px;">Горы / Скалы</span>
                             </div>
@@ -2342,6 +2352,7 @@
             book: { emoji: '📖', color: '#4169e1', label: 'Учебное учреждение' },
             shield: { emoji: '⚔', color: '#c0c0c0', label: 'Места охраняемые группами лиц' },
             sun: { emoji: '🌞', color: '#f39c12', label: 'Знойные места' },
+            wind: { emoji: '💨', color: '#85c1e9', label: 'Ветра / Туман' },
             mountain: { emoji: '⛰️', color: '#5d6d7e', label: 'Горы / Скалы' },
             heels: { emoji: '👠', color: '#e91e63', label: 'Бардели' },
             beer: { emoji: '🍺', color: '#f1c40f', label: 'Таверны' },
@@ -2468,7 +2479,6 @@
                 editBtn.style.display = 'none';
             }
             
-            // Скрываем редактор
             document.getElementById('contact-modal-editor').style.display = 'none';
             editBtn.textContent = '✏️ Редактировать';
         }
@@ -2504,9 +2514,17 @@
                 document.getElementById('contact-modal-editor').style.display = 'none';
                 document.getElementById('contact-edit-btn-modal').textContent = '✏️ Редактировать';
                 
-                // Обновляем админ-панель
                 document.getElementById('admin-contact-textarea').value = contactInfo || '';
                 document.getElementById('admin-contact-preview').innerHTML = (contactInfo || '').replace(/\n/g, '<br>') || '<span style="color:#666;font-style:italic;">Пусто</span>';
+                
+                const badge = document.getElementById('contact-badge');
+                if (contactInfo && contactInfo.trim() !== '') {
+                    badge.textContent = '✓';
+                    badge.className = 'badge has-info';
+                } else {
+                    badge.textContent = '!';
+                    badge.className = 'badge';
+                }
                 
                 alert('✅ Контактная информация сохранена!');
             } catch (e) {
@@ -2537,17 +2555,15 @@
                     contactInfo = '';
                 }
                 
-                // Обновляем бейдж на кнопке
                 const badge = document.getElementById('contact-badge');
                 if (contactInfo && contactInfo.trim() !== '') {
                     badge.textContent = '✓';
-                    badge.style.background = '#4caf50';
+                    badge.className = 'badge has-info';
                 } else {
                     badge.textContent = '!';
-                    badge.style.background = '#d4c08a';
+                    badge.className = 'badge';
                 }
                 
-                // Обновляем админ-панель
                 document.getElementById('admin-contact-textarea').value = contactInfo || '';
                 document.getElementById('admin-contact-preview').innerHTML = (contactInfo || '').replace(/\n/g, '<br>') || '<span style="color:#666;font-style:italic;">Пусто</span>';
             } catch (e) {
@@ -4705,7 +4721,7 @@
                 const iconOptions = Object.keys(MARKER_ICONS).map((key, i) => 
                     `${i+1} - ${MARKER_ICONS[key].emoji} ${MARKER_ICONS[key].label}`
                 ).join('\n');
-                const iconChoice = prompt(`Выберите тип иконки:\n${iconOptions}\n\nВведите номер (1-27):`, '1');
+                const iconChoice = prompt(`Выберите тип иконки:\n${iconOptions}\n\nВведите номер (1-28):`, '1');
                 let iconKey = 'default';
                 if (iconChoice !== null) {
                     const idx = parseInt(iconChoice) - 1;
@@ -5135,14 +5151,13 @@
                 renderContactModal();
                 document.getElementById('admin-contact-preview').innerHTML = value.replace(/\n/g, '<br>') || '<span style="color:#666;font-style:italic;">Пусто</span>';
                 
-                // Обновляем бейдж
                 const badge = document.getElementById('contact-badge');
                 if (value && value.trim() !== '') {
                     badge.textContent = '✓';
-                    badge.style.background = '#4caf50';
+                    badge.className = 'badge has-info';
                 } else {
                     badge.textContent = '!';
-                    badge.style.background = '#d4c08a';
+                    badge.className = 'badge';
                 }
                 
                 alert('✅ Контактная информация сохранена!');
@@ -5223,7 +5238,6 @@
             await loadPhotosLibrary();
             await loadSubcategories();
             
-            // На мобильных устройствах легенда свернута по умолчанию
             if (window.innerWidth <= 768) {
                 const legendBody = document.getElementById('legend-body');
                 const legendBtn = document.getElementById('legend-toggle-btn');
