@@ -220,6 +220,62 @@
         #map-container { flex: 1; position: relative; background: #0a0a12; }
         #map { width: 100%; height: 100%; background: #0a0a12; }
 
+        /* ===== ЛЕГЕНДА НА КАРТЕ ===== */
+        #map-legend {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(16, 16, 28, 0.92);
+            backdrop-filter: blur(8px);
+            border: 1px solid #2a2a40;
+            border-radius: 10px;
+            padding: 10px 14px;
+            z-index: 1000;
+            min-width: 180px;
+            max-width: 220px;
+            font-size: 11px;
+            color: #ccc;
+            pointer-events: none;
+        }
+        #map-legend .legend-title {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #666;
+            margin-bottom: 6px;
+            text-align: center;
+        }
+        #map-legend .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 2px 0;
+        }
+        #map-legend .legend-item .legend-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        #map-legend .legend-item .legend-dot.black { background: #2d2d2d; border-color: #444; }
+        #map-legend .legend-item .legend-dot.red { background: #ff6b6b; border-color: #ff6b6b; }
+        #map-legend .legend-item .legend-dot.gold { background: #d4c08a; border-color: #d4c08a; }
+        #map-legend .legend-item .legend-dot.gray { background: #888; border-color: #888; }
+        #map-legend .legend-item .legend-dot.default { background: #d4c08a; border-color: #d4c08a; }
+
+        @media (max-width: 768px) {
+            #map-legend {
+                top: 8px;
+                right: 8px;
+                padding: 6px 10px;
+                min-width: 140px;
+                font-size: 10px;
+            }
+            #map-legend .legend-item { padding: 1px 0; }
+            #map-legend .legend-item .legend-dot { width: 12px; height: 12px; }
+        }
+
         #routes-legend {
             position: absolute;
             bottom: 20px;
@@ -740,8 +796,8 @@
             transition: filter 0.3s ease;
         }
         .marker-dot {
-            width: 28px;
-            height: 28px;
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
             border: 3px solid #fff;
             box-shadow: 0 0 20px rgba(212, 192, 138, 0.4), inset 0 -2px 4px rgba(0,0,0,0.3);
@@ -750,7 +806,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 12px;
+            font-size: 14px;
             font-weight: bold;
             color: #0a0a12;
             position: relative;
@@ -817,6 +873,37 @@
         .popup-color-picker .color-option.active {
             border-color: #fff;
             box-shadow: 0 0 12px rgba(255,255,255,0.3);
+        }
+
+        .popup-icon-picker {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .popup-icon-picker .icon-option {
+            width: 30px;
+            height: 30px;
+            border-radius: 6px;
+            border: 2px solid transparent;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            background: rgba(255,255,255,0.05);
+        }
+        .popup-icon-picker .icon-option:hover {
+            transform: scale(1.1);
+            border-color: #fff;
+            background: rgba(255,255,255,0.1);
+        }
+        .popup-icon-picker .icon-option.active {
+            border-color: #fff;
+            background: rgba(255,255,255,0.15);
+            box-shadow: 0 0 12px rgba(255,255,255,0.2);
         }
 
         .photos-library-grid {
@@ -1444,6 +1531,16 @@
             .modal-center .gallery-grid {
                 grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
             }
+            
+            #map-legend {
+                top: 8px;
+                right: 8px;
+                padding: 6px 10px;
+                min-width: 140px;
+                font-size: 10px;
+            }
+            #map-legend .legend-item { padding: 1px 0; }
+            #map-legend .legend-item .legend-dot { width: 12px; height: 12px; }
         }
 
         @media (max-width: 500px) {
@@ -1483,6 +1580,30 @@
         </div>
         
         <div id="map-container">
+            <div id="map-legend">
+                <div class="legend-title">📌 Легенда</div>
+                <div class="legend-item">
+                    <span class="legend-dot black"></span>
+                    <span>Вымершие / Опасные</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot red"></span>
+                    <span>Главные герои</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot gold"></span>
+                    <span>Столицы стран</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot gray"></span>
+                    <span>Не действующие</span>
+                </div>
+                <div class="legend-item">
+                    <span class="legend-dot default"></span>
+                    <span>Обычные локации</span>
+                </div>
+            </div>
+            
             <div id="map"></div>
         </div>
     </div>
@@ -1606,6 +1727,7 @@
                     <button class="admin-tab" data-tab="library">🖼️ Медиатека</button>
                     <button class="admin-tab" data-tab="location-photos">📸 Фото локаций</button>
                     <button class="admin-tab" data-tab="subcategories">📂 Подкатегории</button>
+                    <button class="admin-tab" data-tab="marker-icons">🎨 Иконки маркеров</button>
                 </div>
 
                 <div class="admin-tab-content active" id="tab-locations">
@@ -1636,6 +1758,16 @@
                             <div style="font-size:10px;color:#444;margin-top:2px;">
                                 💡 Сначала выбери страну, затем добавь подкатегорию
                             </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Тип локации (иконка)</label>
+                            <select id="admin-location-icon" style="width:100%;padding:6px 10px;background:#0a0a12;color:#e0dcc8;border:1px solid #2a2a3e;border-radius:6px;outline:none;">
+                                <option value="default">● Обычная</option>
+                                <option value="danger">⚠️ Опасная / Вымершая</option>
+                                <option value="hero">⭐ Главные герои</option>
+                                <option value="capital">👑 Столица</option>
+                                <option value="inactive">◌ Не действующая</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label>Описание (краткое)</label>
@@ -1740,6 +1872,49 @@
                         <div style="color:#444;font-style:italic;padding:20px;text-align:center;">Нет подкатегорий</div>
                     </div>
                 </div>
+
+                <div class="admin-tab-content" id="tab-marker-icons">
+                    <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
+                        <span style="font-size:12px;color:#555;align-self:center;">📌 Настройка иконок для маркеров</span>
+                    </div>
+                    
+                    <div style="margin-bottom:12px;">
+                        <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Доступные иконки</label>
+                        <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:8px; margin-top:8px;">
+                            <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #2a2a40;display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:20px;">●</span>
+                                <span style="color:#ccc;font-size:13px;">Обычная</span>
+                            </div>
+                            <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #2a2a40;display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:20px;">⚠️</span>
+                                <span style="color:#ccc;font-size:13px;">Опасная / Вымершая</span>
+                            </div>
+                            <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #2a2a40;display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:20px;">⭐</span>
+                                <span style="color:#ccc;font-size:13px;">Главные герои</span>
+                            </div>
+                            <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #2a2a40;display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:20px;">👑</span>
+                                <span style="color:#ccc;font-size:13px;">Столица</span>
+                            </div>
+                            <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #2a2a40;display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:20px;">◌</span>
+                                <span style="color:#ccc;font-size:13px;">Не действующая</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="background:rgba(10,10,18,0.5);border-radius:8px;padding:12px;border:1px solid #1a1a2a;">
+                        <div style="font-size:12px;color:#555;margin-bottom:4px;">💡 Как это работает:</div>
+                        <ul style="color:#666;font-size:11px;padding-left:20px;line-height:1.8;">
+                            <li>В редакторе локации выберите тип иконки</li>
+                            <li>На карте маркер автоматически изменится</li>
+                            <li>Легенда отображается для всех пользователей</li>
+                            <li>Обычные пользователи видят только иконки и легенду</li>
+                            <li>Админы могут менять иконки в редакторе</li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1750,6 +1925,14 @@
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmZWtoZ2pweG5ub3V0aWlra2prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNzIwNTYsImV4cCI6MjEwMjY0ODA1Nn0.Wc5_W5sD6VAVZVCg5hBlj2zvQCE72gTdX5KUXo0mqvs';
         const MAP_IMAGE_URL = 'image.png';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        const MARKER_ICONS = {
+            default: { emoji: '●', color: '#d4c08a', label: 'Обычная' },
+            danger: { emoji: '⚠️', color: '#2d2d2d', label: 'Опасная / Вымершая' },
+            hero: { emoji: '⭐', color: '#ff6b6b', label: 'Главные герои' },
+            capital: { emoji: '👑', color: '#d4c08a', label: 'Столица' },
+            inactive: { emoji: '◌', color: '#888', label: 'Не действующая' }
+        };
 
         let locations = [];
         let routes = [];
@@ -1798,6 +1981,19 @@
             { name: 'Вишнёвый', value: '#e17055' },
             { name: 'Серый', value: '#b2bec3' }
         ];
+
+        function getMarkerIcon(loc) {
+            const iconType = loc.marker_icon || 'default';
+            const iconData = MARKER_ICONS[iconType] || MARKER_ICONS.default;
+            const dotColor = loc.markerColor || iconData.color || '#d4c08a';
+            
+            return L.divIcon({
+                className: 'custom-marker',
+                html: `<div class="marker-dot" style="background: radial-gradient(circle at 30% 30%, ${lightenColor(dotColor, 30)}, ${dotColor}); border-color: ${dotColor}; font-size:14px; display:flex; align-items:center; justify-content:center;">${iconData.emoji}</div>`,
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            });
+        }
 
         async function loadLocations() {
             try {
@@ -1936,14 +2132,8 @@
             markerMap.clear();
 
             locations.forEach(loc => {
+                const icon = getMarkerIcon(loc);
                 const markerColor = loc.markerColor || '#d4c08a';
-                
-                const icon = L.divIcon({
-                    className: 'custom-marker',
-                    html: `<div class="marker-dot" style="background: radial-gradient(circle at 30% 30%, ${lightenColor(markerColor, 30)}, ${markerColor}); border-color: ${markerColor};"></div>`,
-                    iconSize: [28, 28],
-                    iconAnchor: [14, 14]
-                });
                 
                 let colorPickerHtml = '';
                 if (isAdmin) {
@@ -1959,12 +2149,29 @@
                     });
                 }
 
+                let iconPickerHtml = '';
+                if (isAdmin) {
+                    Object.keys(MARKER_ICONS).forEach(key => {
+                        const iconData = MARKER_ICONS[key];
+                        const isActive = (loc.marker_icon || 'default') === key;
+                        iconPickerHtml += `
+                            <div class="icon-option ${isActive ? 'active' : ''}" 
+                                 onclick="changeMarkerIcon(${loc.id}, '${key}')"
+                                 title="${iconData.label}">
+                                ${iconData.emoji}
+                            </div>
+                        `;
+                    });
+                }
+
                 const popupContent = `
                     <div style="text-align:center;">
+                        <div style="font-size:28px;margin-bottom:4px;">${MARKER_ICONS[loc.marker_icon || 'default'].emoji}</div>
                         <b>${loc.name}</b><br>
                         <span style="color:#aaa;font-size:12px;">${(loc.description || '').substring(0, 50)}</span>
                         <br>
                         ${isAdmin ? `<div style="margin-top:6px;font-size:11px;color:#888;">🎨 Цвет маркера:</div><div class="popup-color-picker">${colorPickerHtml}</div>` : ''}
+                        ${isAdmin ? `<div style="margin-top:6px;font-size:11px;color:#888;">📌 Иконка:</div><div class="popup-icon-picker">${iconPickerHtml}</div>` : ''}
                         <button onclick="openModal(${loc.id})" style="
                             margin-top: 6px;
                             padding: 4px 12px;
@@ -1993,7 +2200,7 @@
                     .addTo(mapInstance)
                     .bindPopup(popupContent, { 
                         className: 'custom-popup', 
-                        maxWidth: 220 
+                        maxWidth: 260
                     });
 
                 marker.on('popupopen', function() {
@@ -2009,6 +2216,30 @@
 
                 markerMap.set(loc.id, marker);
             });
+        }
+
+        async function changeMarkerIcon(locId, iconKey) {
+            if (!isAdmin) {
+                alert('⛔ Только админ может менять иконку');
+                return;
+            }
+            
+            const loc = locations.find(l => l.id === locId);
+            if (!loc) return;
+
+            try {
+                loc.marker_icon = iconKey;
+                await saveAll();
+                renderMarkers();
+                
+                const marker = markerMap.get(locId);
+                if (marker) {
+                    marker.openPopup();
+                }
+            } catch (e) {
+                console.error('Ошибка смены иконки:', e);
+                alert('❌ Ошибка смены иконки: ' + e.message);
+            }
         }
 
         async function changeMarkerColor(locId, color) {
@@ -2035,6 +2266,9 @@
             }
         }
 
+        // ============================================================
+        //  МАРШРУТЫ
+        // ============================================================
         async function loadRoutes() {
             try {
                 const { data, error } = await supabaseClient
@@ -2106,81 +2340,6 @@
                 console.error('❌ Ошибка удаления маршрута:', e);
                 alert('❌ Ошибка удаления маршрута: ' + e.message);
                 return false;
-            }
-        }
-
-        async function editLabelPosition(routeId) {
-            const route = routes.find(r => r.id === routeId);
-            if (!route) return;
-
-            const pointsCount = route.points ? route.points.length : 0;
-            if (pointsCount < 2) {
-                alert('❌ В маршруте должно быть минимум 2 точки');
-                return;
-            }
-
-            const currentPos = route.labelposition !== undefined ? route.labelposition : Math.floor(pointsCount / 2);
-            
-            const input = prompt(`Выберите номер точки для подписи (от 1 до ${pointsCount}, текущая: ${currentPos + 1}):`);
-            if (input === null) return;
-
-            const parsed = parseInt(input);
-            if (isNaN(parsed) || parsed < 1 || parsed > pointsCount) {
-                alert(`❌ Некорректный номер. Введите число от 1 до ${pointsCount}`);
-                return;
-            }
-
-            const newPosition = parsed - 1;
-            
-            try {
-                const { error } = await supabaseClient
-                    .from('routes')
-                    .update({ labelposition: newPosition })
-                    .eq('id', routeId);
-                if (error) throw error;
-
-                route.labelposition = newPosition;
-                renderRoutes();
-                renderRoutesLegend();
-                renderAdminRoutesList();
-                
-                alert(`✅ Подпись перемещена на точку ${parsed}`);
-            } catch (e) {
-                console.error('Ошибка обновления:', e);
-                alert('❌ Ошибка обновления: ' + e.message);
-            }
-        }
-
-        async function editLabelSize(routeId) {
-            const route = routes.find(r => r.id === routeId);
-            if (!route) return;
-
-            const currentSize = route.labelsize || 11;
-            const input = prompt(`Введите размер шрифта для подписи (в пикселях, от 8 до 30, текущий: ${currentSize}px):`);
-            if (input === null) return;
-
-            const parsed = parseInt(input);
-            if (isNaN(parsed) || parsed < 8 || parsed > 30) {
-                alert(`❌ Некорректный размер. Введите число от 8 до 30`);
-                return;
-            }
-
-            try {
-                const { error } = await supabaseClient
-                    .from('routes')
-                    .update({ labelsize: parsed })
-                    .eq('id', routeId);
-                if (error) throw error;
-
-                route.labelsize = parsed;
-                renderRoutes();
-                renderRoutesLegend();
-                renderAdminRoutesList();
-                
-                alert(`✅ Размер подписи изменён на ${parsed}px`);
-            } catch (e) {
-                console.error('Ошибка обновления:', e);
-                alert('❌ Ошибка обновления: ' + e.message);
             }
         }
 
@@ -2387,6 +2546,9 @@
             renderAdminRoutesList();
         });
 
+        // ============================================================
+        //  НАДПИСИ
+        // ============================================================
         async function loadLabels() {
             try {
                 const { data, error } = await supabaseClient.from('labels').select('*').order('created_at', { ascending: true });
@@ -2575,6 +2737,9 @@
             }, 2000);
         });
 
+        // ============================================================
+        //  ПОДКАТЕГОРИИ
+        // ============================================================
         async function loadSubcategories() {
             try {
                 const { data, error } = await supabaseClient
@@ -2784,6 +2949,9 @@
             updateSubcategorySelect();
         });
 
+        // ============================================================
+        //  МЕДИАТЕКА
+        // ============================================================
         async function loadPhotosLibrary() {
             try {
                 const { data, error } = await supabaseClient
@@ -2979,6 +3147,9 @@
             setAdminStatus('✅ Медиатека обновлена', 'ok');
         });
 
+        // ============================================================
+        //  МОДАЛКА С DRAG & DROP
+        // ============================================================
         document.getElementById('modal-right').addEventListener('dragover', function(e) {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'copy';
@@ -3020,65 +3191,9 @@
             }
         });
 
-        async function checkLocationPhotos(locId) {
-            const loc = locations.find(l => l.id === locId);
-            if (!loc || !loc.photos || loc.photos.length === 0) {
-                alert('📭 В этой локации нет фото');
-                return;
-            }
-            
-            let results = [];
-            for (let i = 0; i < loc.photos.length; i++) {
-                const photo = loc.photos[i];
-                const url = typeof photo === 'object' && photo.url ? photo.url : photo;
-                
-                try {
-                    const response = await fetch(url, { method: 'HEAD' });
-                    if (response.ok) {
-                        results.push(`✅ Фото ${i+1}: доступно`);
-                    } else {
-                        results.push(`❌ Фото ${i+1}: НЕ ДОСТУПНО (${response.status})`);
-                    }
-                } catch (e) {
-                    results.push(`❌ Фото ${i+1}: ошибка загрузки`);
-                }
-            }
-            
-            alert(results.join('\n'));
-        }
-
-        async function fixBrokenPhotos(locId) {
-            const loc = locations.find(l => l.id === locId);
-            if (!loc) return;
-            
-            let fixed = 0;
-            for (let i = 0; i < loc.photos.length; i++) {
-                const photo = loc.photos[i];
-                const url = typeof photo === 'object' && photo.url ? photo.url : photo;
-                
-                try {
-                    const response = await fetch(url, { method: 'HEAD' });
-                    if (!response.ok) {
-                        const fileName = url.split('/').pop();
-                        const found = photosLibrary.find(p => p.url.includes(fileName));
-                        if (found) {
-                            loc.photos[i] = { url: found.url, caption: found.caption || '' };
-                            fixed++;
-                        }
-                    }
-                } catch (e) {}
-            }
-            
-            if (fixed > 0) {
-                await saveLocationData();
-                renderModalGallery(loc.photos);
-                renderModalAdminPhotos(loc.photos);
-                alert(`✅ Восстановлено ${fixed} фото`);
-            } else {
-                alert('ℹ️ Все фото в порядке, либо не найдены');
-            }
-        }
-
+        // ============================================================
+        //  ФОТО ЛОКАЦИЙ
+        // ============================================================
         function populateLocationSelect() {
             const select = document.getElementById('loc-photos-select');
             if (!select) return;
@@ -3267,6 +3382,9 @@
             }
         });
 
+        // ============================================================
+        //  ГАМБУРГЕР-МЕНЮ
+        // ============================================================
         const hamburgerBtn = document.getElementById('hamburger-btn');
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebar-overlay');
@@ -3335,6 +3453,9 @@
             }
         });
 
+        // ============================================================
+        //  МОДАЛКА
+        // ============================================================
         const modalBackBtn = document.getElementById('modal-back-btn');
         if (modalBackBtn) {
             modalBackBtn.addEventListener('click', function() {
@@ -3707,56 +3828,9 @@
             }
         });
 
-        document.getElementById('admin-add-country').addEventListener('click', function() {
-            if (!isAdmin) {
-                alert('⛔ Только админ может добавлять страны');
-                return;
-            }
-            
-            const countryName = prompt('🏷️ Введите название новой страны/категории:');
-            if (!countryName || countryName.trim() === '') return;
-            
-            const trimmed = countryName.trim();
-            
-            const exists = locations.some(l => l.country === trimmed);
-            if (exists) {
-                alert(`❌ Страна "${trimmed}" уже существует!`);
-                return;
-            }
-            
-            alert(`✅ Страна "${trimmed}" добавлена! Теперь вы можете создать локацию в этой стране.`);
-            
-            updateCountryFilter();
-            document.getElementById('country-select').value = trimmed;
-            currentFilter = trimmed;
-            renderLocations();
-        });
-
-        document.getElementById('add-country-btn').addEventListener('click', function() {
-            if (!isAdmin) {
-                alert('⛔ Только админ может добавлять страны');
-                return;
-            }
-            
-            const countryName = prompt('🏷️ Введите название новой страны/категории:');
-            if (!countryName || countryName.trim() === '') return;
-            
-            const trimmed = countryName.trim();
-            
-            const exists = locations.some(l => l.country === trimmed);
-            if (exists) {
-                alert(`❌ Страна "${trimmed}" уже существует!`);
-                return;
-            }
-            
-            alert(`✅ Страна "${trimmed}" добавлена! Теперь вы можете создать локацию в этой стране.`);
-            
-            updateCountryFilter();
-            document.getElementById('country-select').value = trimmed;
-            currentFilter = trimmed;
-            renderLocations();
-        });
-
+        // ============================================================
+        //  АДМИН-ПАНЕЛЬ
+        // ============================================================
         const adminOverlay = document.getElementById('admin-overlay');
         const adminToggleBtn = document.getElementById('admin-toggle-btn');
         const adminCloseBtn = document.getElementById('admin-close-btn');
@@ -3790,6 +3864,7 @@
             document.getElementById('admin-location-name').value = '';
             document.getElementById('admin-location-country').value = '';
             document.getElementById('admin-location-subcategory').value = '';
+            document.getElementById('admin-location-icon').value = 'default';
             document.getElementById('admin-location-desc').value = '';
             document.getElementById('admin-location-subtitle').value = '';
             document.getElementById('admin-photos-grid').innerHTML = '';
@@ -3922,13 +3997,14 @@
                     const countPhotos = loc.photos ? loc.photos.length : 0;
                     const color = loc.markerColor || '#d4c08a';
                     const sub = loc.subcategory ? ` [${loc.subcategory}]` : '';
+                    const icon = MARKER_ICONS[loc.marker_icon || 'default'].emoji;
                     const isSub = loc.subcategory ? 'style="padding-left:20px;color:#aaa;"' : '';
                     
                     html += `
                         <div class="list-item" ${isSub}>
                             <div class="item-info">
                                 <span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${color};flex-shrink:0;"></span>
-                                <span class="name">${loc.name}</span>
+                                <span class="name">${icon} ${loc.name}</span>
                                 <span style="color:#555;font-size:10px;">${sub}</span>
                                 <span style="color:#555;font-size:10px;">📷${countPhotos}</span>
                                 ${countPhotos > 0 ? `<span style="color:#4ecdc4;font-size:10px;">✅</span>` : ''}
@@ -3980,6 +4056,19 @@
                     }
                 }
                 
+                const iconOptions = Object.keys(MARKER_ICONS).map((key, i) => 
+                    `${i+1} - ${MARKER_ICONS[key].emoji} ${MARKER_ICONS[key].label}`
+                ).join('\n');
+                const iconChoice = prompt(`Выберите тип иконки:\n${iconOptions}\n\nВведите номер (1-5):`, '1');
+                let iconKey = 'default';
+                if (iconChoice !== null) {
+                    const idx = parseInt(iconChoice) - 1;
+                    const keys = Object.keys(MARKER_ICONS);
+                    if (idx >= 0 && idx < keys.length) {
+                        iconKey = keys[idx];
+                    }
+                }
+                
                 const desc = prompt('Краткое описание:');
                 const subtitle = prompt('Подзаголовок (например: Столица Сильванора):');
                 
@@ -3990,6 +4079,7 @@
                     name: name.trim(),
                     country: country.trim(),
                     subcategory: subcategory,
+                    marker_icon: iconKey,
                     description: desc?.trim() || 'Описание отсутствует',
                     subtitle: subtitle?.trim() || '',
                     description_long: '',
@@ -4022,6 +4112,7 @@
             document.getElementById('admin-location-country').value = loc.country || '';
             document.getElementById('admin-location-desc').value = loc.description || '';
             document.getElementById('admin-location-subtitle').value = loc.subtitle || '';
+            document.getElementById('admin-location-icon').value = loc.marker_icon || 'default';
             
             updateSubcategorySelect();
             document.getElementById('admin-location-subcategory').value = loc.subcategory || '';
@@ -4106,6 +4197,7 @@
                     document.getElementById('admin-location-name').value = '';
                     document.getElementById('admin-location-country').value = '';
                     document.getElementById('admin-location-subcategory').value = '';
+                    document.getElementById('admin-location-icon').value = 'default';
                     document.getElementById('admin-location-desc').value = '';
                     document.getElementById('admin-location-subtitle').value = '';
                     document.getElementById('admin-photos-grid').innerHTML = '';
@@ -4135,6 +4227,7 @@
             loc.name = document.getElementById('admin-location-name').value.trim() || 'Без названия';
             loc.country = document.getElementById('admin-location-country').value.trim() || 'Без категории';
             loc.subcategory = document.getElementById('admin-location-subcategory').value || null;
+            loc.marker_icon = document.getElementById('admin-location-icon').value || 'default';
             loc.description = document.getElementById('admin-location-desc').value.trim() || 'Описание отсутствует';
             loc.subtitle = document.getElementById('admin-location-subtitle').value.trim() || '';
             
@@ -4233,10 +4326,11 @@
                     const count = loc.photos ? loc.photos.length : 0;
                     const prefix = loc.subcategory ? '  └─ ' : '';
                     const style = loc.subcategory ? 'padding-left:20px;color:#aaa;' : '';
+                    const icon = MARKER_ICONS[loc.marker_icon || 'default'].emoji;
                     
                     html += `
                         <li data-id="${loc.id}" onclick="flyToLocation(${loc.id})" style="${style}">
-                            <span class="loc-name">${prefix}${loc.name}</span>
+                            <span class="loc-name">${prefix}${icon} ${loc.name}</span>
                             <span class="loc-country">${loc.country || 'Без категории'}</span>
                             <span class="loc-photos-count">${count}</span>
                         </li>
@@ -4351,6 +4445,7 @@
             }
         });
 
+        window.changeMarkerIcon = changeMarkerIcon;
         window.changeMarkerColor = changeMarkerColor;
         window.editLabelPosition = editLabelPosition;
         window.editLabelSize = editLabelSize;
