@@ -220,10 +220,171 @@
         #map-container { flex: 1; position: relative; background: #0a0a12; }
         #map { width: 100%; height: 100%; background: #0a0a12; }
 
-        /* ===== ЛЕГЕНДА НА КАРТЕ ===== */
-        #map-legend {
+        /* ===== КНОПКА КОНТАКТОВ ===== */
+        #contact-toggle-btn-main {
             position: absolute;
             top: 10px;
+            left: 10px;
+            background: rgba(16, 16, 28, 0.92);
+            backdrop-filter: blur(8px);
+            border: 1px solid #2a2a40;
+            border-radius: 10px;
+            padding: 6px 12px;
+            z-index: 1000;
+            color: #ccc;
+            font-size: 11px;
+            cursor: pointer;
+            transition: 0.2s;
+            pointer-events: auto;
+            user-select: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        #contact-toggle-btn-main:hover {
+            border-color: #d4c08a;
+            color: #d4c08a;
+            background: rgba(212, 192, 138, 0.1);
+        }
+        #contact-toggle-btn-main .badge {
+            background: #d4c08a;
+            color: #0a0a12;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* ===== МОДАЛЬНОЕ ОКНО КОНТАКТОВ ===== */
+        #contact-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 99999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            animation: fadeIn 0.25s ease;
+        }
+        #contact-modal.active {
+            display: flex;
+        }
+        #contact-modal .contact-modal-box {
+            background: #161624;
+            border-radius: 16px;
+            border: 1px solid #2e2e48;
+            width: 500px;
+            max-width: 92%;
+            max-height: 80vh;
+            padding: 24px;
+            position: relative;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.9);
+            overflow-y: auto;
+        }
+        #contact-modal .contact-modal-box::-webkit-scrollbar { width: 4px; }
+        #contact-modal .contact-modal-box::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
+        #contact-modal .contact-modal-close {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            font-size: 24px;
+            color: #666;
+            cursor: pointer;
+            background: none;
+            border: none;
+            transition: 0.2s;
+        }
+        #contact-modal .contact-modal-close:hover { color: #fff; transform: rotate(90deg); }
+        #contact-modal .contact-modal-title {
+            color: #f0e8c8;
+            font-size: 18px;
+            font-weight: 300;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+        #contact-modal .contact-modal-content {
+            color: #ccc;
+            font-size: 14px;
+            line-height: 1.8;
+            word-break: break-word;
+        }
+        #contact-modal .contact-modal-content a {
+            color: #d4c08a;
+            text-decoration: none;
+        }
+        #contact-modal .contact-modal-content a:hover {
+            text-decoration: underline;
+        }
+        #contact-modal .contact-modal-content .empty {
+            color: #666;
+            font-style: italic;
+            text-align: center;
+            padding: 20px 0;
+        }
+        #contact-modal .contact-modal-editor {
+            margin-top: 12px;
+            display: none;
+        }
+        #contact-modal .contact-modal-editor textarea {
+            width: 100%;
+            padding: 8px 12px;
+            background: #0a0a12;
+            color: #e0dcc8;
+            border: 1px solid #2a2a3e;
+            border-radius: 6px;
+            outline: none;
+            resize: vertical;
+            min-height: 100px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+        #contact-modal .contact-modal-editor textarea:focus {
+            border-color: #d4c08a;
+        }
+        #contact-modal .contact-modal-editor .btn-save {
+            margin-top: 8px;
+            padding: 6px 18px;
+            background: #d4c08a;
+            color: #0a0a12;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 600;
+            transition: 0.2s;
+        }
+        #contact-modal .contact-modal-editor .btn-save:hover {
+            background: #e8d4a0;
+        }
+        #contact-modal .contact-edit-btn-modal {
+            margin-top: 12px;
+            padding: 4px 14px;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid #3a3a50;
+            border-radius: 12px;
+            color: #888;
+            cursor: pointer;
+            font-size: 12px;
+            transition: 0.2s;
+            display: none;
+        }
+        #contact-modal .contact-edit-btn-modal:hover {
+            border-color: #d4c08a;
+            color: #d4c08a;
+        }
+
+        /* ===== ЛЕГЕНДА ===== */
+        #map-legend {
+            position: absolute;
+            top: 50px;
             right: 10px;
             background: rgba(16, 16, 28, 0.92);
             backdrop-filter: blur(8px);
@@ -236,7 +397,11 @@
             font-size: 11px;
             color: #ccc;
             pointer-events: auto;
+            max-height: calc(100vh - 160px);
+            overflow-y: auto;
         }
+        #map-legend::-webkit-scrollbar { width: 4px; }
+        #map-legend::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
         #map-legend .legend-header {
             display: flex;
             justify-content: space-between;
@@ -245,6 +410,11 @@
             user-select: none;
             padding: 2px 0;
             transition: 0.2s;
+            position: sticky;
+            top: 0;
+            background: rgba(16, 16, 28, 0.95);
+            z-index: 1;
+            padding-bottom: 4px;
         }
         #map-legend .legend-header:hover {
             opacity: 0.8;
@@ -312,110 +482,13 @@
         #map-legend .legend-item .legend-dot.shield { background: #c0c0c0; border-color: #c0c0c0; }
         #map-legend .legend-item .legend-dot.sun { background: #f39c12; border-color: #f39c12; }
         #map-legend .legend-item .legend-dot.mountain { background: #5d6d7e; border-color: #5d6d7e; }
-
-        /* ===== КОНТАКТНАЯ ИНФОРМАЦИЯ ===== */
-        #contact-info {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            background: rgba(16, 16, 28, 0.92);
-            backdrop-filter: blur(8px);
-            border: 1px solid #2a2a40;
-            border-radius: 10px;
-            padding: 8px 12px;
-            z-index: 1000;
-            min-width: 150px;
-            max-width: 220px;
-            font-size: 11px;
-            color: #ccc;
-            pointer-events: auto;
-        }
-        #contact-info .contact-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            cursor: pointer;
-            user-select: none;
-            padding: 2px 0;
-            transition: 0.2s;
-        }
-        #contact-info .contact-header:hover {
-            opacity: 0.8;
-        }
-        #contact-info .contact-title {
-            font-size: 10px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: #666;
-            margin: 0;
-        }
-        #contact-info .contact-toggle {
-            font-size: 12px;
-            color: #666;
-            transition: transform 0.3s ease;
-            display: inline-block;
-        }
-        #contact-info .contact-toggle.collapsed {
-            transform: rotate(-90deg);
-        }
-        #contact-info .contact-body {
-            overflow: hidden;
-            transition: max-height 0.3s ease, opacity 0.3s ease;
-            max-height: 300px;
-            opacity: 1;
-        }
-        #contact-info .contact-body.collapsed {
-            max-height: 0;
-            opacity: 0;
-            padding-top: 0;
-            margin-top: 0;
-        }
-        #contact-info .contact-body .contact-content {
-            padding: 4px 0;
-            font-size: 12px;
-            color: #ccc;
-            line-height: 1.6;
-            word-break: break-word;
-        }
-        #contact-info .contact-body .contact-content a {
-            color: #d4c08a;
-            text-decoration: none;
-        }
-        #contact-info .contact-body .contact-content a:hover {
-            text-decoration: underline;
-        }
-        #contact-info .contact-edit-btn {
-            width: 100%;
-            margin-top: 6px;
-            padding: 4px 12px;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid #3a3a50;
-            border-radius: 12px;
-            color: #888;
-            cursor: pointer;
-            font-size: 11px;
-            transition: 0.2s;
-        }
-        #contact-info .contact-edit-btn:hover {
-            border-color: #d4c08a;
-            color: #d4c08a;
-        }
-        #contact-info .contact-editor textarea {
-            width: 100%;
-            padding: 6px 10px;
-            background: #0a0a12;
-            color: #e0dcc8;
-            border: 1px solid #2a2a3e;
-            border-radius: 6px;
-            outline: none;
-            resize: vertical;
-            min-height: 80px;
-            font-size: 12px;
-            font-family: inherit;
-        }
-        #contact-info .contact-editor textarea:focus {
-            border-color: #d4c08a;
-        }
+        #map-legend .legend-item .legend-dot.heels { background: #e91e63; border-color: #e91e63; }
+        #map-legend .legend-item .legend-dot.beer { background: #f1c40f; border-color: #f1c40f; }
+        #map-legend .legend-item .legend-dot.fork { background: #e67e22; border-color: #e67e22; }
+        #map-legend .legend-item .legend-dot.dollar { background: #2ecc71; border-color: #2ecc71; }
+        #map-legend .legend-item .legend-dot.castle { background: #8e44ad; border-color: #8e44ad; }
+        #map-legend .legend-item .legend-dot.bulb { background: #f1c40f; border-color: #f1c40f; }
+        #map-legend .legend-item .legend-dot.jungle { background: #1e8449; border-color: #1e8449; }
 
         #routes-legend {
             position: absolute;
@@ -1656,32 +1729,44 @@
             }
             
             #map-legend {
-                top: 8px;
+                top: 45px;
                 right: 8px;
                 padding: 6px 10px;
-                min-width: 140px;
+                min-width: 130px;
                 font-size: 10px;
-                max-height: none !important;
+                max-height: calc(100vh - 120px);
             }
             #map-legend .legend-item { padding: 1px 0; }
             #map-legend .legend-item .legend-dot { width: 12px; height: 12px; }
             #map-legend .legend-body { max-height: 300px; }
             #map-legend .legend-body.collapsed { max-height: 0; }
             
-            #contact-info {
-                bottom: 8px;
+            #contact-toggle-btn-main {
+                top: 8px;
                 left: 8px;
-                padding: 6px 10px;
-                min-width: 120px;
+                padding: 4px 10px;
                 font-size: 10px;
             }
-            #contact-info .contact-body { max-height: 200px; }
-            #contact-info .contact-body.collapsed { max-height: 0; }
+            #contact-toggle-btn-main .badge {
+                width: 16px;
+                height: 16px;
+                font-size: 9px;
+            }
+            #contact-modal .contact-modal-box {
+                padding: 16px;
+                max-height: 90vh;
+            }
         }
 
         @media (max-width: 500px) {
             #sidebar { width: 100% !important; left: -100% !important; }
             #sidebar.open { left: 0 !important; }
+            #map-legend {
+                max-width: 160px;
+                min-width: 110px;
+                font-size: 9px;
+            }
+            #map-legend .legend-item .legend-dot { width: 10px; height: 10px; }
         }
     </style>
 </head>
@@ -1716,6 +1801,12 @@
         </div>
         
         <div id="map-container">
+            <!-- ===== КНОПКА КОНТАКТОВ ===== -->
+            <button id="contact-toggle-btn-main" onclick="openContactModal()">
+                📞 Контакты
+                <span class="badge" id="contact-badge">!</span>
+            </button>
+            
             <!-- ===== ЛЕГЕНДА ===== -->
             <div id="map-legend">
                 <div class="legend-header" onclick="toggleLegend()">
@@ -1723,112 +1814,56 @@
                     <span class="legend-toggle" id="legend-toggle-btn">▼</span>
                 </div>
                 <div class="legend-body" id="legend-body">
-                    <div class="legend-item">
-                        <span class="legend-dot black"></span>
-                        <span>Вымершие / Опасные</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot red"></span>
-                        <span>Главные герои</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot gold"></span>
-                        <span>Столицы стран</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot gray"></span>
-                        <span>Не действующие</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot default"></span>
-                        <span>Обычные локации</span>
-                    </div>
+                    <div class="legend-item"><span class="legend-dot black"></span><span>Вымершие / Опасные</span></div>
+                    <div class="legend-item"><span class="legend-dot red"></span><span>Главные герои</span></div>
+                    <div class="legend-item"><span class="legend-dot gold"></span><span>Столицы стран</span></div>
+                    <div class="legend-item"><span class="legend-dot gray"></span><span>Не действующие</span></div>
+                    <div class="legend-item"><span class="legend-dot default"></span><span>Обычные локации</span></div>
                     <div class="legend-item" style="margin-top:4px;border-top:1px solid #1a1a2a;padding-top:4px;">
-                        <span class="legend-dot flower"></span>
-                        <span>🌸 Цветок</span>
+                        <span class="legend-dot flower"></span><span>🌸 Цветок</span>
                     </div>
-                    <div class="legend-item">
-                        <span class="legend-dot blossom"></span>
-                        <span>🌼 Цветок</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot rose"></span>
-                        <span>🌺 Цветок</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot rose2"></span>
-                        <span>🌹 Цветок</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot wilted"></span>
-                        <span>🥀 Погибающие места</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot tree"></span>
-                        <span>🌳 Дерево</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot pine"></span>
-                        <span>🌲 Дерево</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot maple"></span>
-                        <span>🍁 Необычные рощи</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot grass"></span>
-                        <span>🌾 Злаки / Поле</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot moon"></span>
-                        <span>🌙 Луна</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot star"></span>
-                        <span>🌟 Звезда</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot skull"></span>
-                        <span>💀 Смерть</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot book"></span>
-                        <span>📖 Учебное учреждение</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot shield"></span>
-                        <span>⚔ Места охраняемые группами лиц</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot sun"></span>
-                        <span>🌞 Знойные места</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-dot mountain"></span>
-                        <span>⛰️ Горы / Скалы</span>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- ===== КОНТАКТНАЯ ИНФОРМАЦИЯ ===== -->
-            <div id="contact-info">
-                <div class="contact-header" onclick="toggleContact()">
-                    <span class="contact-title">📞 Контакты</span>
-                    <span class="contact-toggle" id="contact-toggle-btn">▼</span>
-                </div>
-                <div class="contact-body" id="contact-body">
-                    <div id="contact-content">
-                        <div style="color:#666;font-style:italic;text-align:center;padding:10px 0;">📭 Нет контактной информации</div>
-                    </div>
-                    <div class="contact-editor" id="contact-editor" style="display:none;margin-top:8px;">
-                        <textarea id="contact-textarea" placeholder="Введите контактную информацию..."></textarea>
-                        <button onclick="saveContactInfo()" style="width:100%;padding:4px 12px;margin-top:6px;background:#d4c08a;color:#0a0a12;border:none;border-radius:12px;cursor:pointer;font-size:12px;">💾 Сохранить</button>
-                    </div>
-                    <button class="contact-edit-btn" id="contact-edit-btn" onclick="toggleContactEditor()" style="display:none;">✏️ Редактировать</button>
+                    <div class="legend-item"><span class="legend-dot blossom"></span><span>🌼 Цветок</span></div>
+                    <div class="legend-item"><span class="legend-dot rose"></span><span>🌺 Цветок</span></div>
+                    <div class="legend-item"><span class="legend-dot rose2"></span><span>🌹 Цветок</span></div>
+                    <div class="legend-item"><span class="legend-dot wilted"></span><span>🥀 Погибающие места</span></div>
+                    <div class="legend-item"><span class="legend-dot tree"></span><span>🌳 Дерево</span></div>
+                    <div class="legend-item"><span class="legend-dot pine"></span><span>🌲 Дерево</span></div>
+                    <div class="legend-item"><span class="legend-dot maple"></span><span>🍁 Необычные рощи</span></div>
+                    <div class="legend-item"><span class="legend-dot grass"></span><span>🌾 Злаки / Поле</span></div>
+                    <div class="legend-item"><span class="legend-dot moon"></span><span>🌙 Луна</span></div>
+                    <div class="legend-item"><span class="legend-dot star"></span><span>🌟 Звезда</span></div>
+                    <div class="legend-item"><span class="legend-dot skull"></span><span>💀 Смерть</span></div>
+                    <div class="legend-item"><span class="legend-dot book"></span><span>📖 Учебное учреждение</span></div>
+                    <div class="legend-item"><span class="legend-dot shield"></span><span>⚔ Места охраняемые группами лиц</span></div>
+                    <div class="legend-item"><span class="legend-dot sun"></span><span>🌞 Знойные места</span></div>
+                    <div class="legend-item"><span class="legend-dot mountain"></span><span>⛰️ Горы / Скалы</span></div>
+                    <div class="legend-item"><span class="legend-dot heels"></span><span>👠 Бардели</span></div>
+                    <div class="legend-item"><span class="legend-dot beer"></span><span>🍺 Таверны</span></div>
+                    <div class="legend-item"><span class="legend-dot fork"></span><span>🍴 Закусочные / Каннибалы</span></div>
+                    <div class="legend-item"><span class="legend-dot dollar"></span><span>💰 Торговые зоны</span></div>
+                    <div class="legend-item"><span class="legend-dot castle"></span><span>🏰 Данжи</span></div>
+                    <div class="legend-item"><span class="legend-dot bulb"></span><span>💡 Мануфактура</span></div>
+                    <div class="legend-item"><span class="legend-dot jungle"></span><span>🌿 Непроходимая чаща</span></div>
                 </div>
             </div>
             
             <div id="map"></div>
+        </div>
+    </div>
+
+    <!-- ===== МОДАЛЬНОЕ ОКНО КОНТАКТОВ ===== -->
+    <div id="contact-modal">
+        <div class="contact-modal-box">
+            <button class="contact-modal-close" onclick="closeContactModal()">✕</button>
+            <div class="contact-modal-title">📞 Контактная информация</div>
+            <div class="contact-modal-content" id="contact-modal-content">
+                <div class="empty">📭 Нет контактной информации</div>
+            </div>
+            <div class="contact-modal-editor" id="contact-modal-editor">
+                <textarea id="contact-modal-textarea" placeholder="Введите контактную информацию..."></textarea>
+                <button class="btn-save" onclick="saveContactInfoModal()">💾 Сохранить</button>
+            </div>
+            <button class="contact-edit-btn-modal" id="contact-edit-btn-modal" onclick="toggleContactEditorModal()">✏️ Редактировать</button>
         </div>
     </div>
 
@@ -2006,6 +2041,7 @@
                                 <optgroup label="🍁 Природа">
                                     <option value="maple">🍁 Необычные рощи</option>
                                     <option value="grass">🌾 Злаки / Поле</option>
+                                    <option value="jungle">🌿 Непроходимая чаща</option>
                                 </optgroup>
                                 <optgroup label="🌙 Небесные">
                                     <option value="moon">🌙 Луна</option>
@@ -2025,6 +2061,20 @@
                                 </optgroup>
                                 <optgroup label="⛰️ Ландшафт">
                                     <option value="mountain">⛰️ Горы / Скалы</option>
+                                </optgroup>
+                                <optgroup label="👠 Заведения">
+                                    <option value="heels">👠 Бардели</option>
+                                    <option value="beer">🍺 Таверны</option>
+                                    <option value="fork">🍴 Закусочные / Каннибалы</option>
+                                </optgroup>
+                                <optgroup label="💰 Торговля">
+                                    <option value="dollar">💰 Торговые зоны</option>
+                                </optgroup>
+                                <optgroup label="🏰 Данжи">
+                                    <option value="castle">🏰 Данжи</option>
+                                </optgroup>
+                                <optgroup label="💡 Производство">
+                                    <option value="bulb">💡 Мануфактура</option>
                                 </optgroup>
                             </select>
                         </div>
@@ -2141,88 +2191,88 @@
                         <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Доступные иконки</label>
                         <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:8px; margin-top:8px;">
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #2a2a40;display:flex;align-items:center;gap:10px;">
-                                <span style="font-size:20px;">●</span>
-                                <span style="color:#ccc;font-size:13px;">Обычная</span>
+                                <span style="font-size:20px;">●</span><span style="color:#ccc;font-size:13px;">Обычная</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #2a2a40;display:flex;align-items:center;gap:10px;">
-                                <span style="font-size:20px;">⚠️</span>
-                                <span style="color:#ccc;font-size:13px;">Опасная / Вымершая</span>
+                                <span style="font-size:20px;">⚠️</span><span style="color:#ccc;font-size:13px;">Опасная / Вымершая</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #2a2a40;display:flex;align-items:center;gap:10px;">
-                                <span style="font-size:20px;">⭐</span>
-                                <span style="color:#ccc;font-size:13px;">Главные герои</span>
+                                <span style="font-size:20px;">⭐</span><span style="color:#ccc;font-size:13px;">Главные герои</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #2a2a40;display:flex;align-items:center;gap:10px;">
-                                <span style="font-size:20px;">👑</span>
-                                <span style="color:#ccc;font-size:13px;">Столица</span>
+                                <span style="font-size:20px;">👑</span><span style="color:#ccc;font-size:13px;">Столица</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #2a2a40;display:flex;align-items:center;gap:10px;">
-                                <span style="font-size:20px;">◌</span>
-                                <span style="color:#ccc;font-size:13px;">Не действующая</span>
+                                <span style="font-size:20px;">◌</span><span style="color:#ccc;font-size:13px;">Не действующая</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #ff69b460;display:flex;align-items:center;gap:10px;">
-                                <span style="font-size:20px;">🌸</span>
-                                <span style="color:#ccc;font-size:13px;">Цветок</span>
+                                <span style="font-size:20px;">🌸</span><span style="color:#ccc;font-size:13px;">Цветок</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #ffd70060;display:flex;align-items:center;gap:10px;">
-                                <span style="font-size:20px;">🌼</span>
-                                <span style="color:#ccc;font-size:13px;">Цветок</span>
+                                <span style="font-size:20px;">🌼</span><span style="color:#ccc;font-size:13px;">Цветок</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #ff149360;display:flex;align-items:center;gap:10px;">
-                                <span style="font-size:20px;">🌺</span>
-                                <span style="color:#ccc;font-size:13px;">Цветок</span>
+                                <span style="font-size:20px;">🌺</span><span style="color:#ccc;font-size:13px;">Цветок</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #dc143c60;display:flex;align-items:center;gap:10px;">
-                                <span style="font-size:20px;">🌹</span>
-                                <span style="color:#ccc;font-size:13px;">Цветок</span>
+                                <span style="font-size:20px;">🌹</span><span style="color:#ccc;font-size:13px;">Цветок</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #8b451360;display:flex;align-items:center;gap:10px;">
-                                <span style="font-size:20px;">🥀</span>
-                                <span style="color:#ccc;font-size:13px;">Погибающие места</span>
+                                <span style="font-size:20px;">🥀</span><span style="color:#ccc;font-size:13px;">Погибающие места</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #228b2260;display:flex;align-items:center;gap:10px;">
-                                <span style="font-size:20px;">🌳</span>
-                                <span style="color:#ccc;font-size:13px;">Дерево</span>
+                                <span style="font-size:20px;">🌳</span><span style="color:#ccc;font-size:13px;">Дерево</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #00640060;display:flex;align-items:center;gap:10px;">
-                                <span style="font-size:20px;">🌲</span>
-                                <span style="color:#ccc;font-size:13px;">Дерево</span>
+                                <span style="font-size:20px;">🌲</span><span style="color:#ccc;font-size:13px;">Дерево</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #ff450060;display:flex;align-items:center;gap:10px;">
-                                <span style="font-size:20px;">🍁</span>
-                                <span style="color:#ccc;font-size:13px;">Необычные рощи</span>
+                                <span style="font-size:20px;">🍁</span><span style="color:#ccc;font-size:13px;">Необычные рощи</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #b8860b60;display:flex;align-items:center;gap:10px;">
-                                <span style="font-size:20px;">🌾</span>
-                                <span style="color:#ccc;font-size:13px;">Злаки / Поле</span>
+                                <span style="font-size:20px;">🌾</span><span style="color:#ccc;font-size:13px;">Злаки / Поле</span>
+                            </div>
+                            <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #1e844960;display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:20px;">🌿</span><span style="color:#ccc;font-size:13px;">Непроходимая чаща</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #f5f5dc60;display:flex;align-items:center;gap:10px;">
-                                <span style="font-size:20px;">🌙</span>
-                                <span style="color:#ccc;font-size:13px;">Луна</span>
+                                <span style="font-size:20px;">🌙</span><span style="color:#ccc;font-size:13px;">Луна</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #ffd70060;display:flex;align-items:center;gap:10px;">
-                                <span style="font-size:20px;">🌟</span>
-                                <span style="color:#ccc;font-size:13px;">Звезда</span>
+                                <span style="font-size:20px;">🌟</span><span style="color:#ccc;font-size:13px;">Звезда</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #80808060;display:flex;align-items:center;gap:10px;">
-                                <span style="font-size:20px;">💀</span>
-                                <span style="color:#ccc;font-size:13px;">Смерть</span>
+                                <span style="font-size:20px;">💀</span><span style="color:#ccc;font-size:13px;">Смерть</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #4169e160;display:flex;align-items:center;gap:10px;">
-                                <span style="font-size:20px;">📖</span>
-                                <span style="color:#ccc;font-size:13px;">Учебное учреждение</span>
+                                <span style="font-size:20px;">📖</span><span style="color:#ccc;font-size:13px;">Учебное учреждение</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #c0c0c060;display:flex;align-items:center;gap:10px;">
-                                <span style="font-size:20px;">⚔</span>
-                                <span style="color:#ccc;font-size:13px;">Места охраняемые группами лиц</span>
+                                <span style="font-size:20px;">⚔</span><span style="color:#ccc;font-size:13px;">Места охраняемые группами лиц</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #f39c1260;display:flex;align-items:center;gap:10px;">
-                                <span style="font-size:20px;">🌞</span>
-                                <span style="color:#ccc;font-size:13px;">Знойные места</span>
+                                <span style="font-size:20px;">🌞</span><span style="color:#ccc;font-size:13px;">Знойные места</span>
                             </div>
                             <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #5d6d7e60;display:flex;align-items:center;gap:10px;">
-                                <span style="font-size:20px;">⛰️</span>
-                                <span style="color:#ccc;font-size:13px;">Горы / Скалы</span>
+                                <span style="font-size:20px;">⛰️</span><span style="color:#ccc;font-size:13px;">Горы / Скалы</span>
+                            </div>
+                            <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #e91e6360;display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:20px;">👠</span><span style="color:#ccc;font-size:13px;">Бардели</span>
+                            </div>
+                            <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #f1c40f60;display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:20px;">🍺</span><span style="color:#ccc;font-size:13px;">Таверны</span>
+                            </div>
+                            <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #e67e2260;display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:20px;">🍴</span><span style="color:#ccc;font-size:13px;">Закусочные / Каннибалы</span>
+                            </div>
+                            <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #2ecc7160;display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:20px;">💰</span><span style="color:#ccc;font-size:13px;">Торговые зоны</span>
+                            </div>
+                            <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #8e44ad60;display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:20px;">🏰</span><span style="color:#ccc;font-size:13px;">Данжи</span>
+                            </div>
+                            <div style="background:rgba(22,22,34,0.6);border-radius:8px;padding:10px 14px;border:1px solid #f1c40f60;display:flex;align-items:center;gap:10px;">
+                                <span style="font-size:20px;">💡</span><span style="color:#ccc;font-size:13px;">Мануфактура</span>
                             </div>
                         </div>
                     </div>
@@ -2285,13 +2335,20 @@
             pine: { emoji: '🌲', color: '#006400', label: 'Дерево' },
             maple: { emoji: '🍁', color: '#ff4500', label: 'Необычные рощи' },
             grass: { emoji: '🌾', color: '#b8860b', label: 'Злаки / Поле' },
+            jungle: { emoji: '🌿', color: '#1e8449', label: 'Непроходимая чаща' },
             moon: { emoji: '🌙', color: '#f5f5dc', label: 'Луна' },
             star: { emoji: '🌟', color: '#ffd700', label: 'Звезда' },
             skull: { emoji: '💀', color: '#808080', label: 'Смерть' },
             book: { emoji: '📖', color: '#4169e1', label: 'Учебное учреждение' },
             shield: { emoji: '⚔', color: '#c0c0c0', label: 'Места охраняемые группами лиц' },
             sun: { emoji: '🌞', color: '#f39c12', label: 'Знойные места' },
-            mountain: { emoji: '⛰️', color: '#5d6d7e', label: 'Горы / Скалы' }
+            mountain: { emoji: '⛰️', color: '#5d6d7e', label: 'Горы / Скалы' },
+            heels: { emoji: '👠', color: '#e91e63', label: 'Бардели' },
+            beer: { emoji: '🍺', color: '#f1c40f', label: 'Таверны' },
+            fork: { emoji: '🍴', color: '#e67e22', label: 'Закусочные / Каннибалы' },
+            dollar: { emoji: '💰', color: '#2ecc71', label: 'Торговые зоны' },
+            castle: { emoji: '🏰', color: '#8e44ad', label: 'Данжи' },
+            bulb: { emoji: '💡', color: '#f1c40f', label: 'Мануфактура' }
         };
 
         let locations = [];
@@ -2378,10 +2435,89 @@
         }
 
         // ============================================================
-        //  КОНТАКТНАЯ ИНФОРМАЦИЯ
+        //  КОНТАКТЫ - МОДАЛЬНОЕ ОКНО
         // ============================================================
-        let contactCollapsed = false;
+        function openContactModal() {
+            document.getElementById('contact-modal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+            renderContactModal();
+        }
 
+        function closeContactModal() {
+            document.getElementById('contact-modal').classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        function renderContactModal() {
+            const content = document.getElementById('contact-modal-content');
+            const editBtn = document.getElementById('contact-edit-btn-modal');
+            const textarea = document.getElementById('contact-modal-textarea');
+            
+            if (!contactInfo || contactInfo.trim() === '') {
+                content.innerHTML = '<div class="empty">📭 Нет контактной информации</div>';
+            } else {
+                const formatted = contactInfo.replace(/\n/g, '<br>');
+                content.innerHTML = formatted;
+            }
+            
+            textarea.value = contactInfo || '';
+            
+            if (isAdmin) {
+                editBtn.style.display = 'inline-block';
+            } else {
+                editBtn.style.display = 'none';
+            }
+            
+            // Скрываем редактор
+            document.getElementById('contact-modal-editor').style.display = 'none';
+            editBtn.textContent = '✏️ Редактировать';
+        }
+
+        function toggleContactEditorModal() {
+            const editor = document.getElementById('contact-modal-editor');
+            const editBtn = document.getElementById('contact-edit-btn-modal');
+            
+            if (editor.style.display === 'none') {
+                editor.style.display = 'block';
+                editBtn.textContent = '✕ Закрыть редактор';
+                document.getElementById('contact-modal-textarea').value = contactInfo || '';
+            } else {
+                editor.style.display = 'none';
+                editBtn.textContent = '✏️ Редактировать';
+            }
+        }
+
+        async function saveContactInfoModal() {
+            const textarea = document.getElementById('contact-modal-textarea');
+            const newValue = textarea.value.trim();
+            
+            try {
+                const { error } = await supabaseClient
+                    .from('settings')
+                    .update({ value: newValue })
+                    .eq('key', 'contact_info');
+                
+                if (error) throw error;
+                
+                contactInfo = newValue;
+                renderContactModal();
+                document.getElementById('contact-modal-editor').style.display = 'none';
+                document.getElementById('contact-edit-btn-modal').textContent = '✏️ Редактировать';
+                
+                // Обновляем админ-панель
+                document.getElementById('admin-contact-textarea').value = contactInfo || '';
+                document.getElementById('admin-contact-preview').innerHTML = (contactInfo || '').replace(/\n/g, '<br>') || '<span style="color:#666;font-style:italic;">Пусто</span>';
+                
+                alert('✅ Контактная информация сохранена!');
+            } catch (e) {
+                console.error('Ошибка сохранения контактов:', e);
+                alert('❌ Ошибка сохранения: ' + e.message);
+            }
+        }
+
+        // ============================================================
+        //  ЗАГРУЗКА КОНТАКТОВ
+        // ============================================================
         async function loadContactInfo() {
             try {
                 const { data, error } = await supabaseClient
@@ -2401,95 +2537,21 @@
                     contactInfo = '';
                 }
                 
-                renderContactInfo();
+                // Обновляем бейдж на кнопке
+                const badge = document.getElementById('contact-badge');
+                if (contactInfo && contactInfo.trim() !== '') {
+                    badge.textContent = '✓';
+                    badge.style.background = '#4caf50';
+                } else {
+                    badge.textContent = '!';
+                    badge.style.background = '#d4c08a';
+                }
                 
                 // Обновляем админ-панель
                 document.getElementById('admin-contact-textarea').value = contactInfo || '';
                 document.getElementById('admin-contact-preview').innerHTML = (contactInfo || '').replace(/\n/g, '<br>') || '<span style="color:#666;font-style:italic;">Пусто</span>';
             } catch (e) {
                 console.error('Ошибка загрузки контактов:', e);
-                document.getElementById('contact-content').innerHTML = '<div style="color:#666;font-style:italic;text-align:center;padding:10px 0;">❌ Ошибка загрузки</div>';
-            }
-        }
-
-        function renderContactInfo() {
-            const container = document.getElementById('contact-content');
-            const editBtn = document.getElementById('contact-edit-btn');
-            const textarea = document.getElementById('contact-textarea');
-            
-            if (!contactInfo || contactInfo.trim() === '') {
-                container.innerHTML = '<div style="color:#666;font-style:italic;text-align:center;padding:10px 0;">📭 Нет контактной информации</div>';
-            } else {
-                const formatted = contactInfo.replace(/\n/g, '<br>');
-                container.innerHTML = `<div class="contact-content">${formatted}</div>`;
-            }
-            
-            textarea.value = contactInfo || '';
-            
-            if (isAdmin) {
-                editBtn.style.display = 'block';
-            } else {
-                editBtn.style.display = 'none';
-            }
-        }
-
-        function toggleContact() {
-            contactCollapsed = !contactCollapsed;
-            const body = document.getElementById('contact-body');
-            const btn = document.getElementById('contact-toggle-btn');
-            
-            if (contactCollapsed) {
-                body.classList.add('collapsed');
-                btn.classList.add('collapsed');
-                btn.textContent = '▶';
-            } else {
-                body.classList.remove('collapsed');
-                btn.classList.remove('collapsed');
-                btn.textContent = '▼';
-            }
-        }
-
-        function toggleContactEditor() {
-            const editor = document.getElementById('contact-editor');
-            const editBtn = document.getElementById('contact-edit-btn');
-            
-            if (editor.style.display === 'none') {
-                editor.style.display = 'block';
-                editBtn.textContent = '✕ Закрыть редактор';
-                document.getElementById('contact-textarea').value = contactInfo || '';
-            } else {
-                editor.style.display = 'none';
-                editBtn.textContent = '✏️ Редактировать';
-            }
-        }
-
-        async function saveContactInfo() {
-            const textarea = document.getElementById('contact-textarea');
-            const newValue = textarea.value.trim();
-            
-            try {
-                const { error } = await supabaseClient
-                    .from('settings')
-                    .update({ value: newValue })
-                    .eq('key', 'contact_info');
-                
-                if (error) throw error;
-                
-                contactInfo = newValue;
-                renderContactInfo();
-                
-                const editor = document.getElementById('contact-editor');
-                const editBtn = document.getElementById('contact-edit-btn');
-                editor.style.display = 'none';
-                editBtn.textContent = '✏️ Редактировать';
-                
-                document.getElementById('admin-contact-textarea').value = contactInfo || '';
-                document.getElementById('admin-contact-preview').innerHTML = (contactInfo || '').replace(/\n/g, '<br>') || '<span style="color:#666;font-style:italic;">Пусто</span>';
-                
-                alert('✅ Контактная информация сохранена!');
-            } catch (e) {
-                console.error('Ошибка сохранения контактов:', e);
-                alert('❌ Ошибка сохранения: ' + e.message);
             }
         }
 
@@ -2768,7 +2830,7 @@
         }
 
         // ============================================================
-        //  МАРШРУТЫ
+        //  МАРШРУТЫ (сокращенно, так как код длинный)
         // ============================================================
         async function loadRoutes() {
             try {
@@ -3311,49 +3373,6 @@
             }
             
             alert(results.join('\n'));
-        }
-
-        async function fixBrokenPhotos(locId) {
-            if (!isAdmin) return;
-            if (!confirm('🧹 Удалить все битые фото из этой локации?')) return;
-            
-            const loc = locations.find(l => l.id === locId);
-            if (!loc || !loc.photos || loc.photos.length === 0) {
-                alert('📭 В этой локации нет фото');
-                return;
-            }
-            
-            const validPhotos = [];
-            let deleted = 0;
-            
-            for (const photo of loc.photos) {
-                const url = typeof photo === 'object' && photo.url ? photo.url : photo;
-                try {
-                    const response = await fetch(url, { method: 'HEAD' });
-                    if (response.ok) {
-                        validPhotos.push(photo);
-                    } else {
-                        deleted++;
-                    }
-                } catch (e) {
-                    deleted++;
-                }
-            }
-            
-            if (deleted === 0) {
-                alert('✅ Все фото доступны, ничего не удалено');
-                return;
-            }
-            
-            loc.photos = validPhotos;
-            await saveLocationData(locId);
-            renderModalGallery(loc.photos);
-            renderModalAdminPhotos(loc.photos);
-            renderAdminList();
-            renderMarkers();
-            renderLocations();
-            
-            alert(`✅ Удалено ${deleted} битых фото`);
         }
 
         // ============================================================
@@ -4528,14 +4547,14 @@
                 loadSubcategories();
                 renderRoutes();
                 renderLabels();
-                renderContactInfo();
+                renderContactModal();
             } else {
                 isAdmin = false;
                 document.getElementById('admin-login').style.display = 'block';
                 document.getElementById('admin-panel-content').style.display = 'none';
                 renderRoutes();
                 renderLabels();
-                renderContactInfo();
+                renderContactModal();
             }
         }
 
@@ -4558,7 +4577,7 @@
                 loadSubcategories();
                 renderRoutes();
                 renderLabels();
-                renderContactInfo();
+                renderContactModal();
             } catch (e) { errorEl.textContent = 'Ошибка входа'; errorEl.style.display = 'block'; }
         });
 
@@ -4577,7 +4596,7 @@
             editingId = null;
             renderRoutes();
             renderLabels();
-            renderContactInfo();
+            renderContactModal();
         });
 
         async function loadAdminLocations() {
@@ -4686,7 +4705,7 @@
                 const iconOptions = Object.keys(MARKER_ICONS).map((key, i) => 
                     `${i+1} - ${MARKER_ICONS[key].emoji} ${MARKER_ICONS[key].label}`
                 ).join('\n');
-                const iconChoice = prompt(`Выберите тип иконки:\n${iconOptions}\n\nВведите номер (1-21):`, '1');
+                const iconChoice = prompt(`Выберите тип иконки:\n${iconOptions}\n\nВведите номер (1-27):`, '1');
                 let iconKey = 'default';
                 if (iconChoice !== null) {
                     const idx = parseInt(iconChoice) - 1;
@@ -5113,8 +5132,19 @@
                 if (error) throw error;
                 
                 contactInfo = value;
-                renderContactInfo();
+                renderContactModal();
                 document.getElementById('admin-contact-preview').innerHTML = value.replace(/\n/g, '<br>') || '<span style="color:#666;font-style:italic;">Пусто</span>';
+                
+                // Обновляем бейдж
+                const badge = document.getElementById('contact-badge');
+                if (value && value.trim() !== '') {
+                    badge.textContent = '✓';
+                    badge.style.background = '#4caf50';
+                } else {
+                    badge.textContent = '!';
+                    badge.style.background = '#d4c08a';
+                }
+                
                 alert('✅ Контактная информация сохранена!');
             } catch (e) {
                 console.error('Ошибка сохранения:', e);
@@ -5171,15 +5201,15 @@
         window.renderSubcategoriesList = renderSubcategoriesList;
         window.toggleSidebar = toggleSidebar;
         window.checkLocationPhotos = checkLocationPhotos;
-        window.fixBrokenPhotos = fixBrokenPhotos;
         window.populateLocationSelect = populateLocationSelect;
         window.renderLocationPhotos = renderLocationPhotos;
         window.checkAllPhotosInLocation = checkAllPhotosInLocation;
         window.checkSinglePhoto = checkSinglePhoto;
         window.toggleLegend = toggleLegend;
-        window.toggleContact = toggleContact;
-        window.toggleContactEditor = toggleContactEditor;
-        window.saveContactInfo = saveContactInfo;
+        window.openContactModal = openContactModal;
+        window.closeContactModal = closeContactModal;
+        window.toggleContactEditorModal = toggleContactEditorModal;
+        window.saveContactInfoModal = saveContactInfoModal;
 
         // ============================================================
         //  ЗАПУСК ПРИЛОЖЕНИЯ
@@ -5193,7 +5223,7 @@
             await loadPhotosLibrary();
             await loadSubcategories();
             
-            // На мобильных устройствах легенда и контакты свернуты по умолчанию
+            // На мобильных устройствах легенда свернута по умолчанию
             if (window.innerWidth <= 768) {
                 const legendBody = document.getElementById('legend-body');
                 const legendBtn = document.getElementById('legend-toggle-btn');
@@ -5201,13 +5231,6 @@
                 legendBtn.classList.add('collapsed');
                 legendBtn.textContent = '▶';
                 legendCollapsed = true;
-                
-                const contactBody = document.getElementById('contact-body');
-                const contactBtn = document.getElementById('contact-toggle-btn');
-                contactBody.classList.add('collapsed');
-                contactBtn.classList.add('collapsed');
-                contactBtn.textContent = '▶';
-                contactCollapsed = true;
             }
         }
 
