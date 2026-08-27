@@ -322,10 +322,11 @@
         }
         #contact-modal .contact-modal-content a {
             color: #d4c08a;
-            text-decoration: none;
+            text-decoration: underline;
+            word-break: break-all;
         }
         #contact-modal .contact-modal-content a:hover {
-            text-decoration: underline;
+            color: #e8d4a0;
         }
         #contact-modal .contact-modal-content .empty {
             color: #666;
@@ -485,6 +486,7 @@
         #map-legend .legend-item .legend-dot.book { background: #4169e1; border-color: #4169e1; }
         #map-legend .legend-item .legend-dot.shield { background: #c0c0c0; border-color: #c0c0c0; }
         #map-legend .legend-item .legend-dot.sun { background: #f39c12; border-color: #f39c12; }
+        #map-legend .legend-item .legend-dot.wind { background: #85c1e9; border-color: #85c1e9; }
         #map-legend .legend-item .legend-dot.mountain { background: #5d6d7e; border-color: #5d6d7e; }
         #map-legend .legend-item .legend-dot.heels { background: #e91e63; border-color: #e91e63; }
         #map-legend .legend-item .legend-dot.beer { background: #f1c40f; border-color: #f1c40f; }
@@ -493,7 +495,6 @@
         #map-legend .legend-item .legend-dot.castle { background: #8e44ad; border-color: #8e44ad; }
         #map-legend .legend-item .legend-dot.bulb { background: #f1c40f; border-color: #f1c40f; }
         #map-legend .legend-item .legend-dot.jungle { background: #1e8449; border-color: #1e8449; }
-        #map-legend .legend-item .legend-dot.wind { background: #85c1e9; border-color: #85c1e9; }
 
         #routes-legend {
             position: absolute;
@@ -2467,7 +2468,26 @@
             if (!contactInfo || contactInfo.trim() === '') {
                 content.innerHTML = '<div class="empty">📭 Нет контактной информации</div>';
             } else {
-                const formatted = contactInfo.replace(/\n/g, '<br>');
+                let formatted = contactInfo.replace(/\n/g, '<br>');
+                
+                // Ссылки (http, https)
+                formatted = formatted.replace(
+                    /(https?:\/\/[^\s<]+)/g,
+                    '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
+                );
+                
+                // Email
+                formatted = formatted.replace(
+                    /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g,
+                    '<a href="mailto:$1">$1</a>'
+                );
+                
+                // Telegram (@username)
+                formatted = formatted.replace(
+                    /@([a-zA-Z0-9_]+)/g,
+                    '<a href="https://t.me/$1" target="_blank" rel="noopener noreferrer">@$1</a>'
+                );
+                
                 content.innerHTML = formatted;
             }
             
@@ -2846,7 +2866,7 @@
         }
 
         // ============================================================
-        //  МАРШРУТЫ (сокращенно, так как код длинный)
+        //  МАРШРУТЫ (сокращенно)
         // ============================================================
         async function loadRoutes() {
             try {
@@ -3126,7 +3146,7 @@
         });
 
         // ============================================================
-        //  НАДПИСИ
+        //  НАДПИСИ (сокращенно)
         // ============================================================
         async function loadLabels() {
             try {
