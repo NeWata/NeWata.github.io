@@ -30,6 +30,14 @@
             line-height: 1.2;
             flex: 1;
             min-width: 0;
+            cursor: pointer;
+            user-select: none;
+        }
+        #header h1:hover {
+            opacity: 0.7;
+        }
+        #header h1:active {
+            transform: scale(0.98);
         }
         #header h1 .title-ru { color: #f0e8c8; }
         #header h1 .title-en {
@@ -220,7 +228,6 @@
         #map-container { flex: 1; position: relative; background: #0a0a12; }
         #map { width: 100%; height: 100%; background: #0a0a12; }
 
-        /* ===== КНОПКА КОНТАКТОВ ===== */
         #contact-toggle-btn-main {
             position: absolute;
             top: 5px;
@@ -263,7 +270,6 @@
             background: #4caf50;
         }
 
-        /* ===== МОДАЛЬНОЕ ОКНО КОНТАКТОВ ===== */
         #contact-modal {
             position: fixed;
             top: 0;
@@ -386,7 +392,6 @@
             color: #d4c08a;
         }
 
-        /* ===== ЛЕГЕНДА ===== */
         #map-legend {
             position: absolute;
             top: 45px;
@@ -405,21 +410,28 @@
             max-height: calc(100vh - 160px);
             overflow-y: auto;
         }
-        #map-legend::-webkit-scrollbar { width: 4px; }
-        #map-legend::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
+        #map-legend::-webkit-scrollbar {
+            width: 4px;
+        }
+        #map-legend::-webkit-scrollbar-thumb {
+            background: #3a3a50;
+            border-radius: 10px;
+        }
+        #map-legend::-webkit-scrollbar-track {
+            background: transparent;
+        }
         #map-legend .legend-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
             user-select: none;
-            padding: 2px 0;
+            padding: 2px 0 4px 0;
             transition: 0.2s;
             position: sticky;
             top: 0;
             background: rgba(16, 16, 28, 0.95);
             z-index: 1;
-            padding-bottom: 4px;
         }
         #map-legend .legend-header:hover {
             opacity: 0.8;
@@ -459,42 +471,12 @@
             gap: 8px;
             padding: 2px 0;
         }
-        #map-legend .legend-item .legend-dot {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
+        #map-legend .legend-item span:first-child {
+            font-size: 16px;
+            width: 20px;
+            text-align: center;
             flex-shrink: 0;
-            border: 1px solid rgba(255,255,255,0.1);
         }
-        #map-legend .legend-item .legend-dot.black { background: #2d2d2d; border-color: #444; }
-        #map-legend .legend-item .legend-dot.red { background: #ff6b6b; border-color: #ff6b6b; }
-        #map-legend .legend-item .legend-dot.gold { background: #d4c08a; border-color: #d4c08a; }
-        #map-legend .legend-item .legend-dot.gray { background: #888; border-color: #888; }
-        #map-legend .legend-item .legend-dot.default { background: #d4c08a; border-color: #d4c08a; }
-        #map-legend .legend-item .legend-dot.flower { background: #ff69b4; border-color: #ff69b4; }
-        #map-legend .legend-item .legend-dot.blossom { background: #ffd700; border-color: #ffd700; }
-        #map-legend .legend-item .legend-dot.rose { background: #ff1493; border-color: #ff1493; }
-        #map-legend .legend-item .legend-dot.rose2 { background: #dc143c; border-color: #dc143c; }
-        #map-legend .legend-item .legend-dot.wilted { background: #8b4513; border-color: #8b4513; }
-        #map-legend .legend-item .legend-dot.tree { background: #228b22; border-color: #228b22; }
-        #map-legend .legend-item .legend-dot.pine { background: #006400; border-color: #006400; }
-        #map-legend .legend-item .legend-dot.maple { background: #ff4500; border-color: #ff4500; }
-        #map-legend .legend-item .legend-dot.grass { background: #b8860b; border-color: #b8860b; }
-        #map-legend .legend-item .legend-dot.moon { background: #f5f5dc; border-color: #f5f5dc; }
-        #map-legend .legend-item .legend-dot.star { background: #ffd700; border-color: #ffd700; }
-        #map-legend .legend-item .legend-dot.skull { background: #808080; border-color: #808080; }
-        #map-legend .legend-item .legend-dot.book { background: #4169e1; border-color: #4169e1; }
-        #map-legend .legend-item .legend-dot.shield { background: #c0c0c0; border-color: #c0c0c0; }
-        #map-legend .legend-item .legend-dot.sun { background: #f39c12; border-color: #f39c12; }
-        #map-legend .legend-item .legend-dot.wind { background: #85c1e9; border-color: #85c1e9; }
-        #map-legend .legend-item .legend-dot.mountain { background: #5d6d7e; border-color: #5d6d7e; }
-        #map-legend .legend-item .legend-dot.heels { background: #e91e63; border-color: #e91e63; }
-        #map-legend .legend-item .legend-dot.beer { background: #f1c40f; border-color: #f1c40f; }
-        #map-legend .legend-item .legend-dot.fork { background: #e67e22; border-color: #e67e22; }
-        #map-legend .legend-item .legend-dot.dollar { background: #2ecc71; border-color: #2ecc71; }
-        #map-legend .legend-item .legend-dot.castle { background: #8e44ad; border-color: #8e44ad; }
-        #map-legend .legend-item .legend-dot.bulb { background: #f1c40f; border-color: #f1c40f; }
-        #map-legend .legend-item .legend-dot.jungle { background: #1e8449; border-color: #1e8449; }
 
         #routes-legend {
             position: absolute;
@@ -1743,9 +1725,7 @@
                 max-height: calc(100vh - 120px);
             }
             #map-legend .legend-item { padding: 1px 0; }
-            #map-legend .legend-item .legend-dot { width: 12px; height: 12px; }
-            #map-legend .legend-body { max-height: 300px; }
-            #map-legend .legend-body.collapsed { max-height: 0; }
+            #map-legend .legend-item span:first-child { font-size: 14px; width: 16px; }
             
             #contact-toggle-btn-main {
                 top: 4px;
@@ -1772,14 +1752,14 @@
                 min-width: 110px;
                 font-size: 9px;
             }
-            #map-legend .legend-item .legend-dot { width: 10px; height: 10px; }
+            #map-legend .legend-item span:first-child { font-size: 12px; width: 14px; }
         }
     </style>
 </head>
 <body>
     <div id="header">
         <button class="hamburger" id="hamburger-btn" aria-label="Меню">☰</button>
-        <h1>
+        <h1 onclick="location.reload()">
             <span class="title-ru">Провальный сюжет этого злодея</span>
             <span class="separator">/</span>
             <span class="title-en">The Antagonist's Miserable Plot</span>
@@ -1807,50 +1787,48 @@
         </div>
         
         <div id="map-container">
-            <!-- ===== КНОПКА КОНТАКТОВ (СВЕРХУ СПРАВА) ===== -->
             <button id="contact-toggle-btn-main" onclick="openContactModal()">
                 📞 Контакты
                 <span class="badge" id="contact-badge">!</span>
             </button>
             
-            <!-- ===== ЛЕГЕНДА ===== -->
             <div id="map-legend">
                 <div class="legend-header" onclick="toggleLegend()">
                     <span class="legend-title">📌 Легенда</span>
                     <span class="legend-toggle" id="legend-toggle-btn">▼</span>
                 </div>
                 <div class="legend-body" id="legend-body">
-                    <div class="legend-item"><span class="legend-dot black"></span><span>Вымершие / Опасные</span></div>
-                    <div class="legend-item"><span class="legend-dot red"></span><span>Главные герои</span></div>
-                    <div class="legend-item"><span class="legend-dot gold"></span><span>Столицы стран</span></div>
-                    <div class="legend-item"><span class="legend-dot gray"></span><span>Не действующие</span></div>
-                    <div class="legend-item"><span class="legend-dot default"></span><span>Обычные локации</span></div>
+                    <div class="legend-item"><span>⚠️</span><span>Вымершие / Опасные</span></div>
+                    <div class="legend-item"><span>⭐</span><span>Главные герои</span></div>
+                    <div class="legend-item"><span>👑</span><span>Столицы стран</span></div>
+                    <div class="legend-item"><span>◌</span><span>Не действующие</span></div>
+                    <div class="legend-item"><span>●</span><span>Обычные локации</span></div>
                     <div class="legend-item" style="margin-top:4px;border-top:1px solid #1a1a2a;padding-top:4px;">
-                        <span class="legend-dot flower"></span><span>🌸 Цветок</span>
+                        <span>🌸</span><span>Цветок</span>
                     </div>
-                    <div class="legend-item"><span class="legend-dot blossom"></span><span>🌼 Цветок</span></div>
-                    <div class="legend-item"><span class="legend-dot rose"></span><span>🌺 Цветок</span></div>
-                    <div class="legend-item"><span class="legend-dot rose2"></span><span>🌹 Цветок</span></div>
-                    <div class="legend-item"><span class="legend-dot wilted"></span><span>🥀 Погибающие места</span></div>
-                    <div class="legend-item"><span class="legend-dot tree"></span><span>🌳 Дерево</span></div>
-                    <div class="legend-item"><span class="legend-dot pine"></span><span>🌲 Дерево</span></div>
-                    <div class="legend-item"><span class="legend-dot maple"></span><span>🍁 Необычные рощи</span></div>
-                    <div class="legend-item"><span class="legend-dot grass"></span><span>🌾 Злаки / Поле</span></div>
-                    <div class="legend-item"><span class="legend-dot jungle"></span><span>🌿 Непроходимая чаща</span></div>
-                    <div class="legend-item"><span class="legend-dot moon"></span><span>🌙 Луна</span></div>
-                    <div class="legend-item"><span class="legend-dot star"></span><span>🌟 Звезда</span></div>
-                    <div class="legend-item"><span class="legend-dot skull"></span><span>💀 Смерть</span></div>
-                    <div class="legend-item"><span class="legend-dot book"></span><span>📖 Учебное учреждение</span></div>
-                    <div class="legend-item"><span class="legend-dot shield"></span><span>⚔ Места охраняемые группами лиц</span></div>
-                    <div class="legend-item"><span class="legend-dot sun"></span><span>🌞 Знойные места</span></div>
-                    <div class="legend-item"><span class="legend-dot wind"></span><span>💨 Ветра / Туман</span></div>
-                    <div class="legend-item"><span class="legend-dot mountain"></span><span>⛰️ Горы / Скалы</span></div>
-                    <div class="legend-item"><span class="legend-dot heels"></span><span>👠 Бардели</span></div>
-                    <div class="legend-item"><span class="legend-dot beer"></span><span>🍺 Таверны</span></div>
-                    <div class="legend-item"><span class="legend-dot fork"></span><span>🍴 Закусочные / Каннибалы</span></div>
-                    <div class="legend-item"><span class="legend-dot dollar"></span><span>💰 Торговые зоны</span></div>
-                    <div class="legend-item"><span class="legend-dot castle"></span><span>🏰 Данжи</span></div>
-                    <div class="legend-item"><span class="legend-dot bulb"></span><span>💡 Мануфактура</span></div>
+                    <div class="legend-item"><span>🌼</span><span>Цветок</span></div>
+                    <div class="legend-item"><span>🌺</span><span>Цветок</span></div>
+                    <div class="legend-item"><span>🌹</span><span>Цветок</span></div>
+                    <div class="legend-item"><span>🥀</span><span>Погибающие места</span></div>
+                    <div class="legend-item"><span>🌳</span><span>Дерево</span></div>
+                    <div class="legend-item"><span>🌲</span><span>Дерево</span></div>
+                    <div class="legend-item"><span>🍁</span><span>Необычные рощи</span></div>
+                    <div class="legend-item"><span>🌾</span><span>Злаки / Поле</span></div>
+                    <div class="legend-item"><span>🌿</span><span>Непроходимая чаща</span></div>
+                    <div class="legend-item"><span>🌙</span><span>Луна</span></div>
+                    <div class="legend-item"><span>🌟</span><span>Звезда</span></div>
+                    <div class="legend-item"><span>💀</span><span>Смерть</span></div>
+                    <div class="legend-item"><span>📖</span><span>Учебное учреждение</span></div>
+                    <div class="legend-item"><span>⚔</span><span>Места охраняемые группами лиц</span></div>
+                    <div class="legend-item"><span>🌞</span><span>Знойные места</span></div>
+                    <div class="legend-item"><span>💨</span><span>Ветра / Туман</span></div>
+                    <div class="legend-item"><span>⛰️</span><span>Горы / Скалы</span></div>
+                    <div class="legend-item"><span>👠</span><span>Бардели</span></div>
+                    <div class="legend-item"><span>🍺</span><span>Таверны</span></div>
+                    <div class="legend-item"><span>🍴</span><span>Закусочные / Каннибалы</span></div>
+                    <div class="legend-item"><span>💰</span><span>Торговые зоны</span></div>
+                    <div class="legend-item"><span>🏰</span><span>Данжи</span></div>
+                    <div class="legend-item"><span>💡</span><span>Мануфактура</span></div>
                 </div>
             </div>
             
@@ -1858,7 +1836,6 @@
         </div>
     </div>
 
-    <!-- ===== МОДАЛЬНОЕ ОКНО КОНТАКТОВ ===== -->
     <div id="contact-modal">
         <div class="contact-modal-box">
             <button class="contact-modal-close" onclick="closeContactModal()">✕</button>
@@ -2328,9 +2305,6 @@
         const MAP_IMAGE_URL = 'image.png';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        // ============================================================
-        //  ИКОНКИ МАРКЕРОВ
-        // ============================================================
         const MARKER_ICONS = {
             default: { emoji: '●', color: '#d4c08a', label: 'Обычная' },
             danger: { emoji: '⚠️', color: '#2d2d2d', label: 'Опасная / Вымершая' },
@@ -2363,31 +2337,15 @@
             bulb: { emoji: '💡', color: '#f1c40f', label: 'Мануфактура' }
         };
 
-        let locations = [];
-        let routes = [];
-        let labels = [];
-        let photosLibrary = [];
-        let subcategories = [];
-        let mapInstance = null;
-        let imageOverlay = null;
-        let markerMap = new Map();
-        let routeLayers = {};
-        let labelLayers = {};
-        let editingId = null;
-        let isAdmin = false;
-        let selectedFiles = [];
+        let locations = [], routes = [], labels = [], photosLibrary = [], subcategories = [];
+        let mapInstance = null, imageOverlay = null, markerMap = new Map();
+        let routeLayers = {}, labelLayers = {};
+        let editingId = null, isAdmin = false, selectedFiles = [];
         let viewerData = { photos: [], index: 0, locId: null };
-        let routeBuilding = false;
-        let tempRoutePoints = [];
-        let tempRouteMarkers = [];
-        let tempRouteLine = null;
-        let hiddenRoutes = new Set();
-        let labelsHidden = false;
-        let userLabelsHidden = false;
-        let currentLocationId = null;
-        let currentFilter = 'all';
-        let sidebarOpen = false;
-        let contactInfo = '';
+        let routeBuilding = false, tempRoutePoints = [], tempRouteMarkers = [], tempRouteLine = null;
+        let hiddenRoutes = new Set(), labelsHidden = false, userLabelsHidden = false;
+        let currentLocationId = null, currentFilter = 'all', sidebarOpen = false;
+        let contactInfo = '', legendCollapsed = false;
 
         const popupColors = [
             { name: 'Золотой', value: '#d4c08a' },
@@ -2416,7 +2374,6 @@
             const iconType = loc.marker_icon || 'default';
             const iconData = MARKER_ICONS[iconType] || MARKER_ICONS.default;
             const dotColor = loc.markerColor || iconData.color || '#d4c08a';
-            
             return L.divIcon({
                 className: 'custom-marker',
                 html: `<div class="marker-dot" style="background: radial-gradient(circle at 30% 30%, ${lightenColor(dotColor, 30)}, ${dotColor}); border-color: ${dotColor}; font-size:14px; display:flex; align-items:center; justify-content:center;">${iconData.emoji}</div>`,
@@ -2425,16 +2382,10 @@
             });
         }
 
-        // ============================================================
-        //  ЛЕГЕНДА - СВОРАЧИВАНИЕ
-        // ============================================================
-        let legendCollapsed = false;
-
         function toggleLegend() {
             legendCollapsed = !legendCollapsed;
             const body = document.getElementById('legend-body');
             const btn = document.getElementById('legend-toggle-btn');
-            
             if (legendCollapsed) {
                 body.classList.add('collapsed');
                 btn.classList.add('collapsed');
@@ -2446,9 +2397,6 @@
             }
         }
 
-        // ============================================================
-        //  КОНТАКТЫ - МОДАЛЬНОЕ ОКНО
-        // ============================================================
         function openContactModal() {
             document.getElementById('contact-modal').classList.add('active');
             document.body.style.overflow = 'hidden';
@@ -2469,36 +2417,18 @@
                 content.innerHTML = '<div class="empty">📭 Нет контактной информации</div>';
             } else {
                 let formatted = contactInfo.replace(/\n/g, '<br>');
-                
-                // Ссылки (http, https)
-                formatted = formatted.replace(
-                    /(https?:\/\/[^\s<]+)/g,
-                    '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'
-                );
-                
-                // Email
-                formatted = formatted.replace(
-                    /([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g,
-                    '<a href="mailto:$1">$1</a>'
-                );
-                
-                // Telegram (@username)
-                formatted = formatted.replace(
-                    /@([a-zA-Z0-9_]+)/g,
-                    '<a href="https://t.me/$1" target="_blank" rel="noopener noreferrer">@$1</a>'
-                );
-                
+                formatted = formatted.replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>');
+                formatted = formatted.replace(/([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})/g, '<a href="mailto:$1">$1</a>');
+                formatted = formatted.replace(/@([a-zA-Z0-9_]+)/g, '<a href="https://t.me/$1" target="_blank" rel="noopener noreferrer">@$1</a>');
                 content.innerHTML = formatted;
             }
             
             textarea.value = contactInfo || '';
-            
             if (isAdmin) {
                 editBtn.style.display = 'inline-block';
             } else {
                 editBtn.style.display = 'none';
             }
-            
             document.getElementById('contact-modal-editor').style.display = 'none';
             editBtn.textContent = '✏️ Редактировать';
         }
@@ -2506,7 +2436,6 @@
         function toggleContactEditorModal() {
             const editor = document.getElementById('contact-modal-editor');
             const editBtn = document.getElementById('contact-edit-btn-modal');
-            
             if (editor.style.display === 'none') {
                 editor.style.display = 'block';
                 editBtn.textContent = '✕ Закрыть редактор';
@@ -2520,23 +2449,15 @@
         async function saveContactInfoModal() {
             const textarea = document.getElementById('contact-modal-textarea');
             const newValue = textarea.value.trim();
-            
             try {
-                const { error } = await supabaseClient
-                    .from('settings')
-                    .update({ value: newValue })
-                    .eq('key', 'contact_info');
-                
+                const { error } = await supabaseClient.from('settings').update({ value: newValue }).eq('key', 'contact_info');
                 if (error) throw error;
-                
                 contactInfo = newValue;
                 renderContactModal();
                 document.getElementById('contact-modal-editor').style.display = 'none';
                 document.getElementById('contact-edit-btn-modal').textContent = '✏️ Редактировать';
-                
                 document.getElementById('admin-contact-textarea').value = contactInfo || '';
                 document.getElementById('admin-contact-preview').innerHTML = (contactInfo || '').replace(/\n/g, '<br>') || '<span style="color:#666;font-style:italic;">Пусто</span>';
-                
                 const badge = document.getElementById('contact-badge');
                 if (contactInfo && contactInfo.trim() !== '') {
                     badge.textContent = '✓';
@@ -2545,7 +2466,6 @@
                     badge.textContent = '!';
                     badge.className = 'badge';
                 }
-                
                 alert('✅ Контактная информация сохранена!');
             } catch (e) {
                 console.error('Ошибка сохранения контактов:', e);
@@ -2553,28 +2473,16 @@
             }
         }
 
-        // ============================================================
-        //  ЗАГРУЗКА КОНТАКТОВ
-        // ============================================================
         async function loadContactInfo() {
             try {
-                const { data, error } = await supabaseClient
-                    .from('settings')
-                    .select('value')
-                    .eq('key', 'contact_info')
-                    .single();
-                
+                const { data, error } = await supabaseClient.from('settings').select('value').eq('key', 'contact_info').single();
                 if (error && error.code !== 'PGRST116') throw error;
-                
                 if (data) {
                     contactInfo = data.value || '';
                 } else {
-                    await supabaseClient
-                        .from('settings')
-                        .insert({ key: 'contact_info', value: '' });
+                    await supabaseClient.from('settings').insert({ key: 'contact_info', value: '' });
                     contactInfo = '';
                 }
-                
                 const badge = document.getElementById('contact-badge');
                 if (contactInfo && contactInfo.trim() !== '') {
                     badge.textContent = '✓';
@@ -2583,7 +2491,6 @@
                     badge.textContent = '!';
                     badge.className = 'badge';
                 }
-                
                 document.getElementById('admin-contact-textarea').value = contactInfo || '';
                 document.getElementById('admin-contact-preview').innerHTML = (contactInfo || '').replace(/\n/g, '<br>') || '<span style="color:#666;font-style:italic;">Пусто</span>';
             } catch (e) {
@@ -2591,15 +2498,9 @@
             }
         }
 
-        // ============================================================
-        //  ОСТАЛЬНОЙ КОД (загрузка локаций, маршрутов, и т.д.)
-        // ============================================================
         async function loadLocations() {
             try {
-                const { data, error } = await supabaseClient
-                    .from('locations')
-                    .select('*')
-                    .order('id', { ascending: true });
+                const { data, error } = await supabaseClient.from('locations').select('*').order('id', { ascending: true });
                 if (error) throw error;
                 locations = data || [];
                 updateCountryFilter();
@@ -2634,9 +2535,7 @@
         function updateCountryFilter() {
             const select = document.getElementById('country-select');
             const countries = getCountries();
-            
             let html = '<option value="all">🌍 Все страны</option>';
-            
             countries.forEach(c => {
                 const subs = getSubcategoriesByCountry(c);
                 if (subs.length > 0) {
@@ -2648,7 +2547,6 @@
                     html += `<option value="${c}">${c}</option>`;
                 }
             });
-            
             select.innerHTML = html;
             select.value = currentFilter;
         }
@@ -2680,10 +2578,7 @@
             const img = new Image();
             img.onload = function() {
                 if (imageOverlay) mapInstance.removeLayer(imageOverlay);
-                imageOverlay = L.imageOverlay(MAP_IMAGE_URL, bounds, {
-                    opacity: 1,
-                    interactive: false
-                }).addTo(mapInstance);
+                imageOverlay = L.imageOverlay(MAP_IMAGE_URL, bounds, { opacity: 1, interactive: false }).addTo(mapInstance);
                 mapInstance.fitBounds(bounds);
                 mapInstance.setMaxBounds(bounds);
             };
@@ -2797,10 +2692,7 @@
 
                 const marker = L.marker([loc.lat, loc.lng], { icon })
                     .addTo(mapInstance)
-                    .bindPopup(popupContent, { 
-                        className: 'custom-popup', 
-                        maxWidth: 260
-                    });
+                    .bindPopup(popupContent, { className: 'custom-popup', maxWidth: 260 });
 
                 marker.on('popupopen', function() {
                     const popupElement = this._popup._wrapper;
@@ -2818,23 +2710,15 @@
         }
 
         async function changeMarkerIcon(locId, iconKey) {
-            if (!isAdmin) {
-                alert('⛔ Только админ может менять иконку');
-                return;
-            }
-            
+            if (!isAdmin) { alert('⛔ Только админ может менять иконку'); return; }
             const loc = locations.find(l => l.id === locId);
             if (!loc) return;
-
             try {
                 loc.marker_icon = iconKey;
                 await saveAll();
                 renderMarkers();
-                
                 const marker = markerMap.get(locId);
-                if (marker) {
-                    marker.openPopup();
-                }
+                if (marker) marker.openPopup();
             } catch (e) {
                 console.error('Ошибка смены иконки:', e);
                 alert('❌ Ошибка смены иконки: ' + e.message);
@@ -2842,48 +2726,33 @@
         }
 
         async function changeMarkerColor(locId, color) {
-            if (!isAdmin) {
-                alert('⛔ Только админ может менять цвет');
-                return;
-            }
-            
+            if (!isAdmin) { alert('⛔ Только админ может менять цвет'); return; }
             const loc = locations.find(l => l.id === locId);
             if (!loc) return;
-
             try {
                 loc.markerColor = color;
                 await saveAll();
                 renderMarkers();
-                
                 const marker = markerMap.get(locId);
-                if (marker) {
-                    marker.openPopup();
-                }
+                if (marker) marker.openPopup();
             } catch (e) {
                 console.error('Ошибка смены цвета:', e);
                 alert('❌ Ошибка смены цвета: ' + e.message);
             }
         }
 
-        // ============================================================
-        //  МАРШРУТЫ (сокращенно)
-        // ============================================================
+        // ===== МАРШРУТЫ =====
         async function loadRoutes() {
             try {
-                const { data, error } = await supabaseClient
-                    .from('routes')
-                    .select('*')
-                    .order('created_at', { ascending: true });
+                const { data, error } = await supabaseClient.from('routes').select('*').order('created_at', { ascending: true });
                 if (error) throw error;
                 routes = data || [];
-                
                 routes.forEach(route => {
                     if (typeof route.points === 'string') {
                         try { route.points = JSON.parse(route.points); } catch (e) { route.points = []; }
                     }
                     if (!Array.isArray(route.points)) route.points = [];
                 });
-                
                 renderRoutes();
                 renderRoutesLegend();
                 renderAdminRoutesList();
@@ -2904,14 +2773,8 @@
                     labelsize: routeData.labelsize || 11,
                     created_at: new Date().toISOString()
                 };
-                
-                const { data, error } = await supabaseClient
-                    .from('routes')
-                    .insert(dataToInsert)
-                    .select()
-                    .single();
+                const { data, error } = await supabaseClient.from('routes').insert(dataToInsert).select().single();
                 if (error) throw error;
-                
                 if (typeof data.points === 'string') data.points = JSON.parse(data.points);
                 routes.push(data);
                 renderRoutes();
@@ -2948,7 +2811,6 @@
                 radius: 6, color: '#d4c08a', fillColor: '#d4c08a', fillOpacity: 0.8, weight: 2
             }).addTo(mapInstance);
             tempRouteMarkers.push(marker);
-
             if (tempRouteLine) mapInstance.removeLayer(tempRouteLine);
             if (tempRoutePoints.length >= 2) {
                 const latlngs = tempRoutePoints.map(p => [p.lat, p.lng]);
@@ -2981,14 +2843,12 @@
                 let points = route.points;
                 if (typeof points === 'string') { try { points = JSON.parse(points); } catch (e) { points = []; } }
                 if (!Array.isArray(points) || points.length < 2) return;
-                
                 const latlngs = points.map(p => [parseFloat(p.lat), parseFloat(p.lng)]);
                 const color = route.color || '#d4c08a';
                 const polyline = L.polyline(latlngs, { color, weight: 3, opacity: 0.8, smoothFactor: 1 }).addTo(mapInstance);
                 const markers = points.map(p => L.circleMarker([p.lat, p.lng], {
                     radius: 4, color, fillColor: '#0a0a12', fillOpacity: 1, weight: 2
                 }).addTo(mapInstance));
-                
                 let label = null;
                 if (route.name && latlngs.length > 1) {
                     let labelIdx = route.labelposition !== undefined ? route.labelposition : Math.floor(latlngs.length / 2);
@@ -3014,7 +2874,6 @@
             list.innerHTML = '';
             if (!isAdmin || routes.length === 0) { container.classList.remove('visible'); return; }
             container.classList.add('visible');
-            
             routes.forEach(route => {
                 const isHidden = hiddenRoutes.has(route.id);
                 const div = document.createElement('div');
@@ -3145,9 +3004,7 @@
             renderAdminRoutesList();
         });
 
-        // ============================================================
-        //  НАДПИСИ (сокращенно)
-        // ============================================================
+        // ===== НАДПИСИ =====
         async function loadLabels() {
             try {
                 const { data, error } = await supabaseClient.from('labels').select('*').order('created_at', { ascending: true });
@@ -3200,45 +3057,26 @@
         async function editLabelPosition(labelId) {
             if (!isAdmin) return;
             const label = labels.find(l => l.id === labelId);
-            if (!label) {
-                alert('❌ Надпись не найдена');
-                return;
-            }
-            
+            if (!label) { alert('❌ Надпись не найдена'); return; }
             const latInput = prompt('Введите новую широту:', label.lat);
             if (latInput === null) return;
             const lngInput = prompt('Введите новую долготу:', label.lng);
             if (lngInput === null) return;
-            
             const newLat = parseFloat(latInput);
             const newLng = parseFloat(lngInput);
-            
-            if (isNaN(newLat) || isNaN(newLng)) {
-                alert('❌ Некорректные координаты');
-                return;
-            }
-            
+            if (isNaN(newLat) || isNaN(newLng)) { alert('❌ Некорректные координаты'); return; }
             await updateLabelInDB(labelId, { lat: newLat, lng: newLng });
         }
 
         async function editLabelSize(labelId) {
             if (!isAdmin) return;
             const label = labels.find(l => l.id === labelId);
-            if (!label) {
-                alert('❌ Надпись не найдена');
-                return;
-            }
-            
+            if (!label) { alert('❌ Надпись не найдена'); return; }
             const currentSize = label.font_size || 18;
             const sizeInput = prompt('Введите новый размер шрифта (от 10 до 60):', currentSize);
             if (sizeInput === null) return;
-            
             const newSize = parseInt(sizeInput);
-            if (isNaN(newSize) || newSize < 10 || newSize > 60) {
-                alert('❌ Размер должен быть от 10 до 60');
-                return;
-            }
-            
+            if (isNaN(newSize) || newSize < 10 || newSize > 60) { alert('❌ Размер должен быть от 10 до 60'); return; }
             await updateLabelInDB(labelId, { font_size: newSize });
         }
 
@@ -3248,16 +3086,13 @@
             });
             labelLayers = {};
             if (!labels || labels.length === 0) return;
-
             const shouldHide = userLabelsHidden && !isAdmin;
             labels.forEach(label => {
                 if (typeof label.lat !== 'number' || typeof label.lng !== 'number') return;
                 const isHidden = labelsHidden || shouldHide;
                 if (isHidden) return;
-                
                 const fontSize = label.font_size || 18;
                 let labelHtml = `<span class="label-text" style="font-size:${fontSize}px;">${label.text}</span>`;
-                
                 const marker = L.marker([label.lat, label.lng], {
                     icon: L.divIcon({
                         className: 'custom-label',
@@ -3269,7 +3104,6 @@
                     keyboard: false,
                     draggable: false
                 }).addTo(mapInstance);
-                
                 labelLayers[label.id] = { marker };
             });
         }
@@ -3382,16 +3216,13 @@
             }, 2000);
         });
 
-        // ============================================================
-        //  ФУНКЦИИ ДЛЯ ФОТО ЛОКАЦИЙ
-        // ============================================================
+        // ===== ФУНКЦИИ ДЛЯ ФОТО ЛОКАЦИЙ =====
         async function checkLocationPhotos(locId) {
             const loc = locations.find(l => l.id === locId);
             if (!loc || !loc.photos || loc.photos.length === 0) {
                 alert('📭 В этой локации нет фото');
                 return;
             }
-            
             let results = [];
             for (let i = 0; i < loc.photos.length; i++) {
                 const photo = loc.photos[i];
@@ -3407,20 +3238,13 @@
                     results.push(`❌ Фото ${i+1}: ошибка загрузки`);
                 }
             }
-            
             alert(results.join('\n'));
         }
 
-        // ============================================================
-        //  ПОДКАТЕГОРИИ
-        // ============================================================
+        // ===== ПОДКАТЕГОРИИ =====
         async function loadSubcategories() {
             try {
-                const { data, error } = await supabaseClient
-                    .from('subcategories')
-                    .select('*')
-                    .order('country', { ascending: true })
-                    .order('name', { ascending: true });
+                const { data, error } = await supabaseClient.from('subcategories').select('*').order('country', { ascending: true }).order('name', { ascending: true });
                 if (error) throw error;
                 subcategories = data || [];
                 updateSubcategorySelect();
@@ -3435,11 +3259,7 @@
 
         async function saveSubcategory(country, name) {
             try {
-                const { data, error } = await supabaseClient
-                    .from('subcategories')
-                    .insert({ country: country.trim(), name: name.trim() })
-                    .select()
-                    .single();
+                const { data, error } = await supabaseClient.from('subcategories').insert({ country: country.trim(), name: name.trim() }).select().single();
                 if (error) throw error;
                 subcategories.push(data);
                 updateSubcategorySelect();
@@ -3456,23 +3276,14 @@
         async function deleteSubcategory(id) {
             const sub = subcategories.find(s => s.id === id);
             if (!sub) return;
-            
-            const used = locations.some(l => 
-                l.country === sub.country && l.subcategory === sub.name
-            );
-            
+            const used = locations.some(l => l.country === sub.country && l.subcategory === sub.name);
             if (used) {
                 alert(`❌ Подкатегория "${sub.name}" используется в локациях! Сначала удалите или измените локации.`);
                 return;
             }
-            
             if (!confirm(`🗑️ Удалить подкатегорию "${sub.name}"?`)) return;
-            
             try {
-                const { error } = await supabaseClient
-                    .from('subcategories')
-                    .delete()
-                    .eq('id', id);
+                const { error } = await supabaseClient.from('subcategories').delete().eq('id', id);
                 if (error) throw error;
                 subcategories = subcategories.filter(s => s.id !== id);
                 updateSubcategorySelect();
@@ -3488,22 +3299,17 @@
         function updateSubcategorySelect() {
             const select = document.getElementById('admin-location-subcategory');
             if (!select) return;
-            
             const country = document.getElementById('admin-location-country').value.trim();
             const currentVal = select.value;
-            
             let html = '<option value="">— Нет подкатегории —</option>';
-            
             if (country) {
                 const filtered = subcategories.filter(s => s.country === country);
                 filtered.forEach(s => {
                     html += `<option value="${s.name}">${s.name}</option>`;
                 });
             }
-            
             select.innerHTML = html;
             select.value = currentVal;
-            
             const deleteBtn = document.getElementById('delete-subcategory-btn');
             if (deleteBtn) {
                 const hasSubs = subcategories.some(s => s.country === country);
@@ -3514,19 +3320,16 @@
         function renderSubcategoriesList() {
             const container = document.getElementById('subcategories-list');
             if (!container) return;
-            
             if (!subcategories || subcategories.length === 0) {
                 container.innerHTML = '<div style="color:#444;font-style:italic;padding:20px;text-align:center;">Нет подкатегорий</div>';
                 return;
             }
-            
             let html = '';
             const grouped = {};
             subcategories.forEach(s => {
                 if (!grouped[s.country]) grouped[s.country] = [];
                 grouped[s.country].push(s);
             });
-            
             const sortedCountries = Object.keys(grouped).sort();
             sortedCountries.forEach(country => {
                 html += `<div style="color:#888;font-size:11px;padding:4px 8px;font-weight:bold;border-bottom:1px solid #1a1a2a;">📁 ${country}</div>`;
@@ -3555,34 +3358,25 @@
                 document.getElementById('admin-location-country').focus();
                 return;
             }
-            
             const name = prompt('📝 Введите название подкатегории:', 'Новая подкатегория');
             if (!name || name.trim() === '') return;
-            
-            const exists = subcategories.some(s => 
-                s.country === country && s.name === name.trim()
-            );
-            
+            const exists = subcategories.some(s => s.country === country && s.name === name.trim());
             if (exists) {
                 alert(`❌ Подкатегория "${name.trim()}" уже существует в "${country}"!`);
                 return;
             }
-            
             saveSubcategory(country, name.trim());
         });
 
         document.getElementById('delete-subcategory-btn').addEventListener('click', function() {
             const country = document.getElementById('admin-location-country').value.trim();
             if (!country) return;
-            
             const select = document.getElementById('admin-location-subcategory');
             const selected = select.value;
-            
             if (!selected) {
                 alert('❌ Выберите подкатегорию для удаления');
                 return;
             }
-            
             const sub = subcategories.find(s => s.country === country && s.name === selected);
             if (sub) {
                 deleteSubcategory(sub.id);
@@ -3592,22 +3386,15 @@
         document.getElementById('subcat-add-btn').addEventListener('click', function() {
             const country = prompt('📁 Введите название страны для подкатегории:');
             if (!country || country.trim() === '') return;
-            
             const name = prompt('📝 Введите название подкатегории:', 'Новая подкатегория');
             if (!name || name.trim() === '') return;
-            
             const trimmedCountry = country.trim();
             const trimmedName = name.trim();
-            
-            const exists = subcategories.some(s => 
-                s.country === trimmedCountry && s.name === trimmedName
-            );
-            
+            const exists = subcategories.some(s => s.country === trimmedCountry && s.name === trimmedName);
             if (exists) {
                 alert(`❌ Подкатегория "${trimmedName}" уже существует в "${trimmedCountry}"!`);
                 return;
             }
-            
             saveSubcategory(trimmedCountry, trimmedName);
         });
 
@@ -3623,15 +3410,10 @@
             updateSubcategorySelect();
         });
 
-        // ============================================================
-        //  МЕДИАТЕКА
-        // ============================================================
+        // ===== МЕДИАТЕКА =====
         async function loadPhotosLibrary() {
             try {
-                const { data, error } = await supabaseClient
-                    .from('photos_library')
-                    .select('*')
-                    .order('uploaded_at', { ascending: false });
+                const { data, error } = await supabaseClient.from('photos_library').select('*').order('uploaded_at', { ascending: false });
                 if (error) throw error;
                 photosLibrary = data || [];
                 renderPhotosLibrary();
@@ -3646,12 +3428,10 @@
         function renderPhotosLibrary() {
             const container = document.getElementById('photos-library-grid');
             if (!container) return;
-            
             if (!photosLibrary || photosLibrary.length === 0) {
                 container.innerHTML = '<div style="color:#444;font-style:italic;padding:20px;text-align:center;">Нет фото в библиотеке</div>';
                 return;
             }
-            
             let html = '';
             photosLibrary.forEach((photo) => {
                 html += `
@@ -3666,7 +3446,6 @@
                 `;
             });
             container.innerHTML = html;
-            
             container.querySelectorAll('.lib-photo').forEach(el => {
                 el.addEventListener('dragstart', function(e) {
                     this.classList.add('dragging');
@@ -3711,27 +3490,15 @@
                     const timestamp = Date.now();
                     const random = Math.random().toString(36).substring(2, 8);
                     const fileName = `${timestamp}_${random}.${file.name.split('.').pop()}`;
-                    
-                    const { error: uploadError } = await supabaseClient.storage
-                        .from('photos')
-                        .upload(fileName, file);
-                    
+                    const { error: uploadError } = await supabaseClient.storage.from('photos').upload(fileName, file);
                     if (uploadError) throw uploadError;
-                    
-                    const { data: urlData } = supabaseClient.storage
-                        .from('photos')
-                        .getPublicUrl(fileName);
-                    
-                    const { error: dbError } = await supabaseClient
-                        .from('photos_library')
-                        .insert({
-                            url: urlData.publicUrl,
-                            caption: file.name,
-                            uploaded_at: new Date().toISOString()
-                        });
-                    
+                    const { data: urlData } = supabaseClient.storage.from('photos').getPublicUrl(fileName);
+                    const { error: dbError } = await supabaseClient.from('photos_library').insert({
+                        url: urlData.publicUrl,
+                        caption: file.name,
+                        uploaded_at: new Date().toISOString()
+                    });
                     if (dbError) throw dbError;
-                    
                 } catch (err) {
                     console.error('Ошибка загрузки в медиатеку:', err);
                     alert('❌ Ошибка загрузки: ' + err.message);
@@ -3744,28 +3511,20 @@
 
         document.getElementById('lib-clean-btn').addEventListener('click', async function() {
             if (!confirm('🧹 Удалить все битые фото из медиатеки?')) return;
-            
             let deleted = 0;
             for (const photo of photosLibrary) {
                 try {
                     const response = await fetch(photo.url, { method: 'HEAD' });
                     if (!response.ok) {
-                        const { error } = await supabaseClient
-                            .from('photos_library')
-                            .delete()
-                            .eq('id', photo.id);
+                        const { error } = await supabaseClient.from('photos_library').delete().eq('id', photo.id);
                         if (error) throw error;
                         deleted++;
                     }
                 } catch (e) {
-                    const { error } = await supabaseClient
-                        .from('photos_library')
-                        .delete()
-                        .eq('id', photo.id);
+                    const { error } = await supabaseClient.from('photos_library').delete().eq('id', photo.id);
                     if (!error) deleted++;
                 }
             }
-            
             await loadPhotosLibrary();
             setAdminStatus(`✅ Удалено ${deleted} битых фото`, 'ok');
             alert(`✅ Удалено ${deleted} битых фото`);
@@ -3776,7 +3535,6 @@
                 alert('📭 В медиатеке нет фото');
                 return;
             }
-            
             let results = [];
             for (let i = 0; i < photosLibrary.length; i++) {
                 const photo = photosLibrary[i];
@@ -3791,7 +3549,6 @@
                     results.push(`❌ Фото ${i+1}: ошибка загрузки`);
                 }
             }
-            
             alert(results.join('\n'));
         });
 
@@ -3821,9 +3578,7 @@
             setAdminStatus('✅ Медиатека обновлена', 'ok');
         });
 
-        // ============================================================
-        //  МОДАЛКА С DRAG & DROP
-        // ============================================================
+        // ===== МОДАЛКА =====
         document.getElementById('modal-right').addEventListener('dragover', function(e) {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'copy';
@@ -3865,13 +3620,10 @@
             }
         });
 
-        // ============================================================
-        //  ФОТО ЛОКАЦИЙ
-        // ============================================================
+        // ===== ФОТО ЛОКАЦИЙ =====
         function populateLocationSelect() {
             const select = document.getElementById('loc-photos-select');
             if (!select) return;
-            
             let html = '<option value="">— Выберите локацию —</option>';
             locations.sort((a, b) => a.name.localeCompare(b.name)).forEach(loc => {
                 const count = loc.photos ? loc.photos.length : 0;
@@ -3884,22 +3636,18 @@
             const container = document.getElementById('loc-photos-list');
             const countEl = document.getElementById('loc-photos-count');
             if (!container) return;
-            
             const loc = locations.find(l => l.id == locId);
             if (!loc || !loc.photos || loc.photos.length === 0) {
                 container.innerHTML = '<div style="color:#444;font-style:italic;padding:20px;text-align:center;">📭 В этой локации нет фото</div>';
                 if (countEl) countEl.textContent = '0';
                 return;
             }
-            
             if (countEl) countEl.textContent = loc.photos.length;
-            
             let html = '';
             loc.photos.forEach((photo, idx) => {
                 const url = typeof photo === 'object' && photo.url ? photo.url : photo;
                 const cap = typeof photo === 'object' && photo.caption ? photo.caption : 'Без подписи';
                 if (!url) return;
-                
                 html += `
                     <div class="list-item" style="padding:8px 12px;">
                         <div class="item-info" style="gap:12px;">
@@ -3921,20 +3669,17 @@
                 `;
             });
             container.innerHTML = html;
-            
             checkAllPhotosInLocation(locId);
         }
 
         async function checkAllPhotosInLocation(locId) {
             const loc = locations.find(l => l.id == locId);
             if (!loc || !loc.photos) return;
-            
             for (let i = 0; i < loc.photos.length; i++) {
                 const photo = loc.photos[i];
                 const url = typeof photo === 'object' && photo.url ? photo.url : photo;
                 const statusEl = document.getElementById(`photo-status-${locId}-${i}`);
                 if (!statusEl) continue;
-                
                 try {
                     const response = await fetch(url, { method: 'HEAD' });
                     if (response.ok) {
@@ -3954,12 +3699,10 @@
         async function checkSinglePhoto(locId, idx) {
             const loc = locations.find(l => l.id == locId);
             if (!loc || !loc.photos || !loc.photos[idx]) return;
-            
             const photo = loc.photos[idx];
             const url = typeof photo === 'object' && photo.url ? photo.url : photo;
             const statusEl = document.getElementById(`photo-status-${locId}-${idx}`);
             if (!statusEl) return;
-            
             try {
                 const response = await fetch(url, { method: 'HEAD' });
                 if (response.ok) {
@@ -3980,7 +3723,6 @@
 
         document.getElementById('loc-photos-check-all').addEventListener('click', async function() {
             let total = 0, broken = 0;
-            
             for (const loc of locations) {
                 if (!loc.photos || loc.photos.length === 0) continue;
                 for (const photo of loc.photos) {
@@ -3994,9 +3736,7 @@
                     }
                 }
             }
-            
             alert(`📊 Проверка завершена:\nВсего фото: ${total}\nБитых фото: ${broken}`);
-            
             const select = document.getElementById('loc-photos-select');
             if (select.value) {
                 renderLocationPhotos(select.value);
@@ -4005,14 +3745,10 @@
 
         document.getElementById('loc-photos-clean-all').addEventListener('click', async function() {
             if (!confirm('🧹 Удалить все битые фото из ВСЕХ локаций?')) return;
-            
             let total = 0, deleted = 0;
-            
             for (const loc of locations) {
                 if (!loc.photos || loc.photos.length === 0) continue;
-                const originalLength = loc.photos.length;
                 const validPhotos = [];
-                
                 for (const photo of loc.photos) {
                     total++;
                     const url = typeof photo === 'object' && photo.url ? photo.url : photo;
@@ -4027,23 +3763,19 @@
                         deleted++;
                     }
                 }
-                
-                if (validPhotos.length !== originalLength) {
+                if (validPhotos.length !== loc.photos.length) {
                     loc.photos = validPhotos;
                     await saveLocationData(loc.id);
                 }
             }
-            
             await saveAll();
             renderAdminList();
             renderMarkers();
             renderLocations();
-            
             const select = document.getElementById('loc-photos-select');
             if (select.value) {
                 renderLocationPhotos(select.value);
             }
-            
             alert(`✅ Готово!\nПроверено: ${total} фото\nУдалено: ${deleted} битых фото`);
         });
 
@@ -4056,9 +3788,7 @@
             }
         });
 
-        // ============================================================
-        //  ГАМБУРГЕР-МЕНЮ
-        // ============================================================
+        // ===== ГАМБУРГЕР =====
         const hamburgerBtn = document.getElementById('hamburger-btn');
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebar-overlay');
@@ -4070,7 +3800,6 @@
             } else {
                 sidebarOpen = open;
             }
-            
             if (sidebarOpen) {
                 sidebar.classList.add('open');
                 sidebarOverlay.classList.add('active');
@@ -4127,9 +3856,7 @@
             }
         });
 
-        // ============================================================
-        //  МОДАЛКА
-        // ============================================================
+        // ===== МОДАЛКА ЛОКАЦИИ =====
         const modalBackBtn = document.getElementById('modal-back-btn');
         if (modalBackBtn) {
             modalBackBtn.addEventListener('click', function() {
@@ -4170,10 +3897,8 @@
             }
             const loc = locations.find(l => l.id === currentLocationId);
             if (!loc) return;
-            
             renderModalGallery(loc.photos || []);
             renderModalAdminPhotos(loc.photos || []);
-            
             this.textContent = '✅';
             setTimeout(() => { this.textContent = '🔄'; }, 1500);
         });
@@ -4182,28 +3907,21 @@
             const loc = locations.find(l => l.id === id);
             if (!loc) return;
             currentLocationId = id;
-            
             loadPhotosLibrary();
-            
             document.getElementById('modal-title').textContent = loc.name || 'Без названия';
             document.getElementById('modal-country').textContent = '🌍 ' + (loc.country || 'Без категории');
             document.getElementById('modal-subcategory').textContent = '📁 ' + (loc.subcategory || 'Без подкатегории');
             document.getElementById('modal-subtitle').textContent = '📍 ' + (loc.subtitle || 'Подзаголовок');
-            
             const descTextarea = document.getElementById('modal-description');
             descTextarea.value = loc.description_long || '';
             descTextarea.readOnly = !isAdmin;
             descTextarea.style.borderColor = isAdmin ? '#d4c08a40' : 'transparent';
-            
             renderList('characters-list', loc.characters || [], 'character');
             renderList('features-list', loc.features || [], 'feature');
-            
             renderModalGallery(loc.photos || []);
             renderModalAdminPhotos(loc.photos || []);
-            
             document.getElementById('modal-right').style.display = isAdmin ? 'block' : 'none';
             document.getElementById('modal-save-btn').style.display = isAdmin ? 'block' : 'none';
-            
             document.getElementById('location-modal').classList.add('active');
             document.body.style.overflow = 'hidden';
         }
@@ -4317,14 +4035,11 @@
         function renderModalAdminPhotos(photos) {
             const container = document.getElementById('modal-photo-admin-list');
             if (!container) return;
-            
             const allPhotos = photosLibrary || [];
-            
             if (allPhotos.length === 0) {
                 container.innerHTML = '<div class="empty-admin">📭 Нет фото в медиатеке. Загрузите фото во вкладке "Медиатека"</div>';
                 return;
             }
-            
             let html = '';
             allPhotos.forEach((photo) => {
                 const url = photo.url;
@@ -4333,7 +4048,6 @@
                     const pUrl = typeof p === 'object' && p.url ? p.url : p;
                     return pUrl === url;
                 });
-                
                 html += `
                     <div class="photo-admin-item" draggable="true" data-url="${url}" data-caption="${cap}">
                         <span class="drag-handle">⠿</span>
@@ -4350,7 +4064,6 @@
                 `;
             });
             container.innerHTML = html;
-            
             container.querySelectorAll('.photo-admin-item').forEach(item => {
                 item.addEventListener('dragstart', function(e) {
                     this.classList.add('dragging');
@@ -4387,15 +4100,12 @@
         function removePhotoFromLocation(locId, url) {
             if (!isAdmin) return;
             if (!confirm('🗑️ Убрать это фото из локации?')) return;
-            
             const loc = locations.find(l => l.id == locId);
             if (!loc || !loc.photos) return;
-            
             loc.photos = loc.photos.filter(p => {
                 const pUrl = typeof p === 'object' && p.url ? p.url : p;
                 return pUrl !== url;
             });
-            
             saveLocationData(locId);
             renderModalGallery(loc.photos);
             renderModalAdminPhotos(loc.photos);
@@ -4455,17 +4165,9 @@
                     const timestamp = Date.now();
                     const random = Math.random().toString(36).substring(2, 8);
                     const fileName = `${timestamp}_${random}.${file.name.split('.').pop()}`;
-                    
-                    const { error: uploadError } = await supabaseClient.storage
-                        .from('photos')
-                        .upload(fileName, file);
-                    
+                    const { error: uploadError } = await supabaseClient.storage.from('photos').upload(fileName, file);
                     if (uploadError) throw uploadError;
-                    
-                    const { data: urlData } = supabaseClient.storage
-                        .from('photos')
-                        .getPublicUrl(fileName);
-                    
+                    const { data: urlData } = supabaseClient.storage.from('photos').getPublicUrl(fileName);
                     loc.photos.push({ url: urlData.publicUrl, caption: file.name });
                 } catch (err) {
                     console.error('Ошибка загрузки фото:', err);
@@ -4502,9 +4204,7 @@
             }
         });
 
-        // ============================================================
-        //  АДМИН-ПАНЕЛЬ
-        // ============================================================
+        // ===== АДМИН-ПАНЕЛЬ =====
         const adminOverlay = document.getElementById('admin-overlay');
         const adminToggleBtn = document.getElementById('admin-toggle-btn');
         const adminCloseBtn = document.getElementById('admin-close-btn');
@@ -4663,14 +4363,12 @@
                 return;
             }
             if (count) count.textContent = locations.length;
-            
             const grouped = {};
             locations.forEach(loc => {
                 const key = loc.country || 'Без категории';
                 if (!grouped[key]) grouped[key] = [];
                 grouped[key].push(loc);
             });
-            
             const sortedKeys = Object.keys(grouped).sort();
             let html = '';
             sortedKeys.forEach(key => {
@@ -4681,7 +4379,6 @@
                     const sub = loc.subcategory ? ` [${loc.subcategory}]` : '';
                     const icon = MARKER_ICONS[loc.marker_icon || 'default'].emoji;
                     const isSub = loc.subcategory ? 'style="padding-left:20px;color:#aaa;"' : '';
-                    
                     html += `
                         <div class="list-item" ${isSub}>
                             <div class="item-info">
@@ -4700,7 +4397,6 @@
                 });
             });
             list.innerHTML = html;
-            
             populateLocationSelect();
         }
 
@@ -4712,7 +4408,6 @@
                 const lat = e.latlng.lat.toFixed(3), lng = e.latlng.lng.toFixed(3);
                 const name = prompt('Название новой локации:');
                 if (!name) return;
-                
                 const countries = getCountries();
                 let countryMsg = 'Введите название страны (можно новую):\n\n';
                 if (countries.length > 0) {
@@ -4722,7 +4417,6 @@
                 }
                 countryMsg += 'Или введите новую:';
                 const country = prompt(countryMsg) || 'Без категории';
-                
                 let subcategory = null;
                 const subs = subcategories.filter(s => s.country === country.trim());
                 if (subs.length > 0) {
@@ -4737,11 +4431,10 @@
                         }
                     }
                 }
-                
                 const iconOptions = Object.keys(MARKER_ICONS).map((key, i) => 
                     `${i+1} - ${MARKER_ICONS[key].emoji} ${MARKER_ICONS[key].label}`
                 ).join('\n');
-                const iconChoice = prompt(`Выберите тип иконки:\n${iconOptions}\n\nВведите номер (1-28):`, '1');
+                const iconChoice = prompt(`Выберите тип иконки:\n${iconOptions}\n\nВведите номер (1-29):`, '1');
                 let iconKey = 'default';
                 if (iconChoice !== null) {
                     const idx = parseInt(iconChoice) - 1;
@@ -4750,10 +4443,8 @@
                         iconKey = keys[idx];
                     }
                 }
-                
                 const desc = prompt('Краткое описание:');
                 const subtitle = prompt('Подзаголовок (например: Столица Сильванора):');
-                
                 const newLoc = {
                     id: Date.now(),
                     lat: parseFloat(lat),
@@ -4770,7 +4461,6 @@
                     photos: [],
                     markerColor: '#d4c08a'
                 };
-                
                 locations.push(newLoc);
                 await saveAll();
                 renderAdminList();
@@ -4795,10 +4485,8 @@
             document.getElementById('admin-location-desc').value = loc.description || '';
             document.getElementById('admin-location-subtitle').value = loc.subtitle || '';
             document.getElementById('admin-location-icon').value = loc.marker_icon || 'default';
-            
             updateSubcategorySelect();
             document.getElementById('admin-location-subcategory').value = loc.subcategory || '';
-
             const grid = document.getElementById('admin-photos-grid');
             grid.innerHTML = '';
             if (!loc.photos || !Array.isArray(loc.photos) || loc.photos.length === 0) {
@@ -4912,7 +4600,6 @@
             loc.marker_icon = document.getElementById('admin-location-icon').value || 'default';
             loc.description = document.getElementById('admin-location-desc').value.trim() || 'Описание отсутствует';
             loc.subtitle = document.getElementById('admin-location-subtitle').value.trim() || '';
-            
             await saveAll();
             renderAdminList();
             renderMarkers();
@@ -4948,17 +4635,9 @@
                     const timestamp = Date.now();
                     const random = Math.random().toString(36).substring(2, 8);
                     const fileName = `${timestamp}_${random}.${file.name.split('.').pop()}`;
-                    
-                    const { error: uploadError } = await supabaseClient.storage
-                        .from('photos')
-                        .upload(fileName, file);
-                    
+                    const { error: uploadError } = await supabaseClient.storage.from('photos').upload(fileName, file);
                     if (uploadError) throw uploadError;
-                    
-                    const { data: urlData } = supabaseClient.storage
-                        .from('photos')
-                        .getPublicUrl(fileName);
-                    
+                    const { data: urlData } = supabaseClient.storage.from('photos').getPublicUrl(fileName);
                     loc.photos.push({ url: urlData.publicUrl, caption: file.name });
                 } catch (err) {
                     console.error('Ошибка загрузки фото:', err);
@@ -4983,23 +4662,18 @@
                 list.innerHTML = '<li class="empty-msg">Нет локаций</li>';
                 return;
             }
-            
             let filtered = locations;
             if (currentFilter !== 'all') {
                 filtered = locations.filter(l => l.country === currentFilter);
             }
-            
             let html = '';
             const grouped = {};
-            
             filtered.forEach(loc => {
                 const key = loc.subcategory || 'Без категории';
                 if (!grouped[key]) grouped[key] = [];
                 grouped[key].push(loc);
             });
-            
             const sortedKeys = Object.keys(grouped).sort();
-            
             sortedKeys.forEach(key => {
                 if (key !== 'Без категории') {
                     html += `<li style="color:#888;font-size:11px;padding:4px 12px;border-left:3px solid #d4c08a40;background:rgba(212,192,138,0.05);">📁 ${key}</li>`;
@@ -5009,7 +4683,6 @@
                     const prefix = loc.subcategory ? '  └─ ' : '';
                     const style = loc.subcategory ? 'padding-left:20px;color:#aaa;' : '';
                     const icon = MARKER_ICONS[loc.marker_icon || 'default'].emoji;
-                    
                     html += `
                         <li data-id="${loc.id}" onclick="flyToLocation(${loc.id})" style="${style}">
                             <span class="loc-name">${prefix}${icon} ${loc.name}</span>
@@ -5019,7 +4692,6 @@
                     `;
                 });
             });
-            
             list.innerHTML = html || '<li class="empty-msg">Нет локаций в этой категории</li>';
         }
 
@@ -5127,9 +4799,6 @@
             }
         });
 
-        // ============================================================
-        //  ДОБАВЛЕНИЕ НОВОЙ СТРАНЫ
-        // ============================================================
         document.getElementById('add-country-btn').addEventListener('click', function() {
             if (!isAdmin) {
                 alert('⛔ Только админ может добавлять страны');
@@ -5137,14 +4806,12 @@
             }
             const countryName = prompt('📁 Введите название новой страны:');
             if (!countryName || countryName.trim() === '') return;
-            
             const trimmed = countryName.trim();
             const existing = getCountries();
             if (existing.includes(trimmed)) {
                 alert(`❌ Страна "${trimmed}" уже существует`);
                 return;
             }
-            
             alert(`✅ Страна "${trimmed}" добавлена! Теперь вы можете создавать локации с этой страной.`);
             updateCountryFilter();
         });
@@ -5153,24 +4820,14 @@
             document.getElementById('add-country-btn').click();
         });
 
-        // ============================================================
-        //  АДМИН-ПАНЕЛЬ - СОХРАНЕНИЕ КОНТАКТОВ
-        // ============================================================
         document.getElementById('admin-save-contacts').addEventListener('click', async function() {
             const value = document.getElementById('admin-contact-textarea').value.trim();
-            
             try {
-                const { error } = await supabaseClient
-                    .from('settings')
-                    .update({ value: value })
-                    .eq('key', 'contact_info');
-                
+                const { error } = await supabaseClient.from('settings').update({ value: value }).eq('key', 'contact_info');
                 if (error) throw error;
-                
                 contactInfo = value;
                 renderContactModal();
                 document.getElementById('admin-contact-preview').innerHTML = value.replace(/\n/g, '<br>') || '<span style="color:#666;font-style:italic;">Пусто</span>';
-                
                 const badge = document.getElementById('contact-badge');
                 if (value && value.trim() !== '') {
                     badge.textContent = '✓';
@@ -5179,7 +4836,6 @@
                     badge.textContent = '!';
                     badge.className = 'badge';
                 }
-                
                 alert('✅ Контактная информация сохранена!');
             } catch (e) {
                 console.error('Ошибка сохранения:', e);
@@ -5187,9 +4843,6 @@
             }
         });
 
-        // ============================================================
-        //  ЭКСПОРТ В ГЛОБАЛЬНУЮ ОБЛАСТЬ
-        // ============================================================
         window.changeMarkerIcon = changeMarkerIcon;
         window.changeMarkerColor = changeMarkerColor;
         window.editLabelPosition = editLabelPosition;
@@ -5246,9 +4899,6 @@
         window.toggleContactEditorModal = toggleContactEditorModal;
         window.saveContactInfoModal = saveContactInfoModal;
 
-        // ============================================================
-        //  ЗАПУСК ПРИЛОЖЕНИЯ
-        // ============================================================
         async function startApp() {
             await loadLocations();
             await loadContactInfo();
@@ -5257,7 +4907,6 @@
             await loadLabels();
             await loadPhotosLibrary();
             await loadSubcategories();
-            
             if (window.innerWidth <= 768) {
                 const legendBody = document.getElementById('legend-body');
                 const legendBtn = document.getElementById('legend-toggle-btn');
