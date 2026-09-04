@@ -9,7 +9,6 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; }
         body { background: #0a0a12; color: #e0dcc8; height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
-
         #header {
             background: rgba(13, 13, 26, 0.95);
             padding: 8px 16px;
@@ -45,7 +44,6 @@
         #header h1 .separator { color: #d4c08a; margin: 0 6px; font-weight: 300; }
         #header-actions { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
         #header-actions span { font-size: 10px; color: #555; }
-
         .hamburger {
             display: none;
             background: none;
@@ -61,7 +59,6 @@
         }
         .hamburger:hover { color: #d4c08a; }
         .hamburger:active { color: #d4c08a; transform: scale(0.9); }
-
         .admin-toggle {
             color: #d4c08a;
             text-decoration: none;
@@ -78,7 +75,6 @@
             background: #d4c08a20;
             border-color: #d4c08a;
         }
-
         .toggle-labels-btn {
             color: #888;
             text-decoration: none;
@@ -101,9 +97,7 @@
             color: #d4c08a;
             background: #d4c08a20;
         }
-
         #main { display: flex; flex: 1; overflow: hidden; position: relative; }
-
         #sidebar {
             width: 280px;
             min-width: 280px;
@@ -129,7 +123,6 @@
             border-bottom: 1px solid #1e1e30;
             padding-bottom: 8px;
         }
-
         .close-sidebar {
             display: none;
             background: none;
@@ -144,7 +137,6 @@
         }
         .close-sidebar:hover { color: #fff; }
         .close-sidebar:active { color: #fff; transform: scale(0.9); }
-
         .sidebar-overlay {
             display: none;
             position: fixed;
@@ -156,7 +148,6 @@
             z-index: 9997;
         }
         .sidebar-overlay.active { display: block; }
-
         #country-filter {
             display: flex;
             gap: 6px;
@@ -192,7 +183,6 @@
             color: #d4c08a;
             background: rgba(212, 192, 138, 0.05);
         }
-
         #location-list { list-style: none; flex: 1; }
         #location-list li {
             background: rgba(22, 22, 34, 0.8);
@@ -213,10 +203,8 @@
         #location-list li .loc-photos-count { font-size: 11px; color: #666; background: #0a0a12; padding: 1px 10px; border-radius: 10px; }
         #location-list li .loc-country { font-size: 10px; color: #555; background: rgba(255,255,255,0.05); padding: 1px 8px; border-radius: 10px; }
         .empty-msg { color: #444; text-align: center; font-style: italic; padding: 20px 0; font-size: 13px; }
-
         #map-container { flex: 1; position: relative; background: #0a0a12; }
         #map { width: 100%; height: 100%; background: #0a0a12; }
-
         #contact-toggle-btn-main {
             position: absolute;
             top: 5px;
@@ -258,7 +246,6 @@
         #contact-toggle-btn-main .badge.has-info {
             background: #4caf50;
         }
-
         #contact-modal {
             position: fixed;
             top: 0;
@@ -372,7 +359,6 @@
             border-color: #d4c08a;
             color: #d4c08a;
         }
-
         #map-legend {
             position: absolute;
             top: 45px;
@@ -442,7 +428,6 @@
             text-align: center;
             flex-shrink: 0;
         }
-
         #routes-legend {
             position: absolute;
             bottom: 20px;
@@ -491,8 +476,6 @@
             font-size: 12px;
         }
         #routes-legend .route-toggle:hover { color: #d4c08a; }
-
-        /* ===== МОДАЛКА - ИСПРАВЛЕННАЯ ===== */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -510,7 +493,6 @@
         }
         .modal-overlay.active { display: flex; }
         @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
-
         .modal-content {
             background: #12121f;
             border-radius: 16px;
@@ -525,7 +507,6 @@
             flex-direction: column;
             overflow: hidden;
         }
-
         .modal-close {
             position: absolute;
             top: 12px;
@@ -542,7 +523,6 @@
         }
         .modal-close:hover { color: #fff; transform: rotate(90deg); }
         .modal-close:active { color: #fff; transform: rotate(90deg) scale(0.9); }
-
         .modal-back-btn {
             display: none;
             position: absolute;
@@ -559,14 +539,12 @@
         }
         .modal-back-btn:hover { color: #fff; }
         .modal-back-btn:active { color: #fff; transform: scale(0.95); }
-
         .modal-body {
             display: flex;
             flex: 1;
             overflow: hidden;
             padding-top: 8px;
         }
-
         .modal-left {
             width: 30%;
             min-width: 280px;
@@ -578,7 +556,6 @@
         }
         .modal-left::-webkit-scrollbar { width: 4px; }
         .modal-left::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
-
         .modal-left .loc-title {
             font-size: 22px;
             color: #f0e8c8;
@@ -608,7 +585,6 @@
             border-radius: 10px;
             margin-left: 6px;
         }
-
         .modal-left .section-label {
             font-size: 11px;
             text-transform: uppercase;
@@ -634,7 +610,6 @@
             border-color: #d4c08a;
             color: #d4c08a;
         }
-
         .modal-left .description-text {
             background: rgba(10, 10, 18, 0.5);
             border: 1px solid #1a1a2a;
@@ -655,7 +630,6 @@
             cursor: default;
             background: rgba(10, 10, 18, 0.3);
         }
-
         .modal-left .list-items {
             list-style: none;
             padding: 0;
@@ -683,7 +657,6 @@
         }
         .modal-left .list-items li .item-actions .edit:hover { color: #4ecdc4; }
         .modal-left .list-items li .item-actions .delete:hover { color: #ff5555; }
-
         .modal-left .save-btn {
             width: 100%;
             padding: 8px;
@@ -706,7 +679,6 @@
             cursor: not-allowed;
             transform: none;
         }
-
         .modal-center {
             flex: 1;
             padding: 16px 20px;
@@ -715,7 +687,6 @@
         }
         .modal-center::-webkit-scrollbar { width: 4px; }
         .modal-center::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
-
         .modal-center .gallery-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
@@ -763,7 +734,6 @@
             padding: 40px 0;
             font-size: 14px;
         }
-
         .modal-right {
             width: 280px;
             min-width: 250px;
@@ -775,7 +745,6 @@
         }
         .modal-right::-webkit-scrollbar { width: 4px; }
         .modal-right::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
-
         .modal-right .admin-label {
             font-size: 11px;
             text-transform: uppercase;
@@ -800,7 +769,6 @@
             color: #d4c08a;
             background: rgba(212, 192, 138, 0.05);
         }
-
         .modal-right .photo-admin-list {
             display: flex;
             flex-direction: column;
@@ -810,7 +778,6 @@
         }
         .modal-right .photo-admin-list::-webkit-scrollbar { width: 4px; }
         .modal-right .photo-admin-list::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
-
         .modal-right .photo-admin-item {
             display: flex;
             align-items: center;
@@ -892,7 +859,6 @@
         }
         .modal-right .photo-admin-item .actions .add-to-loc:hover { color: #4ecdc4; }
         .modal-right .photo-admin-item .actions .delete:hover { color: #ff5555; }
-
         .modal-right .empty-admin {
             color: #444;
             font-style: italic;
@@ -900,7 +866,6 @@
             padding: 20px 0;
             font-size: 13px;
         }
-
         .custom-label {
             background: none !important;
             backdrop-filter: none !important;
@@ -932,7 +897,6 @@
         }
         .custom-label .label-text { display: inline-block; }
         .custom-label.hidden-label { display: none !important; }
-
         .custom-marker {
             background: none;
             border: none;
@@ -976,7 +940,6 @@
             transform: scale(1.15);
             box-shadow: 0 0 30px rgba(212, 192, 138, 0.6);
         }
-
         .custom-popup .leaflet-popup-content-wrapper {
             background: #161624;
             color: #eee;
@@ -992,7 +955,6 @@
             cursor: pointer;
         }
         .custom-popup .leaflet-popup-content b { color: #f0e8c8; }
-        
         .popup-color-picker {
             display: flex;
             gap: 4px;
@@ -1018,7 +980,6 @@
             border-color: #fff;
             box-shadow: 0 0 12px rgba(255,255,255,0.3);
         }
-
         .popup-icon-picker {
             display: flex;
             gap: 4px;
@@ -1049,7 +1010,6 @@
             background: rgba(255,255,255,0.15);
             box-shadow: 0 0 12px rgba(255,255,255,0.2);
         }
-
         .photos-library-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -1060,7 +1020,6 @@
         }
         .photos-library-grid::-webkit-scrollbar { width: 4px; }
         .photos-library-grid::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
-
         .photos-library-grid .lib-photo {
             position: relative;
             border-radius: 8px;
@@ -1119,7 +1078,6 @@
         }
         .photos-library-grid .lib-photo .lib-actions .add-to-location:hover { color: #4ecdc4; }
         .photos-library-grid .lib-photo .lib-actions .delete-lib:hover { color: #ff5555; }
-
         .admin-overlay {
             position: fixed;
             top: 0;
@@ -1135,7 +1093,6 @@
             flex-direction: column;
         }
         .admin-overlay.active { display: flex; }
-
         .admin-box {
             background: #161624;
             padding: 24px;
@@ -1150,7 +1107,6 @@
         }
         .admin-box::-webkit-scrollbar { width: 4px; }
         .admin-box::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 10px; }
-
         .admin-box h2 {
             color: #f0e8c8;
             font-size: 20px;
@@ -1175,7 +1131,6 @@
             border: none;
         }
         .admin-close:hover { color: #fff; transform: rotate(90deg); }
-
         .admin-box .form-group { margin-bottom: 12px; }
         .admin-box .form-group label {
             display: block;
@@ -1199,7 +1154,6 @@
         .admin-box .form-group input:focus,
         .admin-box .form-group textarea:focus { border-color: #d4c08a; }
         .admin-box .form-group textarea { resize: vertical; min-height: 50px; font-family: inherit; }
-
         .admin-box .btn {
             padding: 8px 18px;
             border-radius: 16px;
@@ -1215,7 +1169,6 @@
         .admin-box .btn-secondary { background: rgba(255,255,255,0.06); color: #ccc; border: 1px solid #3a3a50; }
         .admin-box .btn-secondary:hover { background: rgba(255,255,255,0.12); }
         .admin-box .btn-group { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-
         .admin-box .photo-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -1268,7 +1221,6 @@
         }
         .admin-box .photo-grid .photo-item .photo-actions .edit-cap:hover { color: #d4c08a; }
         .admin-box .photo-grid .photo-item .photo-actions .del-photo:hover { color: #ff5555; }
-
         .admin-box .status-bar {
             display: flex;
             justify-content: space-between;
@@ -1282,7 +1234,6 @@
         .admin-box .status-bar .status-ok { color: #4caf50; }
         .admin-box .status-bar .status-error { color: #ff5555; }
         .admin-box .status-bar .status-syncing { color: #ffa726; }
-
         .admin-tabs {
             display: flex;
             gap: 4px;
@@ -1311,13 +1262,11 @@
             background: rgba(212, 192, 138, 0.15);
             border-bottom: 2px solid #d4c08a;
         }
-
         .admin-tab-content {
             display: none;
             animation: fadeIn 0.25s ease;
         }
         .admin-tab-content.active { display: block; }
-
         .admin-scroll-list {
             max-height: 250px;
             overflow-y: auto;
@@ -1330,7 +1279,6 @@
         .admin-scroll-list::-webkit-scrollbar-track { background: #0a0a12; border-radius: 4px; }
         .admin-scroll-list::-webkit-scrollbar-thumb { background: #3a3a50; border-radius: 4px; }
         .admin-scroll-list::-webkit-scrollbar-thumb:hover { background: #4a4a60; }
-
         .admin-scroll-list .list-item {
             display: flex;
             justify-content: space-between;
@@ -1373,7 +1321,6 @@
         .admin-scroll-list .list-item .item-actions .edit:hover { color: #4ecdc4; }
         .admin-scroll-list .list-item .item-actions .delete:hover { color: #ff5555; }
         .admin-scroll-list .list-item .item-actions .eye:hover { color: #f9ca24; }
-
         .admin-editor {
             background: rgba(10, 10, 18, 0.5);
             border: 1px solid #1a1a2a;
@@ -1383,7 +1330,6 @@
         }
         .admin-editor .form-group { margin-bottom: 10px; }
         .admin-editor .form-group:last-child { margin-bottom: 0; }
-
         #photo-viewer-overlay {
             position: fixed;
             top: 0;
@@ -1398,7 +1344,6 @@
             animation: fadeIn 0.25s ease;
         }
         #photo-viewer-overlay.active { display: flex; }
-
         .viewer-container {
             display: flex;
             width: 94%;
@@ -1494,7 +1439,6 @@
         }
         .viewer-info .viewer-caption-save:hover { background: #e8d4a0; }
         .viewer-info .viewer-caption-save.hidden { display: none; }
-
         .viewer-nav-btn {
             position: absolute;
             top: 50%;
@@ -1526,7 +1470,6 @@
         }
         .viewer-nav-btn.prev { left: 10px; }
         .viewer-nav-btn.next { right: 10px; }
-
         .viewer-close-btn {
             position: absolute;
             top: 12px;
@@ -1543,7 +1486,6 @@
         }
         .viewer-close-btn:hover { color: #fff; transform: rotate(90deg); }
         .viewer-close-btn:active { color: #fff; transform: rotate(90deg) scale(0.9); }
-
         .swipe-indicator {
             display: none;
             position: absolute;
@@ -1559,10 +1501,8 @@
             pointer-events: none;
             white-space: nowrap;
         }
-
         @media (max-width: 768px) {
             .hamburger { display: block; }
-            
             .swipe-indicator { display: block; }
             .viewer-container {
                 flex-direction: column;
@@ -1582,7 +1522,6 @@
             .viewer-nav-btn { width: 44px; height: 44px; font-size: 20px; }
             .viewer-nav-btn.prev { left: 4px; }
             .viewer-nav-btn.next { right: 4px; }
-            
             .admin-box { padding: 16px; width: 98%; max-height: 95vh; }
             .admin-tabs { gap: 2px; }
             .admin-tab { padding: 4px 10px; font-size: 11px; }
@@ -1590,7 +1529,6 @@
             .admin-scroll-list .list-item { flex-wrap: wrap; gap: 4px; }
             .admin-scroll-list .list-item .item-info { flex-wrap: wrap; }
             .photos-library-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
-            
             #sidebar {
                 position: fixed !important;
                 top: 0 !important;
@@ -1605,37 +1543,39 @@
             }
             #sidebar.open { left: 0 !important; }
             #sidebar .close-sidebar { display: block !important; }
-            
             .sidebar-overlay { z-index: 9997 !important; }
             .sidebar-overlay.active { display: block !important; }
-            
             #header { z-index: 10000 !important; }
             .hamburger { z-index: 9999 !important; position: relative !important; }
-            
             #header h1 .title-en { display: none; }
             #header h1 .separator { display: none; }
             #header h1 { font-size: 14px; }
             #header-actions span { display: none; }
             .admin-toggle { font-size: 10px; padding: 3px 8px; }
             .toggle-labels-btn { font-size: 10px; padding: 3px 8px; }
-            
             .modal-back-btn { display: block; }
-            
-            /* ИСПРАВЛЕНИЕ МОДАЛКИ НА ТЕЛЕФОНЕ */
+            .modal-overlay {
+                align-items: flex-start;
+                pointer-events: none;
+            }
+            .modal-overlay.active {
+                pointer-events: none;
+            }
             .modal-content {
+                pointer-events: auto;
                 width: 100%;
                 height: 100vh;
                 max-height: 100vh;
                 border-radius: 0;
+                margin: 0;
             }
-            
             .modal-body {
                 flex-direction: column;
                 overflow-y: auto;
                 padding-top: 50px;
                 -webkit-overflow-scrolling: touch;
+                height: 100%;
             }
-            
             .modal-left {
                 width: 100%;
                 min-width: unset;
@@ -1647,14 +1587,12 @@
                 padding: 12px 16px 16px 16px;
                 flex-shrink: 0;
             }
-            
             .modal-center {
                 min-height: 30vh;
                 padding: 12px 16px;
                 overflow-y: visible;
                 flex-shrink: 0;
             }
-            
             .modal-right {
                 width: 100%;
                 min-width: unset;
@@ -1666,7 +1604,6 @@
                 padding: 12px 16px;
                 flex-shrink: 0;
             }
-            
             .modal-close {
                 top: 8px;
                 right: 10px;
@@ -1674,7 +1611,6 @@
                 z-index: 30;
                 padding: 8px 12px;
             }
-            
             .modal-back-btn {
                 display: block;
                 top: 10px;
@@ -1682,21 +1618,17 @@
                 z-index: 30;
                 font-size: 20px;
             }
-            
             .modal-center .gallery-grid {
                 grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
             }
-            
             .modal-left .loc-title {
                 font-size: 18px;
                 padding-right: 40px;
             }
-            
             .modal-left .description-text {
                 min-height: 60px;
                 font-size: 13px;
             }
-            
             #map-legend {
                 top: 42px;
                 right: 8px;
@@ -1707,7 +1639,6 @@
             }
             #map-legend .legend-item { padding: 1px 0; }
             #map-legend .legend-item span:first-child { font-size: 14px; width: 16px; }
-            
             #contact-toggle-btn-main {
                 top: 4px;
                 right: 8px;
@@ -1724,7 +1655,6 @@
                 max-height: 90vh;
             }
         }
-
         @media (max-width: 500px) {
             #sidebar { width: 100% !important; left: -100% !important; }
             #sidebar.open { left: 0 !important; }
@@ -1751,10 +1681,8 @@
             <button class="admin-toggle" id="admin-toggle-btn">Админ-панель</button>
         </div>
     </div>
-
     <div id="main">
         <div class="sidebar-overlay" id="sidebar-overlay"></div>
-        
         <div id="sidebar">
             <button class="close-sidebar" id="close-sidebar-btn" aria-label="Закрыть меню">✕</button>
             <h2>Локации</h2>
@@ -1766,13 +1694,11 @@
             </div>
             <ul id="location-list"><li class="empty-msg">Загрузка...</li></ul>
         </div>
-        
         <div id="map-container">
             <button id="contact-toggle-btn-main" onclick="openContactModal()">
                 📞 Контакты
                 <span class="badge" id="contact-badge">!</span>
             </button>
-            
             <div id="map-legend">
                 <div class="legend-header" onclick="toggleLegend()">
                     <span class="legend-title">📌 Легенда</span>
@@ -1812,11 +1738,9 @@
                     <div class="legend-item"><span>💡</span><span>Мануфактура</span></div>
                 </div>
             </div>
-            
             <div id="map"></div>
         </div>
     </div>
-
     <div id="contact-modal">
         <div class="contact-modal-box">
             <button class="contact-modal-close" onclick="closeContactModal()">✕</button>
@@ -1831,18 +1755,14 @@
             <button class="contact-edit-btn-modal" id="contact-edit-btn-modal" onclick="toggleContactEditorModal()">✏️ Редактировать</button>
         </div>
     </div>
-
     <div id="routes-legend">
         <h4>🗺️ Маршруты</h4>
         <div id="routes-list"></div>
     </div>
-
-    <!-- МОДАЛКА ЛОКАЦИИ -->
     <div class="modal-overlay" id="location-modal">
         <div class="modal-content">
             <button class="modal-back-btn" id="modal-back-btn">‹ Назад</button>
             <button class="modal-close" id="modal-close-btn">✕</button>
-            
             <div class="modal-body">
                 <div class="modal-left" id="modal-left">
                     <div class="loc-title" id="modal-title">Название локации</div>
@@ -1851,30 +1771,24 @@
                         <span class="loc-subcategory-badge" id="modal-subcategory">📁 Без подкатегории</span>
                     </div>
                     <div class="loc-subtitle" id="modal-subtitle">📍 Подзаголовок</div>
-                    
                     <div class="section-label">📝 Описание</div>
                     <textarea class="description-text" id="modal-description" placeholder="Введите описание локации..."></textarea>
-                    
                     <div class="section-label">
                         👥 Персонажи
                         <button class="add-btn" id="add-character">+ Добавить</button>
                     </div>
                     <ul class="list-items" id="characters-list"></ul>
-                    
                     <div class="section-label">
                         📋 Особенности
                         <button class="add-btn" id="add-feature">+ Добавить</button>
                     </div>
                     <ul class="list-items" id="features-list"></ul>
-                    
                     <button class="save-btn" id="modal-save-btn">💾 Сохранить изменения</button>
                 </div>
-                
                 <div class="modal-center" id="modal-center">
                     <div class="gallery-grid" id="modal-gallery"></div>
                     <div id="modal-no-photos" class="empty-gallery">📷 Нет фотографий</div>
                 </div>
-                
                 <div class="modal-right" id="modal-right">
                     <div class="admin-label">📚 Медиатека</div>
                     <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:8px;">
@@ -1883,7 +1797,6 @@
                         <button class="upload-btn" id="modal-refresh-btn" style="flex:0; padding:8px 12px;" title="Обновить галерею">🔄</button>
                     </div>
                     <input type="file" id="modal-file-input" accept="image/*" multiple style="display:none;">
-                    
                     <div class="photo-admin-list" id="modal-photo-admin-list">
                         <div class="empty-admin">📭 Загрузите фото во вкладке "Медиатека"</div>
                     </div>
@@ -1891,7 +1804,6 @@
             </div>
         </div>
     </div>
-
     <div id="photo-viewer-overlay">
         <div class="viewer-container">
             <button class="viewer-close-btn" id="viewer-close-btn">✕</button>
@@ -1913,11 +1825,9 @@
             </div>
         </div>
     </div>
-
     <div class="admin-overlay" id="admin-overlay">
         <div class="admin-box">
             <button class="admin-close" id="admin-close-btn">✕</button>
-
             <div id="admin-login">
                 <h2>Вход в админ-панель</h2>
                 <p class="subtitle">Введите email и пароль администратора</p>
@@ -1932,11 +1842,9 @@
                 <button class="btn btn-primary" id="admin-login-btn" style="width:100%;">Войти</button>
                 <div class="error-msg" id="admin-login-error" style="color:#ff5555;font-size:13px;text-align:center;margin-top:8px;display:none;">Неверный email или пароль</div>
             </div>
-
             <div id="admin-panel-content" style="display:none;">
                 <h2>Админ-панель</h2>
                 <p class="subtitle">Управление контентом</p>
-
                 <div class="status-bar">
                     <span id="admin-sync-status">⏳ Загрузка...</span>
                     <div>
@@ -1944,7 +1852,6 @@
                         <button class="btn btn-danger" id="admin-logout" style="padding:4px 12px;font-size:12px;">🚪 Выйти</button>
                     </div>
                 </div>
-
                 <div class="admin-tabs">
                     <button class="admin-tab active" data-tab="locations">📍 Локации</button>
                     <button class="admin-tab" data-tab="routes">🗺️ Маршруты</button>
@@ -1955,14 +1862,12 @@
                     <button class="admin-tab" data-tab="marker-icons">🎨 Иконки маркеров</button>
                     <button class="admin-tab" data-tab="contacts">📞 Контакты</button>
                 </div>
-
                 <div class="admin-tab-content active" id="tab-locations">
                     <div style="display:flex; gap:8px; margin-bottom:12px; flex-wrap:wrap;">
                         <button class="btn btn-primary" id="admin-add-location" style="padding:4px 14px;font-size:12px;">➕ Добавить локацию</button>
                         <button class="btn btn-secondary" id="admin-add-country" style="padding:4px 14px;font-size:12px;">🏷️ Новая страна</button>
                         <span style="font-size:12px;color:#555;align-self:center;">Всего: <span id="loc-count">0</span></span>
                     </div>
-
                     <div class="admin-editor" id="location-editor">
                         <div class="form-group">
                             <label>Название</label>
@@ -2053,11 +1958,9 @@
                             <label>Подзаголовок</label>
                             <input id="admin-location-subtitle" placeholder="Например: Столица Сильванора">
                         </div>
-
                         <div id="admin-photos-section">
                             <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Фотографии</label>
                             <div class="photo-grid" id="admin-photos-grid"></div>
-
                             <div style="background: #0f0f1a; border-radius: 8px; padding: 14px; margin: 8px 0; border: 1px solid #1e1e30;">
                                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap;">
                                     <label style="font-size: 11px; color: #888; text-transform: uppercase; letter-spacing: 1px;">Добавить фото:</label>
@@ -2068,20 +1971,17 @@
                                 <button class="btn btn-primary" id="admin-upload-btn" style="padding: 4px 18px; font-size: 12px; margin-top: 6px;">⬆ Загрузить фото</button>
                             </div>
                         </div>
-
                         <div class="btn-group">
                             <button class="btn btn-primary" id="admin-save-location">💾 Сохранить</button>
                             <button class="btn btn-secondary" id="admin-cancel-edit">↩️ Отмена</button>
                             <button class="btn btn-danger" id="admin-delete-location" style="margin-left:auto;">🗑️ Удалить</button>
                         </div>
                     </div>
-
                     <div style="margin-top:12px;">
                         <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Список локаций</label>
                         <div class="admin-scroll-list" id="admin-location-list"></div>
                     </div>
                 </div>
-
                 <div class="admin-tab-content" id="tab-routes">
                     <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">
                         <button class="btn btn-secondary" id="admin-add-route" style="padding:4px 12px;font-size:12px;">➕ Добавить маршрут</button>
@@ -2091,7 +1991,6 @@
                     </div>
                     <div class="admin-scroll-list" id="admin-routes-list"></div>
                 </div>
-
                 <div class="admin-tab-content" id="tab-labels">
                     <div style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:12px;">
                         <button class="btn btn-secondary" id="admin-add-label" style="padding:4px 12px;font-size:12px;">✏️ Добавить текст</button>
@@ -2101,7 +2000,6 @@
                     </div>
                     <div class="admin-scroll-list" id="admin-labels-list"></div>
                 </div>
-
                 <div class="admin-tab-content" id="tab-library">
                     <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
                         <button class="btn btn-primary" id="lib-upload-btn" style="padding:4px 14px;font-size:12px;">📤 Загрузить фото</button>
@@ -2118,26 +2016,22 @@
                         <div style="color:#444;font-style:italic;padding:20px;text-align:center;">Нет фото в библиотеке</div>
                     </div>
                 </div>
-
                 <div class="admin-tab-content" id="tab-location-photos">
                     <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
                         <button class="btn btn-primary" id="loc-photos-check-all" style="padding:4px 14px;font-size:12px;">🔍 Проверить все</button>
                         <button class="btn btn-danger" id="loc-photos-clean-all" style="padding:4px 14px;font-size:12px;">🧹 Удалить битые</button>
                         <span style="font-size:12px;color:#555;align-self:center;">Всего: <span id="loc-photos-count">0</span> фото</span>
                     </div>
-                    
                     <div style="margin-bottom:12px;">
                         <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Выберите локацию</label>
                         <select id="loc-photos-select" style="width:100%;padding:6px 10px;background:#0a0a12;color:#e0dcc8;border:1px solid #2a2a3e;border-radius:6px;outline:none;">
                             <option value="">— Выберите локацию —</option>
                         </select>
                     </div>
-                    
                     <div class="admin-scroll-list" id="loc-photos-list" style="max-height:400px;">
                         <div style="color:#444;font-style:italic;padding:20px;text-align:center;">Выберите локацию для просмотра фото</div>
                     </div>
                 </div>
-
                 <div class="admin-tab-content" id="tab-subcategories">
                     <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
                         <button class="btn btn-primary" id="subcat-add-btn" style="padding:4px 14px;font-size:12px;">➕ Добавить подкатегорию</button>
@@ -2148,12 +2042,10 @@
                         <div style="color:#444;font-style:italic;padding:20px;text-align:center;">Нет подкатегорий</div>
                     </div>
                 </div>
-
                 <div class="admin-tab-content" id="tab-marker-icons">
                     <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
                         <span style="font-size:12px;color:#555;align-self:center;">📌 Настройка иконок для маркеров</span>
                     </div>
-                    
                     <div style="margin-bottom:12px;">
                         <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Доступные иконки</label>
                         <div style="display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:8px; margin-top:8px;">
@@ -2246,7 +2138,6 @@
                             </div>
                         </div>
                     </div>
-                    
                     <div style="background:rgba(10,10,18,0.5);border-radius:8px;padding:12px;border:1px solid #1a1a2a;">
                         <div style="font-size:12px;color:#555;margin-bottom:4px;">💡 Как это работает:</div>
                         <ul style="color:#666;font-size:11px;padding-left:20px;line-height:1.8;">
@@ -2258,19 +2149,15 @@
                         </ul>
                     </div>
                 </div>
-
                 <div class="admin-tab-content" id="tab-contacts">
                     <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
                         <span style="font-size:12px;color:#555;align-self:center;">📞 Управление контактной информацией</span>
                     </div>
-                    
                     <div style="margin-bottom:12px;">
                         <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Контактная информация</label>
                         <textarea id="admin-contact-textarea" style="width:100%;padding:8px 12px;background:#0a0a12;color:#e0dcc8;border:1px solid #2a2a3e;border-radius:6px;outline:none;resize:vertical;min-height:100px;font-size:14px;font-family:inherit;" placeholder="Введите контактную информацию...&#10;Например:&#10;Email: example@mail.com&#10;Telegram: @username&#10;Discord: username#1234"></textarea>
                     </div>
-                    
                     <button class="btn btn-primary" id="admin-save-contacts" style="padding:6px 18px;font-size:13px;">💾 Сохранить контакты</button>
-                    
                     <div style="margin-top:12px;">
                         <label style="font-size:11px;color:#888;text-transform:uppercase;letter-spacing:1px;">Предпросмотр</label>
                         <div style="background:rgba(10,10,18,0.5);border-radius:8px;padding:12px;border:1px solid #1a1a2a;min-height:50px;color:#ccc;font-size:13px;" id="admin-contact-preview"></div>
@@ -2279,14 +2166,12 @@
             </div>
         </div>
     </div>
-
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
         const SUPABASE_URL = 'https://ufekhgjpxnnoutiikkjk.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InVmZWtoZ2pweG5ub3V0aWlra2prIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODcwNzIwNTYsImV4cCI6MjEwMjY0ODA1Nn0.Wc5_W5sD6VAVZVCg5hBlj2zvQCE72gTdX5KUXo0mqvs';
         const MAP_IMAGE_URL = 'image.png';
         const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
         const MARKER_ICONS = {
             default: { emoji: '●', color: '#d4c08a', label: 'Обычная' },
             danger: { emoji: '⚠️', color: '#2d2d2d', label: 'Опасная / Вымершая' },
@@ -2318,7 +2203,6 @@
             castle: { emoji: '🏰', color: '#8e44ad', label: 'Данжи' },
             bulb: { emoji: '💡', color: '#f1c40f', label: 'Мануфактура' }
         };
-
         let locations = [], routes = [], labels = [], photosLibrary = [], subcategories = [];
         let mapInstance = null, imageOverlay = null, markerMap = new Map();
         let routeLayers = {}, labelLayers = {};
@@ -2328,7 +2212,6 @@
         let hiddenRoutes = new Set(), labelsHidden = false, userLabelsHidden = false;
         let currentLocationId = null, currentFilter = 'all', sidebarOpen = false;
         let contactInfo = '', legendCollapsed = false;
-
         const popupColors = [
             { name: 'Золотой', value: '#d4c08a' },
             { name: 'Красный', value: '#ff6b6b' },
@@ -2351,7 +2234,6 @@
             { name: 'Вишнёвый', value: '#e17055' },
             { name: 'Серый', value: '#b2bec3' }
         ];
-
         function getMarkerIcon(loc) {
             const iconType = loc.marker_icon || 'default';
             const iconData = MARKER_ICONS[iconType] || MARKER_ICONS.default;
@@ -2363,7 +2245,6 @@
                 iconAnchor: [16, 16]
             });
         }
-
         function toggleLegend() {
             legendCollapsed = !legendCollapsed;
             const body = document.getElementById('legend-body');
@@ -2378,23 +2259,19 @@
                 btn.textContent = '▼';
             }
         }
-
         function openContactModal() {
             document.getElementById('contact-modal').classList.add('active');
             document.body.style.overflow = 'hidden';
             renderContactModal();
         }
-
         function closeContactModal() {
             document.getElementById('contact-modal').classList.remove('active');
             document.body.style.overflow = '';
         }
-
         function renderContactModal() {
             const content = document.getElementById('contact-modal-content');
             const editBtn = document.getElementById('contact-edit-btn-modal');
             const textarea = document.getElementById('contact-modal-textarea');
-            
             if (!contactInfo || contactInfo.trim() === '') {
                 content.innerHTML = '<div class="empty">📭 Нет контактной информации</div>';
             } else {
@@ -2404,7 +2281,6 @@
                 formatted = formatted.replace(/@([a-zA-Z0-9_]+)/g, '<a href="https://t.me/$1" target="_blank" rel="noopener noreferrer">@$1</a>');
                 content.innerHTML = formatted;
             }
-            
             textarea.value = contactInfo || '';
             if (isAdmin) {
                 editBtn.style.display = 'inline-block';
@@ -2414,7 +2290,6 @@
             document.getElementById('contact-modal-editor').style.display = 'none';
             editBtn.textContent = '✏️ Редактировать';
         }
-
         function toggleContactEditorModal() {
             const editor = document.getElementById('contact-modal-editor');
             const editBtn = document.getElementById('contact-edit-btn-modal');
@@ -2427,7 +2302,6 @@
                 editBtn.textContent = '✏️ Редактировать';
             }
         }
-
         async function saveContactInfoModal() {
             const textarea = document.getElementById('contact-modal-textarea');
             const newValue = textarea.value.trim();
@@ -2454,7 +2328,6 @@
                 alert('❌ Ошибка сохранения: ' + e.message);
             }
         }
-
         async function loadContactInfo() {
             try {
                 const { data, error } = await supabaseClient.from('settings').select('value').eq('key', 'contact_info').single();
@@ -2479,7 +2352,6 @@
                 console.error('Ошибка загрузки контактов:', e);
             }
         }
-
         async function loadLocations() {
             try {
                 const { data, error } = await supabaseClient.from('locations').select('*').order('id', { ascending: true });
@@ -2499,7 +2371,6 @@
                 return false;
             }
         }
-
         function getCountries() {
             const countries = new Set();
             locations.forEach(loc => {
@@ -2509,11 +2380,9 @@
             });
             return [...countries].sort();
         }
-
         function getSubcategoriesByCountry(country) {
             return subcategories.filter(s => s.country === country);
         }
-
         function updateCountryFilter() {
             const select = document.getElementById('country-select');
             const countries = getCountries();
@@ -2532,7 +2401,6 @@
             select.innerHTML = html;
             select.value = currentFilter;
         }
-
         document.getElementById('country-select').addEventListener('change', function() {
             const val = this.value;
             if (val.includes('|')) {
@@ -2544,7 +2412,6 @@
                 renderLocations();
             }
         });
-
         function initMap() {
             mapInstance = L.map('map', {
                 center: [0, 0],
@@ -2555,7 +2422,6 @@
                 minZoom: 0.5,
                 maxZoom: 10
             });
-
             const bounds = [[-220, -400], [220, 400]];
             const img = new Image();
             img.onload = function() {
@@ -2568,11 +2434,9 @@
                 alert('Файл "image.png" не найден! Положите картинку рядом с index.html');
             };
             img.src = MAP_IMAGE_URL;
-
             renderMarkers();
             renderRoutes();
             renderLabels();
-
             mapInstance.on('click', function(e) {
                 if (routeBuilding) {
                     if (!isAdmin) {
@@ -2583,7 +2447,6 @@
                 }
             });
         }
-
         function lightenColor(hex, percent) {
             const num = parseInt(hex.replace('#', ''), 16);
             const amt = Math.round(2.55 * percent);
@@ -2592,7 +2455,6 @@
             const B = Math.min(255, (num & 0x0000FF) + amt);
             return `#${(1 << 24 | R << 16 | G << 8 | B).toString(16).slice(1)}`;
         }
-
         function isColorDark(hex) {
             const num = parseInt(hex.replace('#', ''), 16);
             const R = num >> 16;
@@ -2601,16 +2463,13 @@
             const brightness = (R * 299 + G * 587 + B * 114) / 1000;
             return brightness < 128;
         }
-
         function renderMarkers() {
             if (!mapInstance) return;
             markerMap.forEach(m => mapInstance.removeLayer(m));
             markerMap.clear();
-
             locations.forEach(loc => {
                 const icon = getMarkerIcon(loc);
                 const markerColor = loc.markerColor || '#d4c08a';
-                
                 let colorPickerHtml = '';
                 if (isAdmin) {
                     popupColors.forEach(c => {
@@ -2624,7 +2483,6 @@
                         `;
                     });
                 }
-
                 let iconPickerHtml = '';
                 if (isAdmin) {
                     Object.keys(MARKER_ICONS).forEach(key => {
@@ -2639,7 +2497,6 @@
                         `;
                     });
                 }
-
                 const popupContent = `
                     <div style="text-align:center;">
                         <div style="font-size:28px;margin-bottom:4px;">${MARKER_ICONS[loc.marker_icon || 'default'].emoji}</div>
@@ -2671,11 +2528,9 @@
                         ">➕ Добавить в маршрут</button>` : ''}
                     </div>
                 `;
-
                 const marker = L.marker([loc.lat, loc.lng], { icon })
                     .addTo(mapInstance)
                     .bindPopup(popupContent, { className: 'custom-popup', maxWidth: 260 });
-
                 marker.on('popupopen', function() {
                     const popupElement = this._popup._wrapper;
                     if (popupElement) {
@@ -2686,11 +2541,9 @@
                         }
                     }
                 });
-
                 markerMap.set(loc.id, marker);
             });
         }
-
         async function changeMarkerIcon(locId, iconKey) {
             if (!isAdmin) { alert('⛔ Только админ может менять иконку'); return; }
             const loc = locations.find(l => l.id === locId);
@@ -2706,7 +2559,6 @@
                 alert('❌ Ошибка смены иконки: ' + e.message);
             }
         }
-
         async function changeMarkerColor(locId, color) {
             if (!isAdmin) { alert('⛔ Только админ может менять цвет'); return; }
             const loc = locations.find(l => l.id === locId);
@@ -2722,8 +2574,6 @@
                 alert('❌ Ошибка смены цвета: ' + e.message);
             }
         }
-
-        // ===== МАРШРУТЫ =====
         async function loadRoutes() {
             try {
                 const { data, error } = await supabaseClient.from('routes').select('*').order('created_at', { ascending: true });
@@ -2744,7 +2594,6 @@
                 return false;
             }
         }
-
         async function saveRouteToDB(routeData) {
             try {
                 const dataToInsert = {
@@ -2769,7 +2618,6 @@
                 return null;
             }
         }
-
         async function deleteRouteFromDB(routeId) {
             if (!confirm('🗑️ Удалить этот маршрут?')) return false;
             try {
@@ -2786,7 +2634,6 @@
                 return false;
             }
         }
-
         function addRoutePoint(lat, lng) {
             tempRoutePoints.push({ lat: parseFloat(lat), lng: parseFloat(lng) });
             const marker = L.circleMarker([lat, lng], {
@@ -2803,13 +2650,11 @@
             document.getElementById('admin-route-status').textContent =
                 `📍 Точка ${tempRoutePoints.length} добавлена. Кликай дальше или нажми "Добавить маршрут" для завершения.`;
         }
-
         function addRoutePointFromMarker(lat, lng, name) {
             if (!routeBuilding) { alert('Сначала нажмите "Добавить маршрут" в админ-панели'); return; }
             addRoutePoint(lat, lng);
             document.getElementById('admin-route-status').textContent = `✅ Добавлена точка "${name}". Кликай дальше или заверши маршрут.`;
         }
-
         function renderRoutes() {
             Object.values(routeLayers).forEach(layer => {
                 if (layer.polyline) mapInstance.removeLayer(layer.polyline);
@@ -2819,7 +2664,6 @@
             routeLayers = {};
             if (!isAdmin) { document.getElementById('routes-legend').classList.remove('visible'); return; }
             if (!routes || routes.length === 0) { document.getElementById('routes-legend').classList.remove('visible'); return; }
-
             routes.forEach(route => {
                 if (hiddenRoutes.has(route.id)) return;
                 let points = route.points;
@@ -2849,7 +2693,6 @@
             });
             renderRoutesLegend();
         }
-
         function renderRoutesLegend() {
             const container = document.getElementById('routes-legend');
             const list = document.getElementById('routes-list');
@@ -2868,7 +2711,6 @@
                 list.appendChild(div);
             });
         }
-
         function toggleRouteVisibility(routeId) {
             const layer = routeLayers[routeId];
             if (!layer) return;
@@ -2886,7 +2728,6 @@
             renderRoutesLegend();
             renderAdminRoutesList();
         }
-
         function renderAdminRoutesList() {
             const container = document.getElementById('admin-routes-list');
             if (!container) return;
@@ -2915,7 +2756,6 @@
             });
             container.innerHTML = html;
         }
-
         document.getElementById('admin-add-route').addEventListener('click', function() {
             if (!isAdmin) { alert('⛔ Войдите в админ-панель'); return; }
             if (routeBuilding) {
@@ -2932,7 +2772,6 @@
             renderMarkers();
             alert('🟢 Режим построения маршрута включен!');
         });
-
         async function finishRoute() {
             if (tempRoutePoints.length < 2) { alert('❌ Нужно минимум 2 точки'); return; }
             const name = prompt('📝 Введите название маршрута:', 'Маршрут');
@@ -2957,7 +2796,6 @@
                 }, 3000);
             }
         }
-
         function cancelRouteBuilding() {
             routeBuilding = false;
             tempRoutePoints = [];
@@ -2968,14 +2806,12 @@
             document.getElementById('admin-route-status').style.color = '#555';
             renderMarkers();
         }
-
         document.getElementById('admin-show-all-routes').addEventListener('click', function() {
             hiddenRoutes.clear();
             renderRoutes();
             renderRoutesLegend();
             renderAdminRoutesList();
         });
-
         document.getElementById('admin-clear-routes').addEventListener('click', async function() {
             if (!isAdmin) return;
             if (!confirm('🗑️ Удалить все маршруты?')) return;
@@ -2985,8 +2821,6 @@
             renderRoutesLegend();
             renderAdminRoutesList();
         });
-
-        // ===== НАДПИСИ =====
         async function loadLabels() {
             try {
                 const { data, error } = await supabaseClient.from('labels').select('*').order('created_at', { ascending: true });
@@ -2997,7 +2831,6 @@
                 return true;
             } catch (e) { console.error('❌ Ошибка загрузки надписей:', e); return false; }
         }
-
         async function saveLabelToDB(labelData) {
             try {
                 const { data, error } = await supabaseClient.from('labels').insert({
@@ -3011,7 +2844,6 @@
                 return data;
             } catch (e) { console.error('❌ Ошибка сохранения надписи:', e); alert('❌ Ошибка: ' + e.message); return null; }
         }
-
         async function updateLabelInDB(labelId, updates) {
             try {
                 const { error } = await supabaseClient.from('labels').update(updates).eq('id', labelId);
@@ -3023,7 +2855,6 @@
                 return true;
             } catch (e) { console.error('❌ Ошибка обновления надписи:', e); alert('❌ Ошибка: ' + e.message); return false; }
         }
-
         async function deleteLabelFromDB(labelId) {
             if (!confirm('🗑️ Удалить эту надпись?')) return false;
             try {
@@ -3035,7 +2866,6 @@
                 return true;
             } catch (e) { console.error('❌ Ошибка удаления надписи:', e); alert('❌ Ошибка: ' + e.message); return false; }
         }
-
         async function editLabelPosition(labelId) {
             if (!isAdmin) return;
             const label = labels.find(l => l.id === labelId);
@@ -3049,7 +2879,6 @@
             if (isNaN(newLat) || isNaN(newLng)) { alert('❌ Некорректные координаты'); return; }
             await updateLabelInDB(labelId, { lat: newLat, lng: newLng });
         }
-
         async function editLabelSize(labelId) {
             if (!isAdmin) return;
             const label = labels.find(l => l.id === labelId);
@@ -3061,7 +2890,6 @@
             if (isNaN(newSize) || newSize < 10 || newSize > 60) { alert('❌ Размер должен быть от 10 до 60'); return; }
             await updateLabelInDB(labelId, { font_size: newSize });
         }
-
         function renderLabels() {
             Object.values(labelLayers).forEach(layer => {
                 if (layer.marker) mapInstance.removeLayer(layer.marker);
@@ -3089,14 +2917,12 @@
                 labelLayers[label.id] = { marker };
             });
         }
-
         document.getElementById('user-toggle-labels').addEventListener('click', function() {
             userLabelsHidden = !userLabelsHidden;
             this.textContent = userLabelsHidden ? '🏷️ Показать названия' : '🏷️ Скрыть названия';
             this.classList.toggle('active');
             renderLabels();
         });
-
         function renderAdminLabelsList() {
             const container = document.getElementById('admin-labels-list');
             if (!container) return;
@@ -3127,7 +2953,6 @@
             });
             container.innerHTML = html;
         }
-
         async function changeLabelSize(labelId, delta) {
             if (!isAdmin) return;
             const label = labels.find(l => l.id === labelId);
@@ -3137,7 +2962,6 @@
             if (newSize === currentSize) { alert(`❌ Размер уже ${currentSize}px (мин: 10, макс: 60)`); return; }
             await updateLabelInDB(labelId, { font_size: newSize });
         }
-
         function startAddingLabel() {
             if (!isAdmin) { alert('⛔ Войдите в админ-панель'); return; }
             document.getElementById('admin-label-status').textContent = '✏️ Кликни по карте, чтобы добавить текст';
@@ -3166,7 +2990,6 @@
             };
             mapInstance.on('click', clickHandler);
         }
-
         function editLabelText(labelId) {
             if (!isAdmin) return;
             const label = labels.find(l => l.id === labelId);
@@ -3176,9 +2999,7 @@
             if (newText.trim() === '') { alert('❌ Текст не может быть пустым'); return; }
             updateLabelInDB(labelId, { text: newText.trim() });
         }
-
         async function deleteLabel(labelId) { await deleteLabelFromDB(labelId); }
-
         document.getElementById('admin-add-label').addEventListener('click', startAddingLabel);
         document.getElementById('admin-toggle-labels').addEventListener('click', function() {
             labelsHidden = !labelsHidden;
@@ -3197,8 +3018,6 @@
                 document.getElementById('admin-label-status').style.color = '#555';
             }, 2000);
         });
-
-        // ===== ФУНКЦИИ ДЛЯ ФОТО ЛОКАЦИЙ =====
         async function checkLocationPhotos(locId) {
             const loc = locations.find(l => l.id === locId);
             if (!loc || !loc.photos || loc.photos.length === 0) {
@@ -3222,8 +3041,6 @@
             }
             alert(results.join('\n'));
         }
-
-        // ===== ПОДКАТЕГОРИИ =====
         async function loadSubcategories() {
             try {
                 const { data, error } = await supabaseClient.from('subcategories').select('*').order('country', { ascending: true }).order('name', { ascending: true });
@@ -3238,7 +3055,6 @@
                 return false;
             }
         }
-
         async function saveSubcategory(country, name) {
             try {
                 const { data, error } = await supabaseClient.from('subcategories').insert({ country: country.trim(), name: name.trim() }).select().single();
@@ -3254,7 +3070,6 @@
                 return null;
             }
         }
-
         async function deleteSubcategory(id) {
             const sub = subcategories.find(s => s.id === id);
             if (!sub) return;
@@ -3277,7 +3092,6 @@
                 alert('❌ Ошибка: ' + e.message);
             }
         }
-
         function updateSubcategorySelect() {
             const select = document.getElementById('admin-location-subcategory');
             if (!select) return;
@@ -3298,7 +3112,6 @@
                 deleteBtn.style.display = hasSubs ? 'inline-block' : 'none';
             }
         }
-
         function renderSubcategoriesList() {
             const container = document.getElementById('subcategories-list');
             if (!container) return;
@@ -3332,7 +3145,6 @@
             });
             container.innerHTML = html;
         }
-
         document.getElementById('add-subcategory-btn').addEventListener('click', function() {
             const country = document.getElementById('admin-location-country').value.trim();
             if (!country) {
@@ -3349,7 +3161,6 @@
             }
             saveSubcategory(country, name.trim());
         });
-
         document.getElementById('delete-subcategory-btn').addEventListener('click', function() {
             const country = document.getElementById('admin-location-country').value.trim();
             if (!country) return;
@@ -3364,7 +3175,6 @@
                 deleteSubcategory(sub.id);
             }
         });
-
         document.getElementById('subcat-add-btn').addEventListener('click', function() {
             const country = prompt('📁 Введите название страны для подкатегории:');
             if (!country || country.trim() === '') return;
@@ -3379,20 +3189,15 @@
             }
             saveSubcategory(trimmedCountry, trimmedName);
         });
-
         document.getElementById('subcat-refresh-btn').addEventListener('click', function() {
             loadSubcategories();
         });
-
         document.getElementById('admin-location-country').addEventListener('input', function() {
             updateSubcategorySelect();
         });
-
         document.getElementById('admin-location-country').addEventListener('change', function() {
             updateSubcategorySelect();
         });
-
-        // ===== МЕДИАТЕКА =====
         async function loadPhotosLibrary() {
             try {
                 const { data, error } = await supabaseClient.from('photos_library').select('*').order('uploaded_at', { ascending: false });
@@ -3406,7 +3211,6 @@
                 return false;
             }
         }
-
         function renderPhotosLibrary() {
             const container = document.getElementById('photos-library-grid');
             if (!container) return;
@@ -3442,7 +3246,6 @@
                 });
             });
         }
-
         function addPhotoToCurrentLocation(url, caption) {
             if (!currentLocationId) {
                 alert('Сначала откройте локацию в модалке');
@@ -3458,11 +3261,9 @@
             renderAdminList();
             renderMarkers();
         }
-
         document.getElementById('lib-upload-btn').addEventListener('click', function() {
             document.getElementById('lib-file-input').click();
         });
-
         document.getElementById('lib-file-input').addEventListener('change', async function(e) {
             const files = Array.from(e.target.files);
             if (files.length === 0) return;
@@ -3490,7 +3291,6 @@
             document.getElementById('lib-file-input').value = '';
             setAdminStatus('✅ Фото загружены в медиатеку', 'ok');
         });
-
         document.getElementById('lib-clean-btn').addEventListener('click', async function() {
             if (!confirm('🧹 Удалить все битые фото из медиатеки?')) return;
             let deleted = 0;
@@ -3511,7 +3311,6 @@
             setAdminStatus(`✅ Удалено ${deleted} битых фото`, 'ok');
             alert(`✅ Удалено ${deleted} битых фото`);
         });
-
         document.getElementById('lib-check-btn').addEventListener('click', async function() {
             if (photosLibrary.length === 0) {
                 alert('📭 В медиатеке нет фото');
@@ -3533,7 +3332,6 @@
             }
             alert(results.join('\n'));
         });
-
         async function deletePhotoFromLibrary(photoId) {
             if (!confirm('🗑️ Удалить это фото из медиатеки?')) return;
             const photo = photosLibrary.find(p => p.id === photoId);
@@ -3554,25 +3352,20 @@
                 alert('❌ Ошибка удаления: ' + e.message);
             }
         }
-
         document.getElementById('lib-refresh-btn').addEventListener('click', async function() {
             await loadPhotosLibrary();
             setAdminStatus('✅ Медиатека обновлена', 'ok');
         });
-
-        // ===== МОДАЛКА =====
         document.getElementById('modal-right').addEventListener('dragover', function(e) {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'copy';
             this.style.borderColor = '#d4c08a';
             this.style.background = 'rgba(212, 192, 138, 0.05)';
         });
-
         document.getElementById('modal-right').addEventListener('dragleave', function(e) {
             this.style.borderColor = '';
             this.style.background = '';
         });
-
         document.getElementById('modal-right').addEventListener('drop', function(e) {
             e.preventDefault();
             this.style.borderColor = '';
@@ -3585,12 +3378,10 @@
                 if (url && url.startsWith('http')) addPhotoToCurrentLocation(url, '');
             }
         });
-
         document.getElementById('modal-center').addEventListener('dragover', function(e) {
             e.preventDefault();
             e.dataTransfer.dropEffect = 'copy';
         });
-
         document.getElementById('modal-center').addEventListener('drop', function(e) {
             e.preventDefault();
             try {
@@ -3601,8 +3392,6 @@
                 if (url && url.startsWith('http')) addPhotoToCurrentLocation(url, '');
             }
         });
-
-        // ===== ФОТО ЛОКАЦИЙ =====
         function populateLocationSelect() {
             const select = document.getElementById('loc-photos-select');
             if (!select) return;
@@ -3613,7 +3402,6 @@
             });
             select.innerHTML = html;
         }
-
         function renderLocationPhotos(locId) {
             const container = document.getElementById('loc-photos-list');
             const countEl = document.getElementById('loc-photos-count');
@@ -3653,7 +3441,6 @@
             container.innerHTML = html;
             checkAllPhotosInLocation(locId);
         }
-
         async function checkAllPhotosInLocation(locId) {
             const loc = locations.find(l => l.id == locId);
             if (!loc || !loc.photos) return;
@@ -3677,7 +3464,6 @@
                 }
             }
         }
-
         async function checkSinglePhoto(locId, idx) {
             const loc = locations.find(l => l.id == locId);
             if (!loc || !loc.photos || !loc.photos[idx]) return;
@@ -3702,7 +3488,6 @@
                 alert('❌ Фото недоступно');
             }
         }
-
         document.getElementById('loc-photos-check-all').addEventListener('click', async function() {
             let total = 0, broken = 0;
             for (const loc of locations) {
@@ -3724,7 +3509,6 @@
                 renderLocationPhotos(select.value);
             }
         });
-
         document.getElementById('loc-photos-clean-all').addEventListener('click', async function() {
             if (!confirm('🧹 Удалить все битые фото из ВСЕХ локаций?')) return;
             let total = 0, deleted = 0;
@@ -3760,7 +3544,6 @@
             }
             alert(`✅ Готово!\nПроверено: ${total} фото\nУдалено: ${deleted} битых фото`);
         });
-
         document.getElementById('loc-photos-select').addEventListener('change', function() {
             if (this.value) {
                 renderLocationPhotos(this.value);
@@ -3769,13 +3552,10 @@
                 document.getElementById('loc-photos-count').textContent = '0';
             }
         });
-
-        // ===== ГАМБУРГЕР =====
         const hamburgerBtn = document.getElementById('hamburger-btn');
         const sidebar = document.getElementById('sidebar');
         const sidebarOverlay = document.getElementById('sidebar-overlay');
         const closeSidebarBtn = document.getElementById('close-sidebar-btn');
-
         function toggleSidebar(open) {
             if (open === undefined) {
                 sidebarOpen = !sidebarOpen;
@@ -3792,26 +3572,22 @@
                 document.body.style.overflow = '';
             }
         }
-
         if (hamburgerBtn) {
             hamburgerBtn.addEventListener('click', function(e) {
                 e.stopPropagation();
                 toggleSidebar();
             });
         }
-
         if (closeSidebarBtn) {
             closeSidebarBtn.addEventListener('click', function() {
                 toggleSidebar(false);
             });
         }
-
         if (sidebarOverlay) {
             sidebarOverlay.addEventListener('click', function() {
                 toggleSidebar(false);
             });
         }
-
         const locationList = document.getElementById('location-list');
         if (locationList) {
             locationList.addEventListener('click', function(e) {
@@ -3821,7 +3597,6 @@
                 }
             });
         }
-
         document.addEventListener('click', function(e) {
             if (window.innerWidth <= 768 && sidebarOpen) {
                 const isSidebar = sidebar.contains(e.target);
@@ -3831,14 +3606,11 @@
                 }
             }
         });
-
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape' && sidebarOpen) {
                 toggleSidebar(false);
             }
         });
-
-        // ===== МОДАЛКА ЛОКАЦИИ =====
         const modalBackBtn = document.getElementById('modal-back-btn');
         if (modalBackBtn) {
             modalBackBtn.addEventListener('click', function() {
@@ -3846,14 +3618,12 @@
                 document.body.style.overflow = '';
             });
         }
-
         let touchStartY = 0;
         const modalElement = document.getElementById('location-modal');
         if (modalElement) {
             modalElement.addEventListener('touchstart', function(e) {
                 touchStartY = e.changedTouches[0].screenY;
             }, { passive: true });
-
             modalElement.addEventListener('touchmove', function(e) {
                 const touchEndY = e.changedTouches[0].screenY;
                 const diff = touchStartY - touchEndY;
@@ -3863,7 +3633,6 @@
                 }
             }, { passive: true });
         }
-
         document.getElementById('modal-check-btn').addEventListener('click', function() {
             if (!currentLocationId) {
                 alert('Сначала откройте локацию');
@@ -3871,7 +3640,6 @@
             }
             checkLocationPhotos(currentLocationId);
         });
-
         document.getElementById('modal-refresh-btn').addEventListener('click', function() {
             if (!currentLocationId) {
                 alert('Сначала откройте локацию');
@@ -3884,7 +3652,10 @@
             this.textContent = '✅';
             setTimeout(() => { this.textContent = '🔄'; }, 1500);
         });
-
+        document.getElementById('modal-close-btn').addEventListener('click', function() {
+            document.getElementById('location-modal').classList.remove('active');
+            document.body.style.overflow = '';
+        });
         function openModal(id) {
             const loc = locations.find(l => l.id === id);
             if (!loc) return;
@@ -3907,7 +3678,6 @@
             document.getElementById('location-modal').classList.add('active');
             document.body.style.overflow = 'hidden';
         }
-
         function renderList(containerId, items, type) {
             const container = document.getElementById(containerId);
             if (!container) return;
@@ -3932,7 +3702,6 @@
             });
             container.innerHTML = html;
         }
-
         window.editListItem = function(containerId, index, type) {
             const loc = locations.find(l => l.id === currentLocationId);
             if (!loc) return;
@@ -3946,7 +3715,6 @@
             else list[index].text = newText.trim();
             renderList(containerId, list, type);
         };
-
         window.deleteListItem = function(containerId, index, type) {
             if (!confirm('🗑️ Удалить эту запись?')) return;
             const loc = locations.find(l => l.id === currentLocationId);
@@ -3956,7 +3724,6 @@
             list.splice(index, 1);
             renderList(containerId, list, type);
         };
-
         document.getElementById('add-character').addEventListener('click', function() {
             if (!isAdmin) return;
             const loc = locations.find(l => l.id === currentLocationId);
@@ -3967,7 +3734,6 @@
             loc.characters.push(text.trim());
             renderList('characters-list', loc.characters, 'character');
         });
-
         document.getElementById('add-feature').addEventListener('click', function() {
             if (!isAdmin) return;
             const loc = locations.find(l => l.id === currentLocationId);
@@ -3978,7 +3744,6 @@
             loc.features.push(text.trim());
             renderList('features-list', loc.features, 'feature');
         });
-
         function renderModalGallery(photos) {
             const gallery = document.getElementById('modal-gallery');
             const noPhotos = document.getElementById('modal-no-photos');
@@ -4000,7 +3765,6 @@
                 gallery.appendChild(div);
             });
         }
-
         function openViewerFromModal(locId, index) {
             const loc = locations.find(l => l.id === locId);
             if (!loc || !loc.photos || loc.photos.length === 0) return;
@@ -4013,7 +3777,6 @@
             document.getElementById('photo-viewer-overlay').classList.add('active');
             document.body.style.overflow = 'hidden';
         }
-
         function renderModalAdminPhotos(photos) {
             const container = document.getElementById('modal-photo-admin-list');
             if (!container) return;
@@ -4060,7 +3823,6 @@
                 });
             });
         }
-
         async function saveLocationData(locId) {
             const loc = locations.find(l => l.id == locId);
             if (!loc) return;
@@ -4078,7 +3840,6 @@
                 return false;
             }
         }
-
         function removePhotoFromLocation(locId, url) {
             if (!isAdmin) return;
             if (!confirm('🗑️ Убрать это фото из локации?')) return;
@@ -4094,7 +3855,6 @@
             renderAdminList();
             renderMarkers();
         }
-
         window.updatePhotoCaption = function(locId, index, value) {
             if (!isAdmin) return;
             const loc = locations.find(l => l.id === locId);
@@ -4105,7 +3865,6 @@
             renderModalGallery(loc.photos);
             renderModalAdminPhotos(loc.photos);
         };
-
         window.deletePhotoFromModal = async function(locId, index) {
             if (!isAdmin) return;
             if (!confirm('🗑️ Удалить это фото?')) return;
@@ -4129,12 +3888,10 @@
                 alert('❌ Ошибка удаления фото: ' + e.message);
             }
         };
-
         document.getElementById('modal-upload-btn').addEventListener('click', function() {
             if (!isAdmin) { alert('⛔ Только админ может загружать фото'); return; }
             document.getElementById('modal-file-input').click();
         });
-
         document.getElementById('modal-file-input').addEventListener('change', async function(e) {
             if (!isAdmin) return;
             const files = Array.from(e.target.files);
@@ -4163,7 +3920,6 @@
             renderMarkers();
             document.getElementById('modal-file-input').value = '';
         });
-
         document.getElementById('modal-save-btn').addEventListener('click', async function() {
             if (!isAdmin) return;
             const loc = locations.find(l => l.id === currentLocationId);
@@ -4173,24 +3929,15 @@
             this.textContent = '✅ Сохранено!';
             setTimeout(() => { this.textContent = '💾 Сохранить изменения'; }, 2000);
         });
-
-        document.getElementById('modal-close-btn').addEventListener('click', () => {
-            document.getElementById('location-modal').classList.remove('active');
-            document.body.style.overflow = '';
-        });
-
-        document.getElementById('location-modal').addEventListener('click', (e) => {
+        document.getElementById('location-modal').addEventListener('click', function(e) {
             if (e.target === e.currentTarget) {
                 document.getElementById('location-modal').classList.remove('active');
                 document.body.style.overflow = '';
             }
         });
-
-        // ===== АДМИН-ПАНЕЛЬ =====
         const adminOverlay = document.getElementById('admin-overlay');
         const adminToggleBtn = document.getElementById('admin-toggle-btn');
         const adminCloseBtn = document.getElementById('admin-close-btn');
-
         adminToggleBtn.addEventListener('click', () => {
             adminOverlay.classList.toggle('active');
             if (adminOverlay.classList.contains('active')) {
@@ -4200,13 +3947,11 @@
                 document.body.style.overflow = '';
             }
         });
-
         adminCloseBtn.addEventListener('click', () => {
             adminOverlay.classList.remove('active');
             document.body.style.overflow = '';
             editingId = null;
         });
-
         adminOverlay.addEventListener('click', (e) => {
             if (e.target === e.currentTarget) {
                 adminOverlay.classList.remove('active');
@@ -4214,7 +3959,6 @@
                 editingId = null;
             }
         });
-
         document.getElementById('admin-cancel-edit').addEventListener('click', function() {
             editingId = null;
             document.getElementById('admin-location-name').value = '';
@@ -4226,7 +3970,6 @@
             document.getElementById('admin-photos-grid').innerHTML = '';
             if (routeBuilding) cancelRouteBuilding();
         });
-
         document.querySelectorAll('.admin-tab').forEach(tab => {
             tab.addEventListener('click', function() {
                 document.querySelectorAll('.admin-tab').forEach(t => t.classList.remove('active'));
@@ -4250,7 +3993,6 @@
                 }
             });
         });
-
         async function checkAdminAuth() {
             const { data: { session } } = await supabaseClient.auth.getSession();
             if (session) {
@@ -4275,7 +4017,6 @@
                 renderContactModal();
             }
         }
-
         document.getElementById('admin-login-btn').addEventListener('click', async function() {
             const email = document.getElementById('admin-email').value.trim();
             const password = document.getElementById('admin-password').value;
@@ -4298,14 +4039,12 @@
                 renderContactModal();
             } catch (e) { errorEl.textContent = 'Ошибка входа'; errorEl.style.display = 'block'; }
         });
-
         document.getElementById('admin-password').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') document.getElementById('admin-login-btn').click();
         });
         document.getElementById('admin-email').addEventListener('keydown', function(e) {
             if (e.key === 'Enter') document.getElementById('admin-login-btn').click();
         });
-
         document.getElementById('admin-logout').addEventListener('click', async function() {
             await supabaseClient.auth.signOut();
             isAdmin = false;
@@ -4316,7 +4055,6 @@
             renderLabels();
             renderContactModal();
         });
-
         async function loadAdminLocations() {
             try {
                 const { data, error } = await supabaseClient.from('locations').select('*').order('id', { ascending: true });
@@ -4329,13 +4067,11 @@
                 setAdminStatus('✅ Синхронизировано', 'ok');
             } catch (e) { console.error('Ошибка загрузки:', e); setAdminStatus('⚠️ Ошибка загрузки', 'error'); }
         }
-
         function setAdminStatus(text, type) {
             const el = document.getElementById('admin-sync-status');
             el.textContent = text;
             el.className = type === 'ok' ? 'status-ok' : type === 'error' ? 'status-error' : 'status-syncing';
         }
-
         function renderAdminList() {
             const list = document.getElementById('admin-location-list');
             const count = document.getElementById('loc-count');
@@ -4381,7 +4117,6 @@
             list.innerHTML = html;
             populateLocationSelect();
         }
-
         document.getElementById('admin-add-location').addEventListener('click', function() {
             if (!mapInstance) return;
             mapInstance.setView([0, 0], 1.5);
@@ -4457,7 +4192,6 @@
                 alert('Локация добавлена!');
             });
         });
-
         function editLocation(id) {
             const loc = locations.find(l => l.id === id);
             if (!loc) return;
@@ -4494,7 +4228,6 @@
                 grid.appendChild(div);
             });
         }
-
         window.editPhotoCaptionAdmin = function(locId, photoIdx) {
             const loc = locations.find(l => l.id === locId);
             if (!loc || !loc.photos || !loc.photos[photoIdx]) return;
@@ -4511,7 +4244,6 @@
             editLocation(locId);
             setAdminStatus('✅ Подпись обновлена', 'ok');
         };
-
         window.deletePhotoAdmin = async function(locId, photoIdx) {
             if (!confirm('Удалить это фото?')) return;
             const loc = locations.find(l => l.id === locId);
@@ -4533,7 +4265,6 @@
                 alert('Фото удалено!');
             } catch (e) { console.error('Ошибка удаления фото:', e); alert('Ошибка: ' + e.message); setAdminStatus('⚠️ Ошибка', 'error'); }
         };
-
         async function deleteLocation(id) {
             if (!confirm('Удалить эту локацию?')) return;
             try {
@@ -4558,7 +4289,6 @@
                 alert('Локация удалена!');
             } catch (e) { console.error('Ошибка удаления:', e); alert('Ошибка: ' + e.message); setAdminStatus('⚠️ Ошибка', 'error'); }
         }
-
         async function saveAll() {
             try {
                 for (const loc of locations) {
@@ -4569,9 +4299,7 @@
                 return true;
             } catch (e) { console.error('Ошибка сохранения:', e); setAdminStatus('⚠️ Ошибка', 'error'); alert('Ошибка: ' + e.message); return false; }
         }
-
         document.getElementById('admin-save-all').addEventListener('click', async function() { await saveAll(); });
-
         document.getElementById('admin-save-location').addEventListener('click', async function() {
             if (editingId === null) { alert('Сначала выберите локацию для редактирования.'); return; }
             const loc = locations.find(l => l.id === editingId);
@@ -4590,21 +4318,17 @@
             updateSubcategorySelect();
             alert('Локация сохранена!');
         });
-
         document.getElementById('admin-delete-location').addEventListener('click', function() {
             if (editingId !== null) deleteLocation(editingId);
         });
-
         document.getElementById('admin-file-upload').addEventListener('click', function() {
             if (editingId === null) { alert('Сначала выберите локацию для редактирования.'); return; }
             document.getElementById('admin-file-input').click();
         });
-
         document.getElementById('admin-file-input').addEventListener('change', function(e) {
             selectedFiles = Array.from(e.target.files);
             document.getElementById('admin-file-count').textContent = selectedFiles.length + ' файлов';
         });
-
         document.getElementById('admin-upload-btn').addEventListener('click', async function() {
             if (editingId === null) { alert('Сначала выберите локацию для редактирования.'); return; }
             if (selectedFiles.length === 0) { alert('Выберите файлы для загрузки.'); return; }
@@ -4637,7 +4361,6 @@
             setAdminStatus('✅ Фото загружены', 'ok');
             alert('Фото загружены!');
         });
-
         function renderLocations() {
             const list = document.getElementById('location-list');
             if (!locations || locations.length === 0) {
@@ -4676,7 +4399,6 @@
             });
             list.innerHTML = html || '<li class="empty-msg">Нет локаций в этой категории</li>';
         }
-
         function flyToLocation(id) {
             const loc = locations.find(l => l.id === id);
             if (!loc || !mapInstance) return;
@@ -4684,7 +4406,6 @@
             const marker = markerMap.get(id);
             if (marker) setTimeout(() => marker.openPopup(), 400);
         }
-
         function openViewer(locId, index) {
             const loc = locations.find(l => l.id === locId);
             if (!loc || !loc.photos || loc.photos.length === 0) return;
@@ -4699,9 +4420,7 @@
             touchStartX = 0;
             touchEndX = 0;
         }
-
         let touchStartX = 0, touchEndX = 0;
-
         function updateViewer() {
             const photo = viewerData.photos[viewerData.index];
             const url = typeof photo === 'object' && photo.url ? photo.url : photo;
@@ -4717,7 +4436,6 @@
             if (isAdmin) { saveBtn.classList.remove('hidden'); captionEl.readOnly = false; captionEl.style.cursor = 'text'; } 
             else { saveBtn.classList.add('hidden'); captionEl.readOnly = true; captionEl.style.cursor = 'default'; }
         }
-
         document.getElementById('viewer-caption-save').addEventListener('click', async function() {
             if (viewerData.locId === null || viewerData.index === null) return;
             const loc = locations.find(l => l.id === viewerData.locId);
@@ -4735,32 +4453,26 @@
             this.textContent = '✅ Сохранено!';
             setTimeout(() => { this.textContent = '💾 Сохранить'; }, 2000);
         });
-
         function closeViewer() {
             document.getElementById('photo-viewer-overlay').classList.remove('active');
             document.body.style.overflow = '';
         }
-
         document.getElementById('viewer-close-btn').addEventListener('click', closeViewer);
         document.getElementById('photo-viewer-overlay').addEventListener('click', function(e) {
             if (e.target === this) closeViewer();
         });
-
         function goToPrev() {
             if (viewerData.photos.length === 0) return;
             viewerData.index = (viewerData.index - 1 + viewerData.photos.length) % viewerData.photos.length;
             updateViewer();
         }
-
         function goToNext() {
             if (viewerData.photos.length === 0) return;
             viewerData.index = (viewerData.index + 1) % viewerData.photos.length;
             updateViewer();
         }
-
         document.getElementById('viewer-prev').addEventListener('click', function(e) { e.stopPropagation(); goToPrev(); });
         document.getElementById('viewer-next').addEventListener('click', function(e) { e.stopPropagation(); goToNext(); });
-
         const viewerOverlay = document.getElementById('photo-viewer-overlay');
         viewerOverlay.addEventListener('touchstart', function(e) { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
         viewerOverlay.addEventListener('touchend', function(e) {
@@ -4769,7 +4481,6 @@
             if (Math.abs(diff) < 50) return;
             diff > 0 ? goToNext() : goToPrev();
         }, { passive: true });
-
         document.addEventListener('keydown', function(e) {
             const viewer = document.getElementById('photo-viewer-overlay');
             if (!viewer.classList.contains('active')) return;
@@ -4780,7 +4491,6 @@
                 document.getElementById('viewer-caption-save').click();
             }
         });
-
         document.getElementById('add-country-btn').addEventListener('click', function() {
             if (!isAdmin) {
                 alert('⛔ Только админ может добавлять страны');
@@ -4797,11 +4507,9 @@
             alert(`✅ Страна "${trimmed}" добавлена! Теперь вы можете создавать локации с этой страной.`);
             updateCountryFilter();
         });
-
         document.getElementById('admin-add-country').addEventListener('click', function() {
             document.getElementById('add-country-btn').click();
         });
-
         document.getElementById('admin-save-contacts').addEventListener('click', async function() {
             const value = document.getElementById('admin-contact-textarea').value.trim();
             try {
@@ -4824,7 +4532,6 @@
                 alert('❌ Ошибка: ' + e.message);
             }
         });
-
         window.changeMarkerIcon = changeMarkerIcon;
         window.changeMarkerColor = changeMarkerColor;
         window.editLabelPosition = editLabelPosition;
@@ -4880,7 +4587,6 @@
         window.closeContactModal = closeContactModal;
         window.toggleContactEditorModal = toggleContactEditorModal;
         window.saveContactInfoModal = saveContactInfoModal;
-
         async function startApp() {
             await loadLocations();
             await loadContactInfo();
@@ -4898,7 +4604,6 @@
                 legendCollapsed = true;
             }
         }
-
         startApp();
     </script>
 </body>
